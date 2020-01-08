@@ -6,8 +6,7 @@
 
 # Local
 .env*
-.git*
-.prettier*
+.*ignore
 
 # Generated
 package-lock.json

@@ -1,0 +1,6 @@
+/.storybook
+/docs
+/node_modules
+/src
+.*ignore
+ts*.json

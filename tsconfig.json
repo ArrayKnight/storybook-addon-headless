@@ -1,10 +1,6 @@
 {
     "compileOnSave": false,
     "compilerOptions": {
-        "baseUrl": ".",
-        "paths": {
-            "~*": ["./src/*"]
-        },
         "allowJs": true,
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
