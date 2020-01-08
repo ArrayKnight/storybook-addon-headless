@@ -1,7 +1,3 @@
-const fs = require('fs')
-const path = require('path')
-const root = fs.realpathSync(process.cwd())
-
 module.exports = ({ config }) => {
     config.module.rules.push({
         test: /\.(ts|tsx)$/,
