@@ -13,6 +13,7 @@
         "noStrictGenericChecks": false,
         "noUnusedLocals": true,
         "noUnusedParameters": false,
+        "outDir": "./dist",
         "preserveConstEnums": true,
         "rootDir": "./src",
         "skipLibCheck": true,

@@ -9,6 +9,7 @@
 .*ignore
 
 # Generated
+/dist/
 package-lock.json
 yarn.lock
 

@@ -18,16 +18,23 @@
         "url": "https://github.com/ArrayKnight/storybook-addon-headless/issues"
     },
     "scripts": {
+        "prebuild": "npm run clean",
+        "build": "tsc",
+        "clean": "rm -rf dist",
         "commit": "npm run lint && git add -i && npx git-cz",
         "lint": "tslint --fix -p tsconfig.json -c tslint.json",
         "preinstall": "rm -rf node_modules && rm -f package-lock.json && rm -f yarn.lock",
+        "start": "tsc -w",
+        "prestorybook": "npm run build",
         "storybook": "start-storybook",
         "storybook:build": "build-storybook -o docs",
         "upgrade": "npm-check --update --save-exact"
     },
     "devDependencies": {
+        "@material-ui/core": "4.8.3",
         "@storybook/react": "5.2.8",
         "@types/react": "16.9.17",
+        "babel-loader": "8.0.6",
         "husky": "4.0.1",
         "lint-staged": "9.5.0",
         "npm-check": "5.9.0",

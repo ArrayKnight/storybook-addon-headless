@@ -13,7 +13,5 @@ module.exports = ({ config }) => {
 
     config.resolve.extensions.push('.ts', '.tsx')
 
-    config.resolve.alias['~'] = path.resolve(root, 'src')
-
     return config
 }
