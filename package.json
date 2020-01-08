@@ -4,8 +4,8 @@
     "description": "Storybook addon to preview content from a headless CMS in components",
     "keywords": [
         "storybook",
-        "storybook addon",
-        "headless cms"
+        "storybook-addon",
+        "headless-cms"
     ],
     "author": "Ray Knight <array.knight+github@gmail.com>",
     "license": "ISC",
@@ -13,7 +13,7 @@
         "type": "git",
         "url": "git+https://github.com/ArrayKnight/storybook-addon-headless.git"
     },
-    "homepage": "https://github.com/ArrayKnight/storybook-addon-headless#readme",
+    "homepage": "https://arrayknight.github.io/storybook-addon-headless/",
     "bugs": {
         "url": "https://github.com/ArrayKnight/storybook-addon-headless/issues"
     },
