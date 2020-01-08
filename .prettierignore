@@ -1,0 +1,19 @@
+# IDE
+/.code-workspace/
+/.idea/
+/.settings/
+/.vscode/
+
+# Local
+.env*
+.git*
+.prettier*
+
+# Generated
+package-lock.json
+yarn.lock
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
