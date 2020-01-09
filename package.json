@@ -59,7 +59,9 @@
         "wait-on": "3.3.0"
     },
     "dependencies": {
-        "@storybook/addon-devkit": "^1.3.2"
+        "@storybook/addon-devkit": "^1.3.2",
+        "@storybook/api": "^5.2.8",
+        "@storybook/components": "^5.2.8"
     },
     "peerDependencies": {
         "@storybook/react": "^5.2.8",

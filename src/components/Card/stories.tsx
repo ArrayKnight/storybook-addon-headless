@@ -18,7 +18,18 @@ export default {
     title: 'Card',
 }
 
-export const basic = () => (
+export const RestAPI = () => (
+    <Card>
+        <CardHeader />
+        <CardMedia />
+        <CardContent>
+            <Typography />
+        </CardContent>
+        <CardActions />
+    </Card>
+)
+
+export const GraphQL = () => (
     <Card>
         <CardHeader />
         <CardMedia />

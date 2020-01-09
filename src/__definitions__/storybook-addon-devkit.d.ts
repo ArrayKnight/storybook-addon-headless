@@ -1,6 +1,7 @@
 declare module '@storybook/addon-devkit' {
     import { ElementType, FunctionComponent, ReactNode } from 'react'
     import { types as addonTypes } from '@storybook/addons'
+    import { API } from '@storybook/api'
 
     interface Dictionary<T = any> {
         [key: string]: T
@@ -92,16 +93,48 @@ declare module '@storybook/addon-devkit' {
 
     export function setParameters(): (parameters: Dictionary) => Dictionary
 
-    export const LayoutProvider: FunctionComponent<{ children: ReactNode }>
+    export interface LayoutProviderProps {
+        children: ReactNode
+    }
 
-    export const Layout: FunctionComponent<{
+    export const LayoutProvider: FunctionComponent<LayoutProviderProps>
+
+    export interface Rect {
+        width?: number
+        height?: number
+        isLandscape?: boolean
+    }
+
+    export interface PanelProps {
+        // TODO ...actions
+        // TODO ...selectors
+        api: API
+        active: boolean
+        store: Dictionary
+        setData: () => void
+        kind?: string
+        story?: string // TODO verify type
+        ADDON_ID: string
+        PANEL_ID: string
+        PANEL_Title: string
+        rect: Rect
+        Layout: Layout
+        Block: Block
+        isFirstDataReceived: boolean
+    }
+
+    export interface LayoutProps {
         children: ReactNode
         className?: string
-    }>
+    }
 
-    export const Block: FunctionComponent<{
+    export const Layout: FunctionComponent<LayoutProps>
+
+    export interface BlockProps {
         children: ReactNode
         className?: string
         size?: number
-    }>
+    }
+
+    export const Block: FunctionComponent<BlockProps>
 }
