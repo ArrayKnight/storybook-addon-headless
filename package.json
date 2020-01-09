@@ -1,22 +1,9 @@
 {
     "name": "storybook-addon-headless",
-    "version": "0.0.0",
-    "description": "Storybook addon to preview content from a headless CMS in components",
-    "keywords": [
-        "storybook",
-        "storybook-addon",
-        "headless-cms"
-    ],
     "author": "Ray Knight <array.knight+github@gmail.com>",
+    "description": "Storybook addon to preview content from a headless CMS in components",
+    "version": "0.0.0",
     "license": "ISC",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/ArrayKnight/storybook-addon-headless.git"
-    },
-    "homepage": "https://arrayknight.github.io/storybook-addon-headless/",
-    "bugs": {
-        "url": "https://github.com/ArrayKnight/storybook-addon-headless/issues"
-    },
     "scripts": {
         "prebuild": "npm run clean",
         "build": "rollup -c",
@@ -29,11 +16,27 @@
         "storybook:build": "npm run prestorybook && build-storybook -o docs",
         "upgrade": "npm-check --update --save-exact"
     },
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged",
+            "post-commit": "git push"
+        }
+    },
+    "lint-staged": {
+        "**/*.{ts,tsx,json,md}": [
+            "prettier --write",
+            "git add"
+        ]
+    },
     "devDependencies": {
         "@material-ui/core": "4.8.3",
         "@rollup/plugin-commonjs": "11.0.1",
         "@rollup/plugin-node-resolve": "7.0.0",
         "@rollup/plugin-typescript": "2.1.0",
+        "@storybook/addon-actions": "5.2.8",
+        "@storybook/addon-knobs": "5.2.8",
+        "@storybook/addon-viewport": "5.2.8",
+        "@storybook/addons": "5.2.8",
         "@storybook/react": "5.2.8",
         "@types/react": "16.9.17",
         "babel-loader": "8.0.6",
@@ -52,16 +55,26 @@
     "dependencies": {
         "@storybook/addon-devkit": "^1.3.2"
     },
-    "husky": {
-        "hooks": {
-            "pre-commit": "lint-staged",
-            "post-commit": "git push"
-        }
+    "peerDependencies": {
+        "@storybook/react": "^5.2.8"
     },
-    "lint-staged": {
-        "**/*.{ts,tsx,json,md}": [
-            "prettier --write",
-            "git add"
-        ]
-    }
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ArrayKnight/storybook-addon-headless.git"
+    },
+    "homepage": "https://arrayknight.github.io/storybook-addon-headless/",
+    "bugs": {
+        "url": "https://github.com/ArrayKnight/storybook-addon-headless/issues"
+    },
+    "private": false,
+    "keywords": [
+        "storybook",
+        "storybookjs",
+        "storybook-addon",
+        "addon",
+        "headless",
+        "headless-cms",
+        "rest",
+        "graphql"
+    ]
 }
