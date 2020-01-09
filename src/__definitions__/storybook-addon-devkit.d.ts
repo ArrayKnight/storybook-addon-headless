@@ -6,19 +6,19 @@ declare module '@storybook/addon-devkit' {
         [key: string]: T
     }
 
-    export function setConfig(
-        config: Partial<{
-            addonId: string
-            panelId: string
-            panelTitle: string
-            paramKey: string
-            eventInit: string
-            eventData: string
-            eventBack: string
-        }>,
-    ): void
+    export interface ConfigOptions {
+        addonId?: string
+        panelId?: string
+        panelTitle?: string
+        paramKey?: string
+        eventInit?: string
+        eventData?: string
+        eventBack?: string
+    }
 
-    export function getConfig(): {
+    export function setConfig(config: ConfigOptions): void
+
+    export interface ConfigValues {
         ADDON_ID: string
         PANEL_ID: string
         PANEL_Title: string
@@ -27,6 +27,8 @@ declare module '@storybook/addon-devkit' {
         EVENT_ID_DATA: string
         EVENT_ID_BACK: string
     }
+
+    export function getConfig(): ConfigValues
 
     class ChannelStore {
         // TODO determine what should be public
