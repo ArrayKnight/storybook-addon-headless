@@ -26,11 +26,13 @@
         "preinstall": "rm -rf node_modules && rm -f package-lock.json && rm -f yarn.lock",
         "prestorybook": "npm run build",
         "storybook": "start-storybook",
-        "storybook:build": "build-storybook -o docs",
+        "storybook:build": "npm run prestorybook && build-storybook -o docs",
         "upgrade": "npm-check --update --save-exact"
     },
     "devDependencies": {
         "@material-ui/core": "4.8.3",
+        "@rollup/plugin-commonjs": "11.0.1",
+        "@rollup/plugin-node-resolve": "7.0.0",
         "@rollup/plugin-typescript": "2.1.0",
         "@storybook/react": "5.2.8",
         "@types/react": "16.9.17",
