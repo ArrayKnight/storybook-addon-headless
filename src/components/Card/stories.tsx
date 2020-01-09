@@ -1,5 +1,5 @@
 import {
-    Card,
+    Card as CardBase,
     CardActions,
     CardContent,
     CardHeader,
@@ -7,6 +7,11 @@ import {
     Typography,
 } from '@material-ui/core'
 import React from 'react'
+import styled from 'styled-components'
+
+const Card = styled(CardBase)`
+    max-width: 240px;
+`
 
 export default {
     component: Card,
