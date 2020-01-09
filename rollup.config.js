@@ -1,17 +1,25 @@
-import typescript from '@rollup/plugin-typescript'
+import typescript from 'rollup-plugin-typescript2'
 
-const external = ['react', '@storybook/addon-devkit']
-const plugins = [typescript()]
+import pkg from './package.json'
+
+const external = [
+    ...Object.keys(pkg.dependencies || {}),
+    ...Object.keys(pkg.peerDependencies || {}),
+]
+const options = {
+    clean: true,
+    typescript: require('typescript'),
+}
 
 export default [
     {
         external,
         input: 'src/index.ts',
         output: {
-            file: 'dist/index.js',
+            file: pkg.main,
             format: 'cjs',
         },
-        plugins,
+        plugins: [typescript(options)],
     },
     {
         external,
@@ -20,6 +28,11 @@ export default [
             file: 'dist/register.js',
             format: 'cjs',
         },
-        plugins,
+        plugins: [
+            typescript({
+                ...options,
+                tsconfigOverride: { compilerOptions: { declaration: false } },
+            }),
+        ],
     },
 ]
