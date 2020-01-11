@@ -10,6 +10,7 @@
         "jsx-no-multiline-js": false,
         "jsx-no-target-blank": false,
         "member-ordering": [true, { "order": "fields-first" }],
+        "no-console": false,
         "no-empty-interface": false,
         "no-shadowed-variable": true,
         "object-literal-sort-keys": false,

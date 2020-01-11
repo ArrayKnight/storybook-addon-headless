@@ -10,23 +10,27 @@ const options = {
     clean: true,
     typescript: require('typescript'),
 }
+const output = {
+    format: 'esm',
+    preferConst: true,
+}
 
 export default [
     {
         external,
         input: 'src/index.ts',
         output: {
+            ...output,
             file: pkg.main,
-            format: 'cjs',
         },
         plugins: [typescript(options)],
     },
     {
         external,
-        input: 'src/register.ts',
+        input: 'src/register.tsx',
         output: {
+            ...output,
             file: 'dist/register.js',
-            format: 'cjs',
         },
         plugins: [
             typescript({

@@ -1,3 +1,4 @@
+import styled from '@emotion/styled'
 import {
     Card as CardBase,
     CardActions,
@@ -7,7 +8,6 @@ import {
     Typography,
 } from '@material-ui/core'
 import React from 'react'
-import styled from 'styled-components'
 
 const Card = styled(CardBase)`
     max-width: 240px;
@@ -16,26 +16,39 @@ const Card = styled(CardBase)`
 export default {
     component: Card,
     title: 'Card',
+    parameters: {
+        headless: {
+            restApi: {},
+        },
+    },
 }
 
-export const RestAPI = () => (
-    <Card>
-        <CardHeader />
-        <CardMedia />
-        <CardContent>
-            <Typography />
-        </CardContent>
-        <CardActions />
-    </Card>
-)
+export const RestAPI = (...args) => {
+    console.log(...args)
 
-export const GraphQL = () => (
-    <Card>
-        <CardHeader />
-        <CardMedia />
-        <CardContent>
-            <Typography />
-        </CardContent>
-        <CardActions />
-    </Card>
-)
+    return (
+        <Card>
+            <CardHeader />
+            <CardMedia />
+            <CardContent>
+                <Typography />
+            </CardContent>
+            <CardActions />
+        </Card>
+    )
+}
+
+export const GraphQL = (...args) => {
+    console.log(...args)
+
+    return (
+        <Card>
+            <CardHeader />
+            <CardMedia />
+            <CardContent>
+                <Typography />
+            </CardContent>
+            <CardActions />
+        </Card>
+    )
+}

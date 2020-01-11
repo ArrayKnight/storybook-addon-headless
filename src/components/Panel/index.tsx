@@ -1,10 +1,42 @@
-import { Layout, PanelProps } from '@storybook/addon-devkit'
-import React from 'react'
+import {
+    useAddonState,
+    useChannel,
+    useParameter,
+    useStorybookApi,
+} from '@storybook/api'
+import DefaultClient from 'apollo-boost'
+import gql from 'graphql-tag'
+import React, { memo } from 'react'
 
-export const Panel = (props: PanelProps) => {
-    // console.log(props)
+import { ADDON_ID, PARAM_KEY } from '../../config'
+import { Root } from './styled'
 
-    return <Layout>Panel</Layout>
-}
+export const Panel = memo(() => {
+    const api = useStorybookApi()
+    const [state] = useAddonState(ADDON_ID)
+    const parameter = useParameter(PARAM_KEY)
+    const emit = useChannel({
+        restApi: (instance) => {
+            console.log({ instance })
+        },
+        graphQL: (instance: DefaultClient<any>) => {
+            console.log({ instance })
 
-export default Panel
+            console.log(
+                instance.query({
+                    query: gql`
+                        {
+                            countries {
+                                name
+                            }
+                        }
+                    `,
+                }),
+            )
+        },
+    })
+
+    console.log({ api, emit, state, parameter })
+
+    return <Root>Panel</Root>
+})
