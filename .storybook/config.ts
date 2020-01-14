@@ -4,8 +4,11 @@ import { headlessDecorator } from '../dist'
 
 addDecorator(
     headlessDecorator({
-        graphQL: {
-            uri: 'https://countries.trevorblades.com/',
+        graphql: {
+            uri: 'https://metaphysics-production.artsy.net/',
+        },
+        restful: {
+            baseURL: 'https://jsonplaceholder.typicode.com/',
         },
     }),
 )
