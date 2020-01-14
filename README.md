@@ -17,3 +17,7 @@ Then, configure it as an addon by adding it to your `addons.js` file (located in
 import 'storybook-addon-headless/register'
 ```
 -->
+
+<!--
+For reference: https://storybookjs-next.now.sh/official-storybook/?path=/story/*
+-->

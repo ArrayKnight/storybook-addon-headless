@@ -1,18 +1,17 @@
-import {
-    useAddonState,
-    useChannel,
-    useParameter,
-    useStorybookApi,
-} from '@storybook/api'
+import { useAddonState, useChannel, useParameter } from '@storybook/api'
 import { TabsState } from '@storybook/components'
-import React, { memo } from 'react'
+import React from 'react'
 
-import { ADDON_ID, EVENT_INIT, PARAM_KEY } from '../../config'
+import { ADDON_ID, /*EVENT_DATA, */ EVENT_INIT, PARAM_KEY } from '../../config'
 import { HeadlessOptions, HeadlessParameters, HeadlessState } from '../../types'
-import { Root } from './styled'
+import { Variables } from '../Variables'
+import { Content, Root, TabContent } from './styled'
 
-export const Panel = memo(() => {
-    const api = useStorybookApi()
+interface Props {
+    active: boolean
+}
+
+export const Panel = ({ active }: Props) => {
     const [state, setState] = useAddonState<HeadlessState>(ADDON_ID, {
         isReady: false,
         options: {},
@@ -20,7 +19,7 @@ export const Panel = memo(() => {
     })
     const parameter = useParameter<HeadlessParameters>(PARAM_KEY, {})
     const parameters = Object.entries(parameter)
-    const emit = useChannel({
+    /*const emit = */ useChannel({
         [EVENT_INIT]: (options: HeadlessOptions) => {
             setState({
                 isReady: true,
@@ -30,29 +29,47 @@ export const Panel = memo(() => {
         },
     })
 
-    // TODO create instances
+    /*function setData(data: HeadlessState['data']): void {
+        setState({
+            ...state,
+            data: {
+                ...state.data,
+                ...data,
+            },
+        })
+
+        emit(EVENT_DATA, {
+            ...state.data,
+            ...data,
+        })
+    }*/
+
     // TODO create forms
     // TODO create inputs/outputs
-    // TODO call queries on submit
+    // TODO create instances, call queries on submit
     // TODO handle query state
     // TODO pass data through channel to decorator
     // TODO create data editor + pass edited data through channel to decorator
 
-    console.log({ api, emit, state, parameters })
-
-    if (state.isReady && parameters.length > 0) {
+    if (active && state.isReady && parameters.length > 0) {
         return (
             <Root>
-                <TabsState>
-                    {parameters.map(([name, param]) => (
-                        <div key={name} id={name} title={name}>
-                            {name}
-                        </div>
-                    ))}
-                </TabsState>
+                <Content>
+                    <TabsState>
+                        {parameters.map(([name, config]) => {
+                            return (
+                                <div key={name} id={name} title={name}>
+                                    <TabContent>
+                                        <Variables parameter={config} />
+                                    </TabContent>
+                                </div>
+                            )
+                        })}
+                    </TabsState>
+                </Content>
             </Root>
         )
     }
 
     return null
-})
+}

@@ -18,6 +18,12 @@ export interface HeadlessOptions {
     graphql?: PresetConfig
 }
 
+export type HeadlessParameter = string | DocumentNode | ApiParameters
+
+export interface HeadlessParameters {
+    [name: string]: HeadlessParameter
+}
+
 export interface HeadlessState {
     isReady: boolean
     options: HeadlessOptions
@@ -40,10 +46,8 @@ export interface RestfulParameters {
     variables: VariableParameters
 }
 
-export interface HeadlessParameters {
-    [name: string]:
-        | string
-        | DocumentNode
-        | GraphQLParameters
-        | RestfulParameters
+export type ApiParameters = GraphQLParameters | RestfulParameters
+
+export interface Document {
+    kind: 'Document'
 }

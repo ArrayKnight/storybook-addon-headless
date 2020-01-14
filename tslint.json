@@ -6,6 +6,7 @@
         "tslint-config-prettier"
     ],
     "rules": {
+        "ban-types": false,
         "interface-name": false,
         "jsx-no-multiline-js": false,
         "jsx-no-target-blank": false,

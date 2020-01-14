@@ -1,5 +1,4 @@
 import { addons, types } from '@storybook/addons'
-import { AddonPanel } from '@storybook/components'
 import React from 'react'
 
 import { Panel } from './components'
@@ -12,10 +11,6 @@ addons.register(ADDON_ID, () => {
         paramKey: PARAM_KEY,
         route: ({ storyId }) => `/${ADDON_ID}/${storyId}`,
         match: ({ viewMode }) => viewMode === ADDON_ID,
-        render: ({ active, key }) => (
-            <AddonPanel active={active} key={key}>
-                <Panel />
-            </AddonPanel>
-        ),
+        render: ({ active, key }) => <Panel active={active} />,
     })
 })

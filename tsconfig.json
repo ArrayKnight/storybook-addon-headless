@@ -1,13 +1,14 @@
 {
     "compileOnSave": false,
     "compilerOptions": {
-        "allowJs": true,
         "allowSyntheticDefaultImports": true,
         "declaration": true,
         "declarationDir": "./dist",
+        "emitDecoratorMetadata": true,
         "esModuleInterop": true,
+        "experimentalDecorators": true,
         "jsx": "react",
-        "lib": ["dom", "esnext"],
+        "lib": ["es2017", "dom"],
         "module": "esnext",
         "moduleResolution": "node",
         "noImplicitAny": true,
@@ -16,13 +17,11 @@
         "noUnusedLocals": true,
         "noUnusedParameters": false,
         "outDir": "./dist",
-        "preserveConstEnums": true,
         "rootDir": "./src",
+        "skipDefaultLibCheck": true,
         "skipLibCheck": true,
         "sourceMap": true,
         "sourceRoot": "./src",
-        "strict": true,
-        "strictPropertyInitialization": false,
         "target": "es5"
     },
     "include": ["src"]
