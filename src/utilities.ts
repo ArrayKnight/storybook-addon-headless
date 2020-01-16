@@ -1,6 +1,6 @@
-import { array, number, NumberSchema, object, string, StringSchema } from 'yup'
+import Ajv from 'ajv'
 
-import { Document } from './types'
+import { Document, NumberSchema, Schema, StringSchema } from './types'
 
 export function functionToTag(func: Function): string {
     return Function.prototype.toString.call(func)
@@ -30,8 +30,8 @@ export function isNull(value: any): value is null {
 
 export function isNumberSchema(value: any): value is NumberSchema {
     return (
-        !isNil(value) &&
-        typeToString(value.constructor) === typeToString(number().constructor)
+        isObject<Schema>(value) &&
+        (value.type === 'integer' || value.type === 'number')
     )
 }
 
@@ -61,33 +61,46 @@ export function isObjectLike(value: any): boolean {
     return !isNull(value) && typeof value === 'object'
 }
 
-const DocumentSchema = object().shape({
-    kind: string()
-        .matches(/^Document$/)
-        .required(),
-    definitions: array()
-        .of(
-            object().shape({
-                kind: string().matches(/^OperationDefinition$/),
-                // TODO more validation needed?
-            }),
-        )
-        .required()
-        .min(1),
-    loc: object()
-        .shape({
-            start: number()
-                .integer()
-                .required(),
-            end: number()
-                .integer()
-                .required(),
-        })
-        .required(),
+const ajv = new Ajv()
+const validateDocument = ajv.compile({
+    type: 'object',
+    properties: {
+        kind: {
+            type: 'string',
+            pattern: '^Document$',
+        },
+        definitions: {
+            type: 'array',
+            items: {
+                type: 'object',
+                properties: {
+                    kind: {
+                        type: 'string',
+                        pattern: '^OperationDefinition$',
+                    },
+                },
+                required: ['kind'],
+            },
+            minItems: 1,
+        },
+        loc: {
+            type: 'object',
+            properties: {
+                start: {
+                    type: 'integer',
+                },
+                end: {
+                    type: 'integer',
+                },
+            },
+            required: ['start', 'end'],
+        },
+    },
+    required: ['kind', 'definitions', 'loc'],
 })
 
 export function isQuery(value: any): value is Document {
-    return isObject<Document>(value) && DocumentSchema.isValidSync(value)
+    return isObject<Document>(value) && !!validateDocument(value)
 }
 
 export function isString(value: any): value is string {
@@ -95,10 +108,7 @@ export function isString(value: any): value is string {
 }
 
 export function isStringSchema(value: any): value is StringSchema {
-    return (
-        !isNil(value) &&
-        typeToString(value.constructor) === typeToString(string().constructor)
-    )
+    return isObject<Schema>(value) && value.type === 'string'
 }
 
 export function isUndefined(value: any): value is undefined {

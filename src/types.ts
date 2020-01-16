@@ -1,6 +1,5 @@
 import { DocumentNode, PresetConfig } from 'apollo-boost'
 import { AxiosRequestConfig } from 'axios'
-import { Schema } from 'yup'
 
 interface Dictionary<T = any> {
     [key: string]: T
@@ -31,7 +30,7 @@ export interface HeadlessState {
 }
 
 export interface VariableParameters {
-    [name: string]: Schema<any>
+    [name: string]: object
 }
 
 export interface GraphQLParameters {
@@ -50,4 +49,18 @@ export type ApiParameters = GraphQLParameters | RestfulParameters
 
 export interface Document {
     kind: 'Document'
+    // TODO
+}
+
+export interface Schema {
+    type: string
+    // TODO
+}
+
+export interface NumberSchema {
+    type: 'number' | 'integer'
+}
+
+export interface StringSchema {
+    type: 'string'
 }

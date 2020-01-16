@@ -3,9 +3,10 @@ import React from 'react'
 
 import { ApiParameters, HeadlessParameter } from '../../types'
 import { isQuery, isString } from '../../utilities'
-import { Field } from './styled'
+import { Variable } from '../Variable'
+import { Fieldset } from './styled'
 
-const { Button, Input } = Form
+const { Button } = Form
 
 interface Props {
     parameter: HeadlessParameter
@@ -20,14 +21,12 @@ export const Variables = ({ parameter }: Props) => {
 
     return (
         <>
-            {variables.map(([name, schema]) => {
-                return (
-                    <Field key={name} label={name}>
-                        <Input />
-                    </Field>
-                )
-            })}
-            {!!variables.length && <Button disabled={true}>Submit</Button>}
+            <Fieldset>
+                {variables.map(([name, schema]) => (
+                    <Variable key={name} name={name} schema={schema} />
+                ))}
+            </Fieldset>
+            <Button disabled={true}>Fetch</Button>
         </>
     )
 }

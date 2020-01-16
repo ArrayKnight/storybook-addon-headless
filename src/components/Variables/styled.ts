@@ -1,6 +1,7 @@
 import styled from '@emotion/styled'
-import { Form } from '@storybook/components'
 
-export const Field = styled(Form.Field)`
-    margin: 0;
+export const Fieldset = styled.fieldset`
+    padding: 0;
+    border: 0;
+    margin: 0 -15px;
 `

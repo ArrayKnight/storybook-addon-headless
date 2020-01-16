@@ -18,7 +18,8 @@
         "prestorybook": "wait-on dist/register.js",
         "storybook:start": "npm run prestorybook && start-storybook -p 4000",
         "storybook:build": "npm run prestorybook && build-storybook -o docs",
-        "upgrade": "npm-check --update --save-exact"
+        "upgrade:dep": "npm-check --update --production",
+        "upgrade:dev": "npm-check --update --dev-only --save-exact"
     },
     "husky": {
         "hooks": {
@@ -61,14 +62,15 @@
     "dependencies": {
         "@emotion/core": "^10.0.27",
         "@emotion/styled": "^10.0.27",
-        "@storybook/addons": "5.3.3",
-        "@storybook/api": "5.3.3",
-        "@storybook/components": "5.3.3",
-        "@storybook/core-events": "5.3.3",
+        "@storybook/addons": "^5.3.3",
+        "@storybook/api": "^5.3.3",
+        "@storybook/components": "^5.3.3",
+        "@storybook/core-events": "^5.3.3",
+        "@storybook/theming": "^5.3.3",
+        "ajv": "^6.10.2",
         "apollo-boost": "^0.4.7",
         "axios": "^0.19.1",
-        "graphql": "^14.5.8",
-        "yup": "0.28.0"
+        "graphql": "^14.5.8"
     },
     "peerDependencies": {
         "@storybook/react": "^5.2.8",

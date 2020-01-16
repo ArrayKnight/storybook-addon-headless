@@ -9,7 +9,6 @@ import {
 } from '@material-ui/core'
 import gql from 'graphql-tag'
 import React from 'react'
-import { number, string } from 'yup'
 
 const Card = styled(CardBase)`
     max-width: 240px;
@@ -41,20 +40,21 @@ export default {
                     }
                 `,
                 variables: {
-                    code: string()
-                        .required()
-                        .min(2)
-                        .max(2),
+                    code: {
+                        type: 'string',
+                        minLength: 2,
+                        maxLength: 2,
+                    },
                 },
             },
             Users: 'users',
             User: {
                 query: 'users/{id}',
                 variables: {
-                    id: number()
-                        .required()
-                        .integer()
-                        .min(1),
+                    id: {
+                        type: 'integer',
+                        minimum: 1,
+                    },
                 },
             },
         },
