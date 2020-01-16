@@ -10,18 +10,8 @@ export function objectToTag(obj: object): string {
     return Object.prototype.toString.call(obj)
 }
 
-export function typeToString(type: Function | object): string {
-    return isFunction(type)
-        ? functionToTag(type).match(/^function (\w+)/)[1]
-        : objectToTag(type).match(/^\[object (\w+)/)[1]
-}
-
 export function isFunction(value: any): value is Function {
     return typeof value === 'function'
-}
-
-export function isNil(value: any): boolean {
-    return isNull(value) || isUndefined(value)
 }
 
 export function isNull(value: any): value is null {
@@ -61,8 +51,7 @@ export function isObjectLike(value: any): boolean {
     return !isNull(value) && typeof value === 'object'
 }
 
-const ajv = new Ajv()
-const validateDocument = ajv.compile({
+const validateDocument = new Ajv().compile({
     type: 'object',
     properties: {
         kind: {
@@ -73,13 +62,7 @@ const validateDocument = ajv.compile({
             type: 'array',
             items: {
                 type: 'object',
-                properties: {
-                    kind: {
-                        type: 'string',
-                        pattern: '^OperationDefinition$',
-                    },
-                },
-                required: ['kind'],
+                // TODO any more validation necessary?
             },
             minItems: 1,
         },
@@ -109,8 +92,4 @@ export function isString(value: any): value is string {
 
 export function isStringSchema(value: any): value is StringSchema {
     return isObject<Schema>(value) && value.type === 'string'
-}
-
-export function isUndefined(value: any): value is undefined {
-    return value === undefined
 }

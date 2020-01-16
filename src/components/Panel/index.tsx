@@ -3,7 +3,12 @@ import { TabsState } from '@storybook/components'
 import React from 'react'
 
 import { ADDON_ID, /*EVENT_DATA, */ EVENT_INIT, PARAM_KEY } from '../../config'
-import { HeadlessOptions, HeadlessParameters, HeadlessState } from '../../types'
+import {
+    Dictionary,
+    HeadlessOptions,
+    HeadlessParameters,
+    HeadlessState,
+} from '../../types'
 import { Variables } from '../Variables'
 import { Content, Root, TabContent } from './styled'
 
@@ -44,6 +49,10 @@ export const Panel = ({ active }: Props) => {
         })
     }*/
 
+    function onFetch(variables: Dictionary): void {
+        console.log(variables)
+    }
+
     // TODO create forms
     // TODO create inputs/outputs
     // TODO create instances, call queries on submit
@@ -60,7 +69,10 @@ export const Panel = ({ active }: Props) => {
                             return (
                                 <div key={name} id={name} title={name}>
                                     <TabContent>
-                                        <Variables parameter={config} />
+                                        <Variables
+                                            parameter={config}
+                                            onFetch={onFetch}
+                                        />
                                     </TabContent>
                                 </div>
                             )

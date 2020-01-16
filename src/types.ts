@@ -1,7 +1,7 @@
 import { DocumentNode, PresetConfig } from 'apollo-boost'
 import { AxiosRequestConfig } from 'axios'
 
-interface Dictionary<T = any> {
+export interface Dictionary<T = any> {
     [key: string]: T
 }
 
@@ -31,6 +31,11 @@ export interface HeadlessState {
 
 export interface VariableParameters {
     [name: string]: object
+}
+
+export interface VariableState {
+    value: any
+    isValid: boolean
 }
 
 export interface GraphQLParameters {
