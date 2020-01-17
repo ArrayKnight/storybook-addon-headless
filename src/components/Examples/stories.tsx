@@ -16,7 +16,7 @@ const Card = styled(CardBase)`
 
 export default {
     component: Card,
-    title: 'Card',
+    title: 'Examples',
     parameters: {
         headless: {
             Artworks: gql`
@@ -62,7 +62,7 @@ export default {
 }
 
 export const RestAPI = (...args: any[]) => {
-    console.log(...args)
+    // console.log(...args)
 
     return (
         <Card>
@@ -77,7 +77,7 @@ export const RestAPI = (...args: any[]) => {
 }
 
 export const GraphQL = (...args: any[]) => {
-    console.log(...args)
+    // console.log(...args)
 
     return (
         <Card>

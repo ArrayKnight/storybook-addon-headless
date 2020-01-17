@@ -3,13 +3,13 @@ import { background } from '@storybook/theming'
 
 export const Root = styled.div`
     width: 100%;
-    height: 100%;
+    min-height: 100%;
     background: ${background.app};
     position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+
+    *:focus {
+        outline: none;
+    }
 `
 
 export const Content = styled.div`
@@ -22,5 +22,12 @@ export const Content = styled.div`
 `
 
 export const TabContent = styled.div`
-    padding: 10px 0;
+    padding-top: 10px;
+`
+
+export const Separator = styled.hr`
+    border: 0;
+    height: 20px;
+    margin: 20px -20px;
+    background: ${background.app};
 `

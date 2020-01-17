@@ -31,6 +31,7 @@ export interface HeadlessState {
     isReady: boolean
     options: HeadlessOptions
     data: Dictionary
+    errors: Dictionary
 }
 
 export interface VariableParameters {

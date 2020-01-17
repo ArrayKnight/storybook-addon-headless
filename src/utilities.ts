@@ -54,6 +54,16 @@ export function createRestfulPromise(
     }).then(({ data }) => data)
 }
 
+export function errorToJSON(error: Error): Dictionary {
+    return Object.getOwnPropertyNames(error).reduce(
+        (obj, key) => ({
+            ...obj,
+            [key]: (error as Dictionary)[key],
+        }),
+        {},
+    )
+}
+
 export function functionToTag(func: Function): string {
     return Function.prototype.toString.call(func)
 }

@@ -1,8 +1,9 @@
 import { useAddonState, useChannel, useParameter } from '@storybook/api'
 import { TabsState } from '@storybook/components'
 import React from 'react'
+import Json from 'react-json-view'
 
-import { ADDON_ID, EVENT_DATA, EVENT_INIT, PARAM_KEY } from '../../config'
+import { ADDON_ID, EVENT_DATA, EVENT_OPTS, PARAM_KEY } from '../../config'
 import {
     ApiParameters,
     Dictionary,
@@ -13,13 +14,14 @@ import {
 import {
     createGraphQLPromise,
     createRestfulPromise,
+    errorToJSON,
     isGraphQLParameters,
     isQuery,
     isRestfulParameters,
     isString,
 } from '../../utilities'
 import { Variables } from '../Variables'
-import { Content, Root, TabContent } from './styled'
+import { Content, Root, Separator, TabContent } from './styled'
 
 interface Props {
     active: boolean
@@ -30,18 +32,42 @@ export const Panel = ({ active }: Props) => {
         isReady: false,
         options: {},
         data: {},
+        errors: {},
     })
     const parameter = useParameter<HeadlessParameters>(PARAM_KEY, {})
     const parameters = Object.entries(parameter)
     const emit = useChannel({
-        [EVENT_INIT]: (options: HeadlessOptions) => {
+        [EVENT_OPTS]: (options: HeadlessOptions) => {
             setState({
+                ...state,
                 isReady: true,
                 options,
-                data: {},
+            })
+
+            emit(EVENT_DATA, {
+                ...state.data,
             })
         },
     })
+
+    function resetData(name: string): void {
+        setState({
+            ...state,
+            data: {
+                ...state.data,
+                [name]: null,
+            },
+            errors: {
+                ...state.errors,
+                [name]: null,
+            },
+        })
+
+        emit(EVENT_DATA, {
+            ...state.data,
+            [name]: null,
+        })
+    }
 
     function setData(name: string): (data: HeadlessState['data']) => void {
         return (data) => {
@@ -50,6 +76,10 @@ export const Panel = ({ active }: Props) => {
                 data: {
                     ...state.data,
                     [name]: data,
+                },
+                errors: {
+                    ...state.errors,
+                    [name]: null,
                 },
             })
 
@@ -60,12 +90,33 @@ export const Panel = ({ active }: Props) => {
         }
     }
 
+    function setError(name: string): (error: Error) => void {
+        return (error) => {
+            setState({
+                ...state,
+                data: {
+                    ...state.data,
+                    [name]: null,
+                },
+                errors: {
+                    ...state.errors,
+                    [name]: errorToJSON(error),
+                },
+            })
+        }
+    }
+
     function onFetch(
         name: string,
         params: ApiParameters,
     ): (variables: Dictionary) => Promise<any> {
         return (variables) => {
+            const setDataTo = setData(name)
+            const setErrorTo = setError(name)
+
             if (isGraphQLParameters(params)) {
+                resetData(name)
+
                 return createGraphQLPromise(
                     state.options.graphql || {},
                     params,
@@ -74,14 +125,18 @@ export const Panel = ({ active }: Props) => {
             }
 
             if (isRestfulParameters(params)) {
+                resetData(name)
+
                 return createRestfulPromise(
                     state.options.restful || {},
                     params,
                     variables,
-                ).then(setData(name))
+                )
+                    .then(setDataTo)
+                    .catch(setErrorTo)
             }
 
-            return Promise.reject()
+            return Promise.reject('Invalid config, skipping fetch')
         }
     }
 
@@ -113,6 +168,22 @@ export const Panel = ({ active }: Props) => {
                                             parameters={params}
                                             onFetch={onFetch(name, params)}
                                         />
+                                        {(!!state.data[name] ||
+                                            !!state.errors[name]) && (
+                                            <>
+                                                <Separator />
+                                                <Json
+                                                    src={
+                                                        state.data[name] ||
+                                                        state.errors[name]
+                                                    }
+                                                    name={null}
+                                                    iconStyle="square"
+                                                    displayObjectSize={false}
+                                                    displayDataTypes={false}
+                                                />
+                                            </>
+                                        )}
                                     </TabContent>
                                 </div>
                             )

@@ -34,10 +34,11 @@ export const Variables = ({ parameters, onFetch }: Props) => {
         ),
     )
     const [status, setStatus] = useState(FetchStatus.Inactive)
-    const { inactive, loading, rejected } = {
+    const { inactive, loading, rejected, resolved } = {
         inactive: status === FetchStatus.Inactive,
         loading: status === FetchStatus.Loading,
         rejected: status === FetchStatus.Rejected,
+        resolved: status === FetchStatus.Resolved,
     }
 
     function onChange(name: string): (state: VariableState) => void {
@@ -87,7 +88,7 @@ export const Variables = ({ parameters, onFetch }: Props) => {
                     />
                 ))}
             </Fieldset>
-            <Button disabled={!valid || loading} onClick={onClick}>
+            <Button disabled={!valid || loading || resolved} onClick={onClick}>
                 {!inactive && (
                     <Icons
                         icon={
