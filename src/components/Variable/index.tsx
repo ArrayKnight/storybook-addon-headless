@@ -4,6 +4,7 @@ import React, { ChangeEvent, useEffect, useState } from 'react'
 
 import { VariableState } from '../../types'
 import { isNumberSchema, isStringSchema } from '../../utilities'
+import { Error, Row } from './styled'
 
 const { Field, Input } = Form
 const ajv = new Ajv()
@@ -14,7 +15,7 @@ interface Props {
     onChange: (state: VariableState) => void
 }
 
-export const Variable = ({ name, schema, onChange: notifyOnChange }: Props) => {
+export const Variable = ({ name, schema, onChange }: Props) => {
     const [valid, setValid] = useState(true)
     const [validate, setValidate] = useState<ValidateFunction>(() => () =>
         false,
@@ -23,12 +24,12 @@ export const Variable = ({ name, schema, onChange: notifyOnChange }: Props) => {
     const isString = isStringSchema(schema)
     const [error] = validate.errors || []
 
-    function onChange(value: any): void {
+    function onValueChange(value: any): void {
         const isValid = !!validate(value)
 
         setValid(isValid)
 
-        notifyOnChange({
+        onChange({
             value,
             isValid,
         })
@@ -37,7 +38,7 @@ export const Variable = ({ name, schema, onChange: notifyOnChange }: Props) => {
     function onInputChange(event: ChangeEvent<HTMLInputElement>): void {
         const { value } = event.target
 
-        onChange(isNumber ? parseFloat(value) : value)
+        onValueChange(isNumber ? parseFloat(value) : value)
     }
 
     useEffect(() => {
@@ -49,7 +50,7 @@ export const Variable = ({ name, schema, onChange: notifyOnChange }: Props) => {
         // TODO value will differ based on schema
         const value = ''
 
-        notifyOnChange({
+        onChange({
             value,
             isValid: !!validate(value),
         })
@@ -57,12 +58,14 @@ export const Variable = ({ name, schema, onChange: notifyOnChange }: Props) => {
 
     return isNumber || isString ? (
         <Field label={name}>
-            <Input
-                type={isNumber ? 'number' : 'string'}
-                valid={valid ? null : 'error'}
-                onChange={onInputChange}
-            />
-            {!valid && !!error && <span>{error.message}</span>}
+            <Row>
+                <Input
+                    type={isNumber ? 'number' : 'string'}
+                    valid={valid ? null : 'error'}
+                    onChange={onInputChange}
+                />
+                {!valid && !!error && <Error>{error.message}</Error>}
+            </Row>
         </Field>
     ) : null
     // TODO support more schemas:
