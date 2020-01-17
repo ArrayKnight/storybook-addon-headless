@@ -1,9 +1,11 @@
-import { Form } from '@storybook/components'
+import { Form, Icons } from '@storybook/components'
+import { ThemeProvider } from '@storybook/theming'
 import React, { useState } from 'react'
 
 import {
     ApiParameters,
     Dictionary,
+    FetchStatus,
     HeadlessParameter,
     VariableState,
 } from '../../types'
@@ -15,7 +17,7 @@ const { Button } = Form
 
 interface Props {
     parameter: HeadlessParameter
-    onFetch: (variables: Dictionary) => void
+    onFetch: (variables: Dictionary) => Promise<any>
 }
 
 export const Variables = ({ parameter, onFetch }: Props) => {
@@ -37,6 +39,14 @@ export const Variables = ({ parameter, onFetch }: Props) => {
             }
         }, {}),
     )
+    const [status, setStatus] = useState(FetchStatus.Inactive)
+    const statuses = {
+        inactive: status === FetchStatus.Inactive,
+        loading: status === FetchStatus.Loading,
+        rejected: status === FetchStatus.Rejected,
+        resolved: status === FetchStatus.Resolved,
+    }
+    const { inactive, loading, rejected } = statuses
 
     function onChange(name: string): (state: VariableState) => void {
         return (state) => {
@@ -44,6 +54,8 @@ export const Variables = ({ parameter, onFetch }: Props) => {
                 ...values,
                 [name]: state,
             }
+
+            setStatus(FetchStatus.Inactive)
 
             setValues(states)
 
@@ -56,6 +68,8 @@ export const Variables = ({ parameter, onFetch }: Props) => {
     }
 
     function onClick(): void {
+        setStatus(FetchStatus.Loading)
+
         onFetch(
             variables.reduce((vars, [variable]) => {
                 return {
@@ -64,6 +78,12 @@ export const Variables = ({ parameter, onFetch }: Props) => {
                 }
             }, {}),
         )
+            .then(() => {
+                setStatus(FetchStatus.Resolved)
+            })
+            .catch(() => {
+                setStatus(FetchStatus.Rejected)
+            })
     }
 
     return (
@@ -78,9 +98,18 @@ export const Variables = ({ parameter, onFetch }: Props) => {
                     />
                 ))}
             </Fieldset>
-            <Button disabled={!valid} onClick={onClick}>
-                Fetch
-            </Button>
+            <ThemeProvider theme={statuses}>
+                <Button disabled={!valid || loading} onClick={onClick}>
+                    {!inactive && (
+                        <Icons
+                            icon={
+                                loading ? 'sync' : rejected ? 'delete' : 'check'
+                            }
+                        />
+                    )}
+                    Fetch{inactive ? null : loading ? 'ing' : 'ed'}
+                </Button>
+            </ThemeProvider>
         </>
     )
 }

@@ -49,8 +49,18 @@ export const Panel = ({ active }: Props) => {
         })
     }*/
 
-    function onFetch(variables: Dictionary): void {
+    function onFetch(variables: Dictionary): Promise<any> {
         console.log(variables)
+
+        return new Promise<any>((resolve, reject) => {
+            setTimeout(() => {
+                if (Math.random() > 0.5) {
+                    resolve()
+                } else {
+                    reject()
+                }
+            }, 1000 * 2 * Math.random())
+        })
     }
 
     // TODO create forms

@@ -69,3 +69,10 @@ export interface NumberSchema {
 export interface StringSchema {
     type: 'string'
 }
+
+export enum FetchStatus {
+    Inactive,
+    Loading,
+    Rejected,
+    Resolved,
+}
