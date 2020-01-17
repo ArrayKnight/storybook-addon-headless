@@ -34,7 +34,10 @@ export const Decorator = ({
     )
 
     channel.on(EVENT_DATA, (data: HeadlessState['data']) => {
-        setState(data)
+        setState({
+            ...state,
+            ...data,
+        })
     })
 
     return (

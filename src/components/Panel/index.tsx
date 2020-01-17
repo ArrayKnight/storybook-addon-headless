@@ -2,13 +2,22 @@ import { useAddonState, useChannel, useParameter } from '@storybook/api'
 import { TabsState } from '@storybook/components'
 import React from 'react'
 
-import { ADDON_ID, /*EVENT_DATA, */ EVENT_INIT, PARAM_KEY } from '../../config'
+import { ADDON_ID, EVENT_DATA, EVENT_INIT, PARAM_KEY } from '../../config'
 import {
+    ApiParameters,
     Dictionary,
     HeadlessOptions,
     HeadlessParameters,
     HeadlessState,
 } from '../../types'
+import {
+    createGraphQLPromise,
+    createRestfulPromise,
+    isGraphQLParameters,
+    isQuery,
+    isRestfulParameters,
+    isString,
+} from '../../utilities'
 import { Variables } from '../Variables'
 import { Content, Root, TabContent } from './styled'
 
@@ -24,7 +33,7 @@ export const Panel = ({ active }: Props) => {
     })
     const parameter = useParameter<HeadlessParameters>(PARAM_KEY, {})
     const parameters = Object.entries(parameter)
-    /*const emit = */ useChannel({
+    const emit = useChannel({
         [EVENT_INIT]: (options: HeadlessOptions) => {
             setState({
                 isReady: true,
@@ -34,34 +43,46 @@ export const Panel = ({ active }: Props) => {
         },
     })
 
-    /*function setData(data: HeadlessState['data']): void {
-        setState({
-            ...state,
-            data: {
+    function setData(name: string): (data: HeadlessState['data']) => void {
+        return (data) => {
+            setState({
+                ...state,
+                data: {
+                    ...state.data,
+                    [name]: data,
+                },
+            })
+
+            emit(EVENT_DATA, {
                 ...state.data,
-                ...data,
-            },
-        })
+                [name]: data,
+            })
+        }
+    }
 
-        emit(EVENT_DATA, {
-            ...state.data,
-            ...data,
-        })
-    }*/
+    function onFetch(
+        name: string,
+        params: ApiParameters,
+    ): (variables: Dictionary) => Promise<any> {
+        return (variables) => {
+            if (isGraphQLParameters(params)) {
+                return createGraphQLPromise(
+                    state.options.graphql || {},
+                    params,
+                    variables,
+                ) // TODO .then
+            }
 
-    function onFetch(variables: Dictionary): Promise<any> {
-        console.log(variables)
+            if (isRestfulParameters(params)) {
+                return createRestfulPromise(
+                    state.options.restful || {},
+                    params,
+                    variables,
+                ).then(setData(name))
+            }
 
-        // TODO
-        return new Promise<any>((resolve, reject) => {
-            setTimeout(() => {
-                if (Math.random() > 0.5) {
-                    resolve()
-                } else {
-                    reject()
-                }
-            }, 1000 * 2 * Math.random())
-        })
+            return Promise.reject()
+        }
     }
 
     // TODO create forms
@@ -76,16 +97,26 @@ export const Panel = ({ active }: Props) => {
             <Root>
                 <Content>
                     <TabsState>
-                        {parameters.map(([name, config]) => (
-                            <div key={name} id={name} title={name}>
-                                <TabContent>
-                                    <Variables
-                                        parameter={config}
-                                        onFetch={onFetch}
-                                    />
-                                </TabContent>
-                            </div>
-                        ))}
+                        {parameters.map(([name, config]) => {
+                            const params: ApiParameters =
+                                isString(config) || isQuery(config)
+                                    ? ({
+                                          query: config,
+                                          variables: {},
+                                      } as ApiParameters)
+                                    : config
+
+                            return (
+                                <div key={name} id={name} title={name}>
+                                    <TabContent>
+                                        <Variables
+                                            parameters={params}
+                                            onFetch={onFetch(name, params)}
+                                        />
+                                    </TabContent>
+                                </div>
+                            )
+                        })}
                     </TabsState>
                 </Content>
             </Root>

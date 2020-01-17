@@ -12,9 +12,13 @@ type UnsupportedAxiosOptions =
     | 'transformResponse'
     | 'adapter'
 
+export type RestfulOptions = Omit<AxiosRequestConfig, UnsupportedAxiosOptions>
+
+export type GraphQLOptions = PresetConfig
+
 export interface HeadlessOptions {
-    restful?: Omit<AxiosRequestConfig, UnsupportedAxiosOptions>
-    graphql?: PresetConfig
+    restful?: RestfulOptions
+    graphql?: GraphQLOptions
 }
 
 export type HeadlessParameter = string | DocumentNode | ApiParameters
@@ -42,12 +46,15 @@ export interface GraphQLParameters {
     config?: PresetConfig
     query: DocumentNode
     variables: VariableParameters
+    defaults?: Dictionary
 }
 
 export interface RestfulParameters {
     config?: AxiosRequestConfig
     query: string
     variables: VariableParameters
+    defaults?: Dictionary
+    convertToFormData?: boolean
 }
 
 export type ApiParameters = GraphQLParameters | RestfulParameters

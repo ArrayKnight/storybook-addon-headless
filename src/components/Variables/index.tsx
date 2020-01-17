@@ -5,26 +5,20 @@ import {
     ApiParameters,
     Dictionary,
     FetchStatus,
-    HeadlessParameter,
     VariableState,
 } from '../../types'
-import { isQuery, isString } from '../../utilities'
 import { Variable } from '../Variable'
 import { Fieldset } from './styled'
 
 const { Button } = Form
 
 interface Props {
-    parameter: HeadlessParameter
+    parameters: ApiParameters
     onFetch: (variables: Dictionary) => Promise<any>
 }
 
-export const Variables = ({ parameter, onFetch }: Props) => {
-    const config: ApiParameters =
-        isString(parameter) || isQuery(parameter)
-            ? ({ query: parameter, variables: {} } as ApiParameters)
-            : parameter
-    const variables = Object.entries(config.variables)
+export const Variables = ({ parameters, onFetch }: Props) => {
+    const variables = Object.entries(parameters.variables)
     const hasVariables = variables.length > 0
     const [valid, setValid] = useState(!hasVariables)
     const [values, setValues] = useState<Dictionary<VariableState>>(
