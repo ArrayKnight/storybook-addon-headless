@@ -52,6 +52,7 @@ export const Panel = ({ active }: Props) => {
     function onFetch(variables: Dictionary): Promise<any> {
         console.log(variables)
 
+        // TODO
         return new Promise<any>((resolve, reject) => {
             setTimeout(() => {
                 if (Math.random() > 0.5) {
@@ -75,18 +76,16 @@ export const Panel = ({ active }: Props) => {
             <Root>
                 <Content>
                     <TabsState>
-                        {parameters.map(([name, config]) => {
-                            return (
-                                <div key={name} id={name} title={name}>
-                                    <TabContent>
-                                        <Variables
-                                            parameter={config}
-                                            onFetch={onFetch}
-                                        />
-                                    </TabContent>
-                                </div>
-                            )
-                        })}
+                        {parameters.map(([name, config]) => (
+                            <div key={name} id={name} title={name}>
+                                <TabContent>
+                                    <Variables
+                                        parameter={config}
+                                        onFetch={onFetch}
+                                    />
+                                </TabContent>
+                            </div>
+                        ))}
                     </TabsState>
                 </Content>
             </Root>

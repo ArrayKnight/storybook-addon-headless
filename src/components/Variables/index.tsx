@@ -1,5 +1,4 @@
 import { Form, Icons } from '@storybook/components'
-import { ThemeProvider } from '@storybook/theming'
 import React, { useState } from 'react'
 
 import {
@@ -29,24 +28,23 @@ export const Variables = ({ parameter, onFetch }: Props) => {
     const hasVariables = variables.length > 0
     const [valid, setValid] = useState(!hasVariables)
     const [values, setValues] = useState<Dictionary<VariableState>>(
-        variables.reduce((states, [variable]) => {
-            return {
+        variables.reduce(
+            (states, [variable]) => ({
                 ...states,
                 [variable]: {
                     value: '',
                     isValid: true,
                 },
-            }
-        }, {}),
+            }),
+            {},
+        ),
     )
     const [status, setStatus] = useState(FetchStatus.Inactive)
-    const statuses = {
+    const { inactive, loading, rejected } = {
         inactive: status === FetchStatus.Inactive,
         loading: status === FetchStatus.Loading,
         rejected: status === FetchStatus.Rejected,
-        resolved: status === FetchStatus.Resolved,
     }
-    const { inactive, loading, rejected } = statuses
 
     function onChange(name: string): (state: VariableState) => void {
         return (state) => {
@@ -71,19 +69,16 @@ export const Variables = ({ parameter, onFetch }: Props) => {
         setStatus(FetchStatus.Loading)
 
         onFetch(
-            variables.reduce((vars, [variable]) => {
-                return {
+            variables.reduce(
+                (vars, [variable]) => ({
                     ...vars,
                     [variable]: values[variable].value,
-                }
-            }, {}),
+                }),
+                {},
+            ),
         )
-            .then(() => {
-                setStatus(FetchStatus.Resolved)
-            })
-            .catch(() => {
-                setStatus(FetchStatus.Rejected)
-            })
+            .then(() => setStatus(FetchStatus.Resolved))
+            .catch(() => setStatus(FetchStatus.Rejected))
     }
 
     return (
@@ -98,18 +93,16 @@ export const Variables = ({ parameter, onFetch }: Props) => {
                     />
                 ))}
             </Fieldset>
-            <ThemeProvider theme={statuses}>
-                <Button disabled={!valid || loading} onClick={onClick}>
-                    {!inactive && (
-                        <Icons
-                            icon={
-                                loading ? 'sync' : rejected ? 'delete' : 'check'
-                            }
-                        />
-                    )}
-                    Fetch{inactive ? null : loading ? 'ing' : 'ed'}
-                </Button>
-            </ThemeProvider>
+            <Button disabled={!valid || loading} onClick={onClick}>
+                {!inactive && (
+                    <Icons
+                        icon={
+                            loading ? 'transfer' : rejected ? 'delete' : 'check'
+                        }
+                    />
+                )}
+                Fetch{inactive ? null : loading ? 'ing' : 'ed'}
+            </Button>
         </>
     )
 }
