@@ -61,8 +61,6 @@
         "wait-on": "3.3.0"
     },
     "dependencies": {
-        "@emotion/core": "^10.0.27",
-        "@emotion/styled": "^10.0.27",
         "@storybook/addons": "^5.3.6",
         "@storybook/api": "^5.3.6",
         "@storybook/components": "^5.3.6",
@@ -72,6 +70,7 @@
         "apollo-boost": "^0.4.7",
         "axios": "^0.19.1",
         "graphql": "^14.5.8",
+        "polished": "^3.4.2",
         "react-json-view": "^1.19.1"
     },
     "peerDependencies": {

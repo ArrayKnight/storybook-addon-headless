@@ -18,7 +18,7 @@ interface Props {
 }
 
 export const Variables = ({ parameters, onFetch }: Props) => {
-    const variables = Object.entries(parameters.variables)
+    const variables = Object.entries(parameters.variables || {})
     const hasVariables = variables.length > 0
     const [valid, setValid] = useState(!hasVariables)
     const [values, setValues] = useState<Dictionary<VariableState>>(
@@ -71,9 +71,10 @@ export const Variables = ({ parameters, onFetch }: Props) => {
                 }),
                 {},
             ),
+        ).then(
+            () => setStatus(FetchStatus.Resolved),
+            () => setStatus(FetchStatus.Rejected),
         )
-            .then(() => setStatus(FetchStatus.Resolved))
-            .catch(() => setStatus(FetchStatus.Rejected))
     }
 
     return (

@@ -8,7 +8,7 @@ import {
 import { Channel } from '@storybook/channels'
 import React, { ReactElement, useState } from 'react'
 
-import { DECORATOR_NAME, EVENT_DATA, EVENT_OPTS, PARAM_KEY } from './config'
+import { DECORATOR_NAME, EVENT_DATA, EVENT_INIT, PARAM_KEY } from './config'
 import { HeadlessOptions, HeadlessParameters, HeadlessState } from './types'
 
 interface Props {
@@ -61,7 +61,7 @@ export const headlessDecorator: (
     wrapper: (storyFn, context, { options, parameters }) => {
         const channel = addons.getChannel()
 
-        channel.emit(EVENT_OPTS, options)
+        channel.emit(EVENT_INIT, options)
 
         return (
             <Decorator

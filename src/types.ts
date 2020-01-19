@@ -44,25 +44,24 @@ export interface VariableState {
 }
 
 export interface GraphQLParameters {
+    query: PackedDocumentNode
     config?: PresetConfig
-    query: DocumentNode
-    variables: VariableParameters
+    variables?: VariableParameters
     defaults?: Dictionary
 }
 
 export interface RestfulParameters {
-    config?: AxiosRequestConfig
     query: string
-    variables: VariableParameters
+    config?: AxiosRequestConfig
+    variables?: VariableParameters
     defaults?: Dictionary
     convertToFormData?: boolean
 }
 
 export type ApiParameters = GraphQLParameters | RestfulParameters
 
-export interface Document {
-    kind: 'Document'
-    // TODO
+export type PackedDocumentNode = Omit<DocumentNode, 'definitions'> & {
+    definitions: string[]
 }
 
 export interface Schema {

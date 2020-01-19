@@ -1,12 +1,14 @@
 import Ajv from 'ajv'
+import ApolloClient, { DocumentNode } from 'apollo-boost'
 import axios from 'axios'
+import { Source } from 'graphql'
 
 import {
     Dictionary,
-    Document,
     GraphQLOptions,
     GraphQLParameters,
     NumberSchema,
+    PackedDocumentNode,
     RestfulOptions,
     RestfulParameters,
     Schema,
@@ -17,18 +19,29 @@ const ajv = new Ajv()
 
 export function createGraphQLPromise(
     options: GraphQLOptions,
-    parameters: GraphQLParameters,
+    { config = {}, query }: GraphQLParameters,
     variables: Dictionary,
 ): Promise<any> {
-    // TODO
-    return new Promise<any>((resolve, reject) => {
-        setTimeout(() => {
-            if (Math.random() > 0.5) {
-                resolve()
-            } else {
-                reject()
-            }
-        }, 1000 * 2 * Math.random())
+    const instance = new ApolloClient({
+        ...options,
+        ...config,
+    })
+
+    return new Promise((resolve, reject) => {
+        instance
+            .query({
+                query: unpack(query),
+                variables,
+                fetchPolicy: 'network-only',
+            })
+            .then(({ data, errors }) => {
+                if (!!errors) {
+                    reject(errors)
+                } else {
+                    resolve(data)
+                }
+            })
+            .catch(reject)
     })
 }
 
@@ -37,14 +50,13 @@ export function createRestfulPromise(
     parameters: RestfulParameters,
     variables: Dictionary,
 ): Promise<any> {
+    const { config = {}, convertToFormData } = parameters
+
     return axios({
-        url: Object.entries(variables).reduce(
-            (url, [name, value]) => url.replace(`{${name}}`, value),
-            parameters.query,
-        ),
-        ...(options || {}),
-        ...(parameters.config || {}),
-        data: parameters.convertToFormData
+        url: getRestfulUrl(options, parameters, variables, false),
+        ...options,
+        ...config,
+        data: convertToFormData
             ? Object.entries(variables).reduce((data, [key, value]) => {
                   data.append(key, value)
 
@@ -68,8 +80,45 @@ export function functionToTag(func: Function): string {
     return Function.prototype.toString.call(func)
 }
 
-export function objectToTag(obj: object): string {
-    return Object.prototype.toString.call(obj)
+export function getGraphQLUri(
+    options: GraphQLOptions,
+    parameters: GraphQLParameters,
+): string {
+    const base = { ...options, ...(parameters.config || {}) }.uri || ''
+    // TODO determine if there's any value in revealing more about the query
+    /*const defs = parameters.query.definitions.reduce(
+        (operations, definition) => {
+            if (
+                definition.kind === 'OperationDefinition' &&
+                !isUndefined(definition.name)
+            ) {
+                return [
+                    ...operations,
+                    `${definition.operation} { ${definition.name.value} }`,
+                ]
+            }
+
+            return operations
+        },
+        [],
+    )*/
+
+    return `${base}`
+}
+
+export function getRestfulUrl(
+    options: RestfulOptions,
+    parameters: RestfulParameters,
+    variables: Dictionary,
+    absolute: boolean,
+): string {
+    const base = { ...options, ...(parameters.config || {}) }.baseURL || ''
+    const path = Object.entries(variables).reduce(
+        (url, [name, value]) => url.replace(`{${name}}`, value),
+        parameters.query,
+    )
+
+    return absolute ? `${base}${path}` : path
 }
 
 export function isFunction(value: any): value is Function {
@@ -87,11 +136,15 @@ const validateGraphQLParameters = ajv.compile({
             type: 'object',
         },
     },
-    required: ['query', 'variables'],
+    required: ['query'],
 })
 
 export function isGraphQLParameters(value: any): value is GraphQLParameters {
     return !!validateGraphQLParameters(value) && isQuery(value.query)
+}
+
+export function isNil(value: any): value is null | undefined {
+    return isNull(value) || isUndefined(value)
 }
 
 export function isNull(value: any): value is null {
@@ -141,9 +194,6 @@ const validateDocument = ajv.compile({
         },
         definitions: {
             type: 'array',
-            items: {
-                type: 'object',
-            },
             minItems: 1,
         },
         loc: {
@@ -162,7 +212,7 @@ const validateDocument = ajv.compile({
     required: ['kind', 'definitions', 'loc'],
 })
 
-export function isQuery(value: any): value is Document {
+export function isQuery(value: any): value is DocumentNode {
     return !!validateDocument(value)
 }
 
@@ -177,7 +227,7 @@ const validateRestfulParameters = ajv.compile({
             type: 'object',
         },
     },
-    required: ['query', 'variables'],
+    required: ['query'],
 })
 
 export function isRestfulParameters(value: any): value is RestfulParameters {
@@ -190,4 +240,55 @@ export function isString(value: any): value is string {
 
 export function isStringSchema(value: any): value is StringSchema {
     return isObject<Schema>(value) && value.type === 'string'
+}
+
+export function isUndefined(value: any): value is undefined {
+    return value === undefined
+}
+
+export function objectToTag(obj: object): string {
+    return Object.prototype.toString.call(obj)
+}
+
+/*
+ * Storybook implements telejson which currently parses a max depth of 10:
+ * https://github.com/storybookjs/storybook/issues/9534
+ *
+ * Once the parse call allows for a greater depth of data these functions will be deprecated
+ */
+export function pack({
+    kind,
+    definitions,
+    loc,
+}: DocumentNode): PackedDocumentNode {
+    return {
+        kind,
+        definitions: definitions.map((definition) =>
+            JSON.stringify(definition),
+        ),
+        loc: !isUndefined(loc)
+            ? {
+                  ...loc,
+                  source: Object.getOwnPropertyNames(loc.source).reduce(
+                      (obj, key) => ({
+                          ...obj,
+                          [key]: (loc.source as Dictionary)[key],
+                      }),
+                      {} as Source,
+                  ),
+              }
+            : loc,
+    }
+}
+
+export function unpack({
+    kind,
+    definitions,
+    loc,
+}: PackedDocumentNode): DocumentNode {
+    return {
+        kind,
+        definitions: definitions.map((definition) => JSON.parse(definition)),
+        loc,
+    }
 }

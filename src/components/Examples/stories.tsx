@@ -1,4 +1,3 @@
-import styled from '@emotion/styled'
 import {
     Card as CardBase,
     CardActions,
@@ -7,8 +6,11 @@ import {
     CardMedia,
     Typography,
 } from '@material-ui/core'
+import { styled } from '@storybook/theming'
 import gql from 'graphql-tag'
 import React from 'react'
+
+import { pack } from '../../utilities'
 
 const Card = styled(CardBase)`
     max-width: 240px;
@@ -19,7 +21,7 @@ export default {
     title: 'Examples',
     parameters: {
         headless: {
-            Artworks: gql`
+            Artworks: pack(gql`
                 {
                     artworks {
                         artist {
@@ -30,15 +32,15 @@ export default {
                         title
                     }
                 }
-            `,
+            `),
             Country: {
-                query: gql`
+                query: pack(gql`
                     query Country($code: String) {
                         country(code: $code) {
                             name
                         }
                     }
-                `,
+                `),
                 variables: {
                     code: {
                         type: 'string',

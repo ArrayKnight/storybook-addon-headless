@@ -1,5 +1,4 @@
-import styled from '@emotion/styled'
-import { background } from '@storybook/theming'
+import { background, styled } from '@storybook/theming'
 
 export const Root = styled.div`
     width: 100%;

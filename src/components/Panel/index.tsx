@@ -3,7 +3,7 @@ import { TabsState } from '@storybook/components'
 import React from 'react'
 import Json from 'react-json-view'
 
-import { ADDON_ID, EVENT_DATA, EVENT_OPTS, PARAM_KEY } from '../../config'
+import { ADDON_ID, EVENT_DATA, EVENT_INIT, PARAM_KEY } from '../../config'
 import {
     ApiParameters,
     Dictionary,
@@ -15,11 +15,14 @@ import {
     createGraphQLPromise,
     createRestfulPromise,
     errorToJSON,
+    getGraphQLUri,
+    getRestfulUrl,
     isGraphQLParameters,
     isQuery,
     isRestfulParameters,
     isString,
 } from '../../utilities'
+import { Message } from '../Message'
 import { Variables } from '../Variables'
 import { Content, Root, Separator, TabContent } from './styled'
 
@@ -34,10 +37,9 @@ export const Panel = ({ active }: Props) => {
         data: {},
         errors: {},
     })
-    const parameter = useParameter<HeadlessParameters>(PARAM_KEY, {})
-    const parameters = Object.entries(parameter)
+    const parameters = useParameter<HeadlessParameters>(PARAM_KEY, {})
     const emit = useChannel({
-        [EVENT_OPTS]: (options: HeadlessOptions) => {
+        [EVENT_INIT]: (options: HeadlessOptions) => {
             setState({
                 ...state,
                 isReady: true,
@@ -49,6 +51,8 @@ export const Panel = ({ active }: Props) => {
             })
         },
     })
+    const graphQLOptions = state.options.graphql || {}
+    const restfulOptions = state.options.restful || {}
 
     function resetData(name: string): void {
         setState({
@@ -117,26 +121,52 @@ export const Panel = ({ active }: Props) => {
             if (isGraphQLParameters(params)) {
                 resetData(name)
 
-                return createGraphQLPromise(
-                    state.options.graphql || {},
-                    params,
-                    variables,
-                ) // TODO .then
+                return new Promise((resolve, reject) => {
+                    createGraphQLPromise(
+                        graphQLOptions,
+                        params,
+                        variables,
+                    ).then(
+                        (data) => {
+                            setDataTo(data)
+
+                            resolve(data)
+                        },
+                        (error) => {
+                            setErrorTo(error)
+
+                            reject(error)
+                        },
+                    )
+                })
             }
 
             if (isRestfulParameters(params)) {
                 resetData(name)
 
-                return createRestfulPromise(
-                    state.options.restful || {},
-                    params,
-                    variables,
-                )
-                    .then(setDataTo)
-                    .catch(setErrorTo)
+                return new Promise((resolve, reject) => {
+                    createRestfulPromise(
+                        restfulOptions,
+                        params,
+                        variables,
+                    ).then(
+                        (data) => {
+                            setDataTo(data)
+
+                            resolve(data)
+                        },
+                        (error) => {
+                            setErrorTo(error)
+
+                            reject(error)
+                        },
+                    )
+                })
             }
 
-            return Promise.reject('Invalid config, skipping fetch')
+            return Promise.reject(
+                new Error('Invalid config, skipping fetch'),
+            ).catch(setErrorTo)
         }
     }
 
@@ -147,29 +177,40 @@ export const Panel = ({ active }: Props) => {
     // TODO pass data through channel to decorator
     // TODO create data editor + pass edited data through channel to decorator
 
-    if (active && state.isReady && parameters.length > 0) {
+    if (active && state.isReady) {
         return (
             <Root>
                 <Content>
                     <TabsState>
-                        {parameters.map(([name, config]) => {
+                        {Object.entries(parameters).map(([name, parameter]) => {
                             const params: ApiParameters =
-                                isString(config) || isQuery(config)
-                                    ? ({
-                                          query: config,
-                                          variables: {},
-                                      } as ApiParameters)
-                                    : config
+                                isString(parameter) || isQuery(parameter)
+                                    ? ({ query: parameter } as ApiParameters)
+                                    : parameter
+                            const hasData = !!state.data[name]
+                            const hasError = !!state.errors[name]
 
                             return (
                                 <div key={name} id={name} title={name}>
                                     <TabContent>
+                                        <Message>
+                                            {isGraphQLParameters(params)
+                                                ? getGraphQLUri(
+                                                      graphQLOptions,
+                                                      params,
+                                                  )
+                                                : getRestfulUrl(
+                                                      restfulOptions,
+                                                      params,
+                                                      {},
+                                                      true,
+                                                  )}
+                                        </Message>
                                         <Variables
                                             parameters={params}
                                             onFetch={onFetch(name, params)}
                                         />
-                                        {(!!state.data[name] ||
-                                            !!state.errors[name]) && (
+                                        {(hasData || hasError) && (
                                             <>
                                                 <Separator />
                                                 <Json
@@ -179,8 +220,12 @@ export const Panel = ({ active }: Props) => {
                                                     }
                                                     name={null}
                                                     iconStyle="square"
+                                                    collapsed={
+                                                        hasError ? 1 : false
+                                                    }
                                                     displayObjectSize={false}
                                                     displayDataTypes={false}
+                                                    enableClipboard={hasData}
                                                 />
                                             </>
                                         )}
