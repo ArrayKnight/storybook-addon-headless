@@ -40,8 +40,7 @@ export function createGraphQLPromise(
                 } else {
                     resolve(data)
                 }
-            })
-            .catch(reject)
+            }, reject)
     })
 }
 

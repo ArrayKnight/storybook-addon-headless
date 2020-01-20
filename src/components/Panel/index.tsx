@@ -1,7 +1,8 @@
 import { useAddonState, useChannel, useParameter } from '@storybook/api'
 import { TabsState } from '@storybook/components'
+import { Theme, useTheme } from '@storybook/theming'
 import React from 'react'
-import Json from 'react-json-view'
+import Json, { InteractionProps } from 'react-json-view'
 
 import { ADDON_ID, EVENT_DATA, EVENT_INIT, PARAM_KEY } from '../../config'
 import {
@@ -33,7 +34,12 @@ interface Props {
 export const Panel = ({ active }: Props) => {
     const [state, setState] = useAddonState<HeadlessState>(ADDON_ID, {
         isReady: false,
-        options: {},
+        options: {
+            graphql: {},
+            restful: {},
+            jsonDark: 'colors',
+            jsonLight: 'rjv-default',
+        },
         data: {},
         errors: {},
     })
@@ -43,7 +49,10 @@ export const Panel = ({ active }: Props) => {
             setState({
                 ...state,
                 isReady: true,
-                options,
+                options: {
+                    ...state.options,
+                    ...options,
+                },
             })
 
             emit(EVENT_DATA, {
@@ -51,8 +60,8 @@ export const Panel = ({ active }: Props) => {
             })
         },
     })
-    const graphQLOptions = state.options.graphql || {}
-    const restfulOptions = state.options.restful || {}
+    const theme = useTheme<Theme>()
+    const { graphql, restful, jsonDark, jsonLight } = state.options
 
     function resetData(name: string): void {
         setState({
@@ -118,64 +127,29 @@ export const Panel = ({ active }: Props) => {
             const setDataTo = setData(name)
             const setErrorTo = setError(name)
 
-            if (isGraphQLParameters(params)) {
+            if (isGraphQLParameters(params) || isRestfulParameters(params)) {
                 resetData(name)
-
-                return new Promise((resolve, reject) => {
-                    createGraphQLPromise(
-                        graphQLOptions,
-                        params,
-                        variables,
-                    ).then(
-                        (data) => {
-                            setDataTo(data)
-
-                            resolve(data)
-                        },
-                        (error) => {
-                            setErrorTo(error)
-
-                            reject(error)
-                        },
-                    )
-                })
             }
 
-            if (isRestfulParameters(params)) {
-                resetData(name)
+            return new Promise((resolve, reject) => {
+                const promise = isGraphQLParameters(params)
+                    ? createGraphQLPromise(graphql, params, variables)
+                    : isRestfulParameters(params)
+                    ? createRestfulPromise(restful, params, variables)
+                    : Promise.reject(
+                          new Error('Invalid config, skipping fetch'),
+                      )
 
-                return new Promise((resolve, reject) => {
-                    createRestfulPromise(
-                        restfulOptions,
-                        params,
-                        variables,
-                    ).then(
-                        (data) => {
-                            setDataTo(data)
-
-                            resolve(data)
-                        },
-                        (error) => {
-                            setErrorTo(error)
-
-                            reject(error)
-                        },
-                    )
-                })
-            }
-
-            return Promise.reject(
-                new Error('Invalid config, skipping fetch'),
-            ).catch(setErrorTo)
+                promise.then(setDataTo, setErrorTo).then(resolve, reject)
+            })
         }
     }
 
-    // TODO create forms
-    // TODO create inputs/outputs
-    // TODO create instances, call queries on submit
-    // TODO handle query state
-    // TODO pass data through channel to decorator
-    // TODO create data editor + pass edited data through channel to decorator
+    function updateData(name: string): (props: InteractionProps) => void {
+        const setDataTo = setData(name)
+
+        return ({ updated_src }) => setDataTo(updated_src)
+    }
 
     if (active && state.isReady) {
         return (
@@ -195,12 +169,9 @@ export const Panel = ({ active }: Props) => {
                                     <TabContent>
                                         <Message>
                                             {isGraphQLParameters(params)
-                                                ? getGraphQLUri(
-                                                      graphQLOptions,
-                                                      params,
-                                                  )
+                                                ? getGraphQLUri(graphql, params)
                                                 : getRestfulUrl(
-                                                      restfulOptions,
+                                                      restful,
                                                       params,
                                                       {},
                                                       true,
@@ -220,12 +191,20 @@ export const Panel = ({ active }: Props) => {
                                                     }
                                                     name={null}
                                                     iconStyle="square"
+                                                    theme={
+                                                        theme.base === 'light'
+                                                            ? jsonLight
+                                                            : jsonDark
+                                                    }
                                                     collapsed={
                                                         hasError ? 1 : false
                                                     }
                                                     displayObjectSize={false}
                                                     displayDataTypes={false}
                                                     enableClipboard={hasData}
+                                                    onAdd={updateData(name)}
+                                                    onDelete={updateData(name)}
+                                                    onEdit={updateData(name)}
                                                 />
                                             </>
                                         )}

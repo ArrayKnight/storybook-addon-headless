@@ -1,9 +1,14 @@
 import { DocumentNode, PresetConfig } from 'apollo-boost'
 import { AxiosRequestConfig } from 'axios'
+import { ThemeKeys } from 'react-json-view'
 
 export interface Dictionary<T = any> {
     [key: string]: T
 }
+
+export type Required<T> = T extends object
+    ? { [P in keyof T]-?: NonNullable<T[P]> }
+    : T
 
 type UnsupportedAxiosOptions =
     | 'url'
@@ -19,6 +24,8 @@ export type GraphQLOptions = PresetConfig
 export interface HeadlessOptions {
     restful?: RestfulOptions
     graphql?: GraphQLOptions
+    jsonDark?: ThemeKeys
+    jsonLight?: ThemeKeys
 }
 
 export type HeadlessParameter = string | DocumentNode | ApiParameters
@@ -29,7 +36,7 @@ export interface HeadlessParameters {
 
 export interface HeadlessState {
     isReady: boolean
-    options: HeadlessOptions
+    options: Required<HeadlessOptions>
     data: Dictionary
     errors: Dictionary
 }
