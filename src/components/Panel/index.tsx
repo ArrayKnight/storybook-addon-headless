@@ -32,6 +32,8 @@ interface Props {
 }
 
 export const Panel = ({ active }: Props) => {
+    const theme = useTheme<Theme>()
+    const parameters = useParameter<HeadlessParameters>(PARAM_KEY, {})
     const [state, setState] = useAddonState<HeadlessState>(ADDON_ID, {
         isReady: false,
         options: {
@@ -43,62 +45,63 @@ export const Panel = ({ active }: Props) => {
         data: {},
         errors: {},
     })
-    const parameters = useParameter<HeadlessParameters>(PARAM_KEY, {})
+
+    const { isReady, data, errors, options } = state
+    const { graphql, restful, jsonDark, jsonLight } = options
+
     const emit = useChannel({
-        [EVENT_INIT]: (options: HeadlessOptions) => {
+        [EVENT_INIT]: (opts: HeadlessOptions) => {
             setState({
                 ...state,
                 isReady: true,
                 options: {
-                    ...state.options,
                     ...options,
+                    ...opts,
                 },
             })
 
             emit(EVENT_DATA, {
-                ...state.data,
+                ...data,
             })
         },
     })
-    const theme = useTheme<Theme>()
-    const { graphql, restful, jsonDark, jsonLight } = state.options
 
     function resetData(name: string): void {
         setState({
             ...state,
             data: {
-                ...state.data,
+                ...data,
                 [name]: null,
             },
             errors: {
-                ...state.errors,
+                ...errors,
                 [name]: null,
             },
         })
 
         emit(EVENT_DATA, {
-            ...state.data,
+            ...data,
             [name]: null,
         })
     }
 
     function setData(name: string): (data: HeadlessState['data']) => void {
-        return (data) => {
+        return (updated) => {
             setState({
                 ...state,
                 data: {
-                    ...state.data,
-                    [name]: data,
+                    ...data,
+                    [name]: updated,
                 },
                 errors: {
-                    ...state.errors,
+                    ...errors,
                     [name]: null,
                 },
             })
 
             emit(EVENT_DATA, {
-                ...state.data,
-                [name]: data,
+                ...data,
+                [name]: updated,
             })
         }
     }
@@ -108,25 +111,25 @@ export const Panel = ({ active }: Props) => {
             setState({
                 ...state,
                 data: {
-                    ...state.data,
+                    ...data,
                     [name]: null,
                 },
                 errors: {
-                    ...state.errors,
+                    ...errors,
                     [name]: errorToJSON(error),
                 },
             })
         }
     }
 
-    function onFetch(
+    function fetch(
         name: string,
         params: ApiParameters,
     ): (variables: Dictionary) => Promise<any> {
-        return (variables) => {
-            const setDataTo = setData(name)
-            const setErrorTo = setError(name)
+        const setDataTo = setData(name)
+        const setErrorTo = setError(name)
 
+        return (variables) => {
             if (isGraphQLParameters(params) || isRestfulParameters(params)) {
                 resetData(name)
             }
@@ -140,7 +143,18 @@ export const Panel = ({ active }: Props) => {
                           new Error('Invalid config, skipping fetch'),
                       )
 
-                promise.then(setDataTo, setErrorTo).then(resolve, reject)
+                promise.then(
+                    (response) => {
+                        setDataTo(response)
+
+                        resolve(response)
+                    },
+                    (error) => {
+                        setErrorTo(error)
+
+                        reject(error)
+                    },
+                )
             })
         }
     }
@@ -151,7 +165,7 @@ export const Panel = ({ active }: Props) => {
         return ({ updated_src }) => setDataTo(updated_src)
     }
 
-    if (active && state.isReady) {
+    if (active && isReady) {
         return (
             <Root>
                 <Content>
@@ -179,7 +193,7 @@ export const Panel = ({ active }: Props) => {
                                         </Message>
                                         <Variables
                                             parameters={params}
-                                            onFetch={onFetch(name, params)}
+                                            onFetch={fetch(name, params)}
                                         />
                                         {(hasData || hasError) && (
                                             <>

@@ -10,7 +10,7 @@ import { styled } from '@storybook/theming'
 import gql from 'graphql-tag'
 import React from 'react'
 
-import { pack } from '../../utilities'
+import { pack } from '../../../dist'
 
 const Card = styled(CardBase)`
     max-width: 240px;
@@ -48,6 +48,10 @@ export default {
                         maxLength: 2,
                     },
                 },
+                defaults: {
+                    code: 'US',
+                },
+                autoFetchOnInit: true,
             },
             Users: 'users',
             User: {

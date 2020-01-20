@@ -1,5 +1,6 @@
 import { Form, Icons } from '@storybook/components'
-import React, { useState } from 'react'
+import Ajv from 'ajv'
+import React, { useEffect, useState } from 'react'
 
 import {
     ApiParameters,
@@ -7,10 +8,12 @@ import {
     FetchStatus,
     VariableState,
 } from '../../types'
+import { getVariableType, isNull } from '../../utilities'
 import { Variable } from '../Variable'
 import { Fieldset } from './styled'
 
 const { Button } = Form
+const ajv = new Ajv()
 
 interface Props {
     parameters: ApiParameters
@@ -18,56 +21,83 @@ interface Props {
 }
 
 export const Variables = ({ parameters, onFetch }: Props) => {
-    const variables = Object.entries(parameters.variables || {})
-    const hasVariables = variables.length > 0
-    const [valid, setValid] = useState(!hasVariables)
-    const [values, setValues] = useState<Dictionary<VariableState>>(
-        variables.reduce(
-            (states, [variable]) => ({
-                ...states,
-                [variable]: {
-                    value: '',
-                    isValid: true,
-                },
-            }),
+    const {
+        autoFetchOnInit = false,
+        defaults = {},
+        variables = {},
+    } = parameters
+    const hasVariables = Object.keys(variables).length !== 0
+    const [states, setStates] = useState<Dictionary<VariableState>>(
+        Object.entries(variables).reduce(
+            (obj: Dictionary<VariableState>, [name, schema]) => {
+                const validator = ajv.compile(schema)
+                const value = defaults[name] ?? ''
+
+                validator(value)
+
+                const [error] = validator.errors || []
+
+                return {
+                    ...obj,
+                    [name]: {
+                        type: getVariableType(schema),
+                        validator,
+                        dirty: false,
+                        error: error?.message || null,
+                        value,
+                    },
+                }
+            },
             {},
         ),
     )
+    const [isValid, setIsValid] = useState(!hasVariables || areValid(states))
     const [status, setStatus] = useState(FetchStatus.Inactive)
-    const { inactive, loading, rejected, resolved } = {
-        inactive: status === FetchStatus.Inactive,
-        loading: status === FetchStatus.Loading,
-        rejected: status === FetchStatus.Rejected,
-        resolved: status === FetchStatus.Resolved,
+    const isInactive = status === FetchStatus.Inactive
+    const isLoading = status === FetchStatus.Loading
+    const isRejected = status === FetchStatus.Rejected
+    const isResolved = status === FetchStatus.Resolved
+
+    function areValid(obj: Dictionary<VariableState>): boolean {
+        return Object.values(obj).every(({ error }) => isNull(error))
     }
 
-    function onChange(name: string): (state: VariableState) => void {
-        return (state) => {
-            const states = {
-                ...values,
-                [name]: state,
+    function onChange(name: string): (value: any) => void {
+        return (value) => {
+            const { [name]: state } = states
+            const { validator } = state
+
+            validator(value)
+
+            const [error] = validator.errors || []
+            const updated = {
+                ...states,
+                [name]: {
+                    ...state,
+                    dirty: true,
+                    error: error?.message || null,
+                    value,
+                },
             }
 
             setStatus(FetchStatus.Inactive)
 
-            setValues(states)
+            setStates(updated)
 
             if (hasVariables) {
-                setValid(
-                    variables.every(([variable]) => states[variable].isValid),
-                )
+                setIsValid(areValid(updated))
             }
         }
     }
 
-    function onClick(): void {
+    function fetch(): void {
         setStatus(FetchStatus.Loading)
 
         onFetch(
-            variables.reduce(
-                (vars, [variable]) => ({
-                    ...vars,
-                    [variable]: values[variable].value,
+            Object.entries(states).reduce(
+                (obj, [name, { value }]) => ({
+                    ...obj,
+                    [name]: value,
                 }),
                 {},
             ),
@@ -77,27 +107,44 @@ export const Variables = ({ parameters, onFetch }: Props) => {
         )
     }
 
+    useEffect(() => {
+        if (autoFetchOnInit && isValid) {
+            fetch()
+        }
+    }, [])
+
     return (
         <>
             <Fieldset>
-                {variables.map(([name, schema]) => (
-                    <Variable
-                        key={name}
-                        name={name}
-                        schema={schema}
-                        onChange={onChange(name)}
-                    />
-                ))}
+                {Object.entries(states).map(
+                    ([name, { type, dirty, error, value }]) => (
+                        <Variable
+                            key={name}
+                            name={name}
+                            type={type}
+                            value={value}
+                            error={dirty ? error : null}
+                            onChange={onChange(name)}
+                        />
+                    ),
+                )}
             </Fieldset>
-            <Button disabled={!valid || loading || resolved} onClick={onClick}>
-                {!inactive && (
+            <Button
+                disabled={!isValid || isLoading || isResolved}
+                onClick={fetch}
+            >
+                {!isInactive && (
                     <Icons
                         icon={
-                            loading ? 'transfer' : rejected ? 'delete' : 'check'
+                            isLoading
+                                ? 'transfer'
+                                : isRejected
+                                ? 'delete'
+                                : 'check'
                         }
                     />
                 )}
-                Fetch{inactive ? null : loading ? 'ing' : 'ed'}
+                Fetch{isInactive ? null : isLoading ? 'ing' : 'ed'}
             </Button>
         </>
     )

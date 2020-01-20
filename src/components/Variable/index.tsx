@@ -1,75 +1,54 @@
 import { Form } from '@storybook/components'
-import Ajv, { ValidateFunction } from 'ajv'
-import React, { ChangeEvent, useEffect, useState } from 'react'
+import React, { ChangeEvent } from 'react'
 
-import { VariableState } from '../../types'
-import { isNumberSchema, isStringSchema } from '../../utilities'
+import { VariableType } from '../../types'
+import { isNull } from '../../utilities'
 import { Error, Row } from './styled'
 
 const { Field, Input } = Form
-const ajv = new Ajv()
 
 interface Props {
     name: string
-    schema: object
-    onChange: (state: VariableState) => void
+    type: VariableType
+    value: any
+    error: string | null
+    onChange: (value: any) => void
 }
 
-export const Variable = ({ name, schema, onChange }: Props) => {
-    const [valid, setValid] = useState(true)
-    const [validate, setValidate] = useState<ValidateFunction>(() => () =>
-        false,
-    )
-    const isNumber = isNumberSchema(schema)
-    const isString = isStringSchema(schema)
-    const [error] = validate.errors || []
+export const Variable = ({ name, type, value, error, onChange }: Props) => {
+    const isUnknown = type === VariableType.Unknown
+    const isBoolean = type === VariableType.Boolean
+    const isNumber = type === VariableType.Number
+    const isString = type === VariableType.String
+    const isInvalid = !isNull(error)
 
-    function onValueChange(value: any): void {
-        const isValid = !!validate(value)
+    function update(event: ChangeEvent<HTMLInputElement>): void {
+        switch (true) {
+            case isBoolean:
+                return onChange(event.target.checked)
 
-        setValid(isValid)
+            case isNumber:
+                return onChange(parseFloat(event.target.value))
 
-        onChange({
-            value,
-            isValid,
-        })
+            case isString:
+                return onChange(event.target.value)
+        }
     }
 
-    function onInputChange(event: ChangeEvent<HTMLInputElement>): void {
-        const { value } = event.target
-
-        onValueChange(isNumber ? parseFloat(value) : value)
-    }
-
-    useEffect(() => {
-        setValidate(() => ajv.compile(schema))
-    }, [])
-
-    useEffect(() => {
-        // TODO support default value?
-        // TODO value will differ based on schema
-        const value = ''
-
-        onChange({
-            value,
-            isValid: !!validate(value),
-        })
-    }, [validate])
-
-    return isNumber || isString ? (
+    return !isUnknown ? (
         <Field label={name}>
             <Row>
                 <Input
-                    type={isNumber ? 'number' : 'string'}
-                    valid={valid ? null : 'error'}
-                    onChange={onInputChange}
+                    type={type}
+                    valid={isInvalid ? 'error' : null}
+                    value={value}
+                    onChange={update}
                 />
-                {!valid && !!error && <Error>{error.message}</Error>}
+                {isInvalid && <Error>{error}</Error>}
             </Row>
         </Field>
     ) : null
     // TODO support more schemas:
-    // boolean
     // date
     // (array of strings, numbers, mixed) => rows of inputs
     // (array of objects) => select

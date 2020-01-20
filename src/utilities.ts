@@ -4,6 +4,7 @@ import axios from 'axios'
 import { Source } from 'graphql'
 
 import {
+    BooleanSchema,
     Dictionary,
     GraphQLOptions,
     GraphQLParameters,
@@ -13,6 +14,7 @@ import {
     RestfulParameters,
     Schema,
     StringSchema,
+    VariableType,
 } from './types'
 
 const ajv = new Ajv()
@@ -118,6 +120,26 @@ export function getRestfulUrl(
     )
 
     return absolute ? `${base}${path}` : path
+}
+
+export function getVariableType(schema: Schema): VariableType {
+    switch (true) {
+        case isBooleanSchema(schema):
+            return VariableType.Boolean
+
+        case isNumberSchema(schema):
+            return VariableType.Number
+
+        case isStringSchema(schema):
+            return VariableType.String
+
+        default:
+            return VariableType.Unknown
+    }
+}
+
+export function isBooleanSchema(value: any): value is BooleanSchema {
+    return isObject<Schema>(value) && value.type === 'boolean'
 }
 
 export function isFunction(value: any): value is Function {

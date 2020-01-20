@@ -1,3 +1,4 @@
+import { ValidateFunction } from 'ajv'
 import { DocumentNode, PresetConfig } from 'apollo-boost'
 import { AxiosRequestConfig } from 'axios'
 import { ThemeKeys } from 'react-json-view'
@@ -42,26 +43,38 @@ export interface HeadlessState {
 }
 
 export interface VariableParameters {
-    [name: string]: object
+    [name: string]: Schema
 }
 
 export interface VariableState {
+    type: VariableType
+    validator: ValidateFunction
+    dirty: boolean
+    error: string | null
     value: any
-    isValid: boolean
 }
 
-export interface GraphQLParameters {
+export enum VariableType {
+    Unknown = 'unknown',
+    Boolean = 'chechbox',
+    Number = 'number',
+    String = 'string',
+}
+
+export interface BaseParameters {
+    variables?: VariableParameters
+    defaults?: Dictionary
+    autoFetchOnInit?: boolean
+}
+
+export interface GraphQLParameters extends BaseParameters {
     query: PackedDocumentNode
     config?: PresetConfig
-    variables?: VariableParameters
-    defaults?: Dictionary
 }
 
-export interface RestfulParameters {
+export interface RestfulParameters extends BaseParameters {
     query: string
     config?: AxiosRequestConfig
-    variables?: VariableParameters
-    defaults?: Dictionary
     convertToFormData?: boolean
 }
 
@@ -71,9 +84,13 @@ export type PackedDocumentNode = Omit<DocumentNode, 'definitions'> & {
     definitions: string[]
 }
 
-export interface Schema {
+export interface Schema extends Object {
     type: string
     // TODO
+}
+
+export interface BooleanSchema {
+    type: 'boolean'
 }
 
 export interface NumberSchema {
