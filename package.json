@@ -2,7 +2,7 @@
     "name": "storybook-addon-headless",
     "author": "Ray Knight <array.knight+github@gmail.com>",
     "description": "Storybook addon to preview content from a headless CMS in components",
-    "version": "0.0.0",
+    "version": "0.0.0-development",
     "license": "MIT",
     "scripts": {
         "preinstall": "rm -rf node_modules && rm -f package-lock.json && rm -f yarn.lock",
@@ -16,6 +16,7 @@
         "prestart": "npm run clean",
         "start": "npm-run-all -p -r rollup:watch storybook:start",
         "prestorybook": "wait-on dist/register.js",
+        "semantic-release": "semantic-release",
         "storybook:start": "npm run prestorybook && start-storybook -p 4000",
         "storybook:build": "npm run prestorybook && build-storybook -o docs",
         "upgrade": "npm-run-all upgrade:*",
@@ -25,6 +26,7 @@
     "husky": {
         "hooks": {
             "pre-commit": "lint-staged",
+            "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
             "post-commit": "git push"
         }
     },
@@ -34,28 +36,36 @@
             "git add"
         ]
     },
+    "commitlint": {
+        "extends": [
+            "@commitlint/config-conventional"
+        ]
+    },
     "devDependencies": {
+        "@commitlint/cli": "8.3.5",
+        "@commitlint/config-conventional": "8.3.4",
         "@material-ui/core": "4.8.3",
-        "@storybook/addon-actions": "5.3.7",
-        "@storybook/addon-knobs": "5.3.7",
-        "@storybook/addon-viewport": "5.3.7",
-        "@storybook/react": "5.3.7",
-        "@types/react": "16.9.17",
+        "@storybook/addon-actions": "5.3.8",
+        "@storybook/addon-knobs": "5.3.8",
+        "@storybook/addon-viewport": "5.3.8",
+        "@storybook/react": "5.3.8",
+        "@types/react": "16.9.18",
         "@types/yup": "0.26.27",
         "babel-loader": "8.0.6",
         "babel-preset-react-app": "9.1.0",
         "graphql-tag": "2.10.1",
-        "husky": "4.0.10",
+        "husky": "4.2.0",
         "lint-staged": "10.0.1",
         "npm-check": "5.9.0",
         "npm-run-all": "4.1.5",
         "prettier": "1.19.1",
         "react": "16.12.0",
-        "rollup": "1.29.0",
+        "rollup": "1.29.1",
         "rollup-plugin-typescript2": "0.25.3",
-        "tslint": "5.20.1",
+        "semantic-release": "16.0.2",
+        "tslint": "6.0.0",
         "tslint-config-prettier": "1.18.0",
-        "tslint-react": "4.1.0",
+        "tslint-react": "4.2.0",
         "tslint-react-hooks": "2.2.1",
         "typescript": "3.7.5",
         "wait-on": "4.0.0"
@@ -81,11 +91,14 @@
     "private": false,
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/ArrayKnight/storybook-addon-headless.git"
+        "url": "https://github.com/ArrayKnight/storybook-addon-headless.git"
     },
     "homepage": "https://arrayknight.github.io/storybook-addon-headless/",
     "bugs": {
         "url": "https://github.com/ArrayKnight/storybook-addon-headless/issues"
+    },
+    "release": {
+        "branch": "master"
     },
     "files": [
         "dist/**/*",

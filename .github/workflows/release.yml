@@ -1,0 +1,40 @@
+name: Release
+
+on: push
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@master
+
+            - uses: actions/setup-node@master
+              with:
+                  node-version: 12
+
+            - run: npm install
+            - run: npm run build
+
+    release:
+        needs: build
+
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@master
+
+            - uses: codfish/semantic-release-action@master
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            - if: steps.semantic.outputs.new-release-published == 'true'
+              run: |
+                  echo "$OUTPUTS"
+                  echo "$NEW_RELEASE_PUBLISHED"
+                  echo "$RELEASE_MAJOR"
+                  echo "$RELEASE_MINOR"
+                  echo "$RELEASE_PATH"
+              env:
+                  OUTPUTS: ${{ toJson(steps.semantic.outputs) }}
