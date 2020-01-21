@@ -1,6 +1,6 @@
-/.storybook
-/docs
-/node_modules
-/src
+/.storybook/
+/docs/
+/node_modules/
+/src/
 .*ignore
 ts*.json
