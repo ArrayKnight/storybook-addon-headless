@@ -8,7 +8,7 @@
         "preinstall": "rm -rf node_modules && rm -f package-lock.json && rm -f yarn.lock",
         "prebuild": "npm run clean",
         "build": "npm-run-all rollup storybook:build",
-        "clean": "rm -rf dist",
+        "clean": "rm -rf dist && rm -rf docs",
         "commit": "npm run lint && git add -i && npx git-cz",
         "lint": "tslint --fix -p tsconfig.json -c tslint.json",
         "rollup": "rollup -c",
