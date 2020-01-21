@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react'
+import React, { memo, ReactNode } from 'react'
 
 import { Root } from './styled'
 
@@ -6,6 +6,6 @@ interface Props {
     children: ReactNode
 }
 
-export const Message = ({ children }: Props) => {
+export const Message = memo(({ children }: Props) => {
     return <>{!!children && <Root>{children}</Root>}</>
-}
+})

@@ -1,10 +1,15 @@
-import { useAddonState, useChannel, useParameter } from '@storybook/api'
+import { useChannel, useParameter } from '@storybook/api'
 import { TabsState } from '@storybook/components'
-import { Theme, useTheme } from '@storybook/theming'
-import React from 'react'
+import { Theme, ThemeProvider, useTheme } from '@storybook/theming'
+import React, { memo, useState } from 'react'
 import Json, { InteractionProps } from 'react-json-view'
 
-import { ADDON_ID, EVENT_DATA, EVENT_INIT, PARAM_KEY } from '../../config'
+import {
+    EVENT_DATA_UPDATED,
+    EVENT_INITIALIZED,
+    EVENT_STORY_CHANGED,
+    PARAM_KEY,
+} from '../../config'
 import {
     ApiParameters,
     Dictionary,
@@ -27,30 +32,32 @@ import { Message } from '../Message'
 import { Variables } from '../Variables'
 import { Content, Root, Separator, TabContent } from './styled'
 
+const initialState: HeadlessState = {
+    isReady: false,
+    options: {
+        graphql: {},
+        restful: {},
+        jsonDark: 'colors',
+        jsonLight: 'rjv-default',
+    },
+    data: {},
+    errors: {},
+}
+
 interface Props {
     active: boolean
 }
 
-export const Panel = ({ active }: Props) => {
+export const Panel = memo(({ active }: Props) => {
     const theme = useTheme<Theme>()
     const parameters = useParameter<HeadlessParameters>(PARAM_KEY, {})
-    const [state, setState] = useAddonState<HeadlessState>(ADDON_ID, {
-        isReady: false,
-        options: {
-            graphql: {},
-            restful: {},
-            jsonDark: 'colors',
-            jsonLight: 'rjv-default',
-        },
-        data: {},
-        errors: {},
-    })
+    const [state, setState] = useState<HeadlessState>(initialState)
 
     const { isReady, data, errors, options } = state
     const { graphql, restful, jsonDark, jsonLight } = options
 
     const emit = useChannel({
-        [EVENT_INIT]: (opts: HeadlessOptions) => {
+        [EVENT_INITIALIZED]: (opts: HeadlessOptions, storyId: string) => {
             setState({
                 ...state,
                 isReady: true,
@@ -60,9 +67,14 @@ export const Panel = ({ active }: Props) => {
                 },
             })
 
-            emit(EVENT_DATA, {
+            emit(EVENT_DATA_UPDATED, {
                 ...data,
             })
+        },
+        [EVENT_STORY_CHANGED]: (storyId: string) => {
+            console.log(EVENT_STORY_CHANGED, storyId)
+
+            // TODO fix isReady on story change
         },
     })
 
@@ -79,7 +91,7 @@ export const Panel = ({ active }: Props) => {
             },
         })
 
-        emit(EVENT_DATA, {
+        emit(EVENT_DATA_UPDATED, {
             ...data,
             [name]: null,
         })
@@ -99,7 +111,7 @@ export const Panel = ({ active }: Props) => {
                 },
             })
 
-            emit(EVENT_DATA, {
+            emit(EVENT_DATA_UPDATED, {
                 ...data,
                 [name]: updated,
             })
@@ -165,72 +177,106 @@ export const Panel = ({ active }: Props) => {
         return ({ updated_src }) => setDataTo(updated_src)
     }
 
-    if (active && isReady) {
+    if (isReady) {
         return (
-            <Root>
-                <Content>
-                    <TabsState>
-                        {Object.entries(parameters).map(([name, parameter]) => {
-                            const params: ApiParameters =
-                                isString(parameter) || isQuery(parameter)
-                                    ? ({ query: parameter } as ApiParameters)
-                                    : parameter
-                            const hasData = !!state.data[name]
-                            const hasError = !!state.errors[name]
+            <ThemeProvider theme={{ active }}>
+                <Root>
+                    <Content>
+                        <TabsState>
+                            {Object.entries(parameters).map(
+                                ([name, parameter]) => {
+                                    const params: ApiParameters =
+                                        isString(parameter) ||
+                                        isQuery(parameter)
+                                            ? ({
+                                                  query: parameter,
+                                              } as ApiParameters)
+                                            : parameter
+                                    const hasData = !!state.data[name]
+                                    const hasError = !!state.errors[name]
 
-                            return (
-                                <div key={name} id={name} title={name}>
-                                    <TabContent>
-                                        <Message>
-                                            {isGraphQLParameters(params)
-                                                ? getGraphQLUri(graphql, params)
-                                                : getRestfulUrl(
-                                                      restful,
-                                                      params,
-                                                      {},
-                                                      true,
-                                                  )}
-                                        </Message>
-                                        <Variables
-                                            parameters={params}
-                                            onFetch={fetch(name, params)}
-                                        />
-                                        {(hasData || hasError) && (
-                                            <>
-                                                <Separator />
-                                                <Json
-                                                    src={
-                                                        state.data[name] ||
-                                                        state.errors[name]
-                                                    }
-                                                    name={null}
-                                                    iconStyle="square"
-                                                    theme={
-                                                        theme.base === 'light'
-                                                            ? jsonLight
-                                                            : jsonDark
-                                                    }
-                                                    collapsed={
-                                                        hasError ? 1 : false
-                                                    }
-                                                    displayObjectSize={false}
-                                                    displayDataTypes={false}
-                                                    enableClipboard={hasData}
-                                                    onAdd={updateData(name)}
-                                                    onDelete={updateData(name)}
-                                                    onEdit={updateData(name)}
+                                    return (
+                                        <div key={name} id={name} title={name}>
+                                            <TabContent>
+                                                <Message>
+                                                    {isGraphQLParameters(params)
+                                                        ? getGraphQLUri(
+                                                              graphql,
+                                                              params,
+                                                          )
+                                                        : getRestfulUrl(
+                                                              restful,
+                                                              params,
+                                                              {},
+                                                              true,
+                                                          )}
+                                                </Message>
+                                                <Variables
+                                                    hasData={hasData}
+                                                    hasError={hasError}
+                                                    parameters={params}
+                                                    onFetch={fetch(
+                                                        name,
+                                                        params,
+                                                    )}
                                                 />
-                                            </>
-                                        )}
-                                    </TabContent>
-                                </div>
-                            )
-                        })}
-                    </TabsState>
-                </Content>
-            </Root>
+                                                {(hasData || hasError) && (
+                                                    <>
+                                                        <Separator />
+                                                        <Json
+                                                            src={
+                                                                state.data[
+                                                                    name
+                                                                ] ||
+                                                                state.errors[
+                                                                    name
+                                                                ]
+                                                            }
+                                                            name={null}
+                                                            iconStyle="square"
+                                                            theme={
+                                                                theme.base ===
+                                                                'light'
+                                                                    ? jsonLight
+                                                                    : jsonDark
+                                                            }
+                                                            collapsed={
+                                                                hasError
+                                                                    ? 1
+                                                                    : false
+                                                            }
+                                                            displayObjectSize={
+                                                                false
+                                                            }
+                                                            displayDataTypes={
+                                                                false
+                                                            }
+                                                            enableClipboard={
+                                                                hasData
+                                                            }
+                                                            onAdd={updateData(
+                                                                name,
+                                                            )}
+                                                            onDelete={updateData(
+                                                                name,
+                                                            )}
+                                                            onEdit={updateData(
+                                                                name,
+                                                            )}
+                                                        />
+                                                    </>
+                                                )}
+                                            </TabContent>
+                                        </div>
+                                    )
+                                },
+                            )}
+                        </TabsState>
+                    </Content>
+                </Root>
+            </ThemeProvider>
         )
     }
 
     return null
-}
+})

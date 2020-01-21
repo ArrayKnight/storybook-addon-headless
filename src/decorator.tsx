@@ -6,9 +6,16 @@ import {
     StoryContext,
 } from '@storybook/addons'
 import { Channel } from '@storybook/channels'
-import React, { ReactElement, useState } from 'react'
+import { STORY_CHANGED } from '@storybook/core-events'
+import React, { memo, ReactElement, useEffect, useState } from 'react'
 
-import { DECORATOR_NAME, EVENT_DATA, EVENT_INIT, PARAM_KEY } from './config'
+import {
+    DECORATOR_NAME,
+    EVENT_DATA_UPDATED,
+    EVENT_INITIALIZED,
+    EVENT_STORY_CHANGED,
+    PARAM_KEY,
+} from './config'
 import { HeadlessOptions, HeadlessParameters, HeadlessState } from './types'
 
 interface Props {
@@ -19,38 +26,40 @@ interface Props {
     storyFn: (context: StoryContext) => any
 }
 
-export const Decorator = ({
-    channel,
-    context,
-    options,
-    parameters,
-    storyFn,
-}: Props) => {
-    const [state, setState] = useState({
-        data: Object.keys(parameters).reduce(
-            (obj, key) => ({ ...obj, [key]: null }),
-            {},
-        ),
-        received: false,
-    })
-
-    channel.on(EVENT_DATA, (data: HeadlessState['data']) => {
-        setState({
-            data: {
-                ...state.data,
-                ...data,
-            },
-            received: true,
+export const Decorator = memo(
+    ({ channel, context, options, parameters, storyFn }: Props) => {
+        const [state, setState] = useState({
+            data: Object.keys(parameters).reduce(
+                (obj, key) => ({ ...obj, [key]: null }),
+                {},
+            ),
+            received: false,
         })
-    })
 
-    return state.received
-        ? storyFn({
-              ...context,
-              data: state.data,
-          })
-        : null
-}
+        function setData(data: HeadlessState['data']): void {
+            setState({
+                data: {
+                    ...state.data,
+                    ...data,
+                },
+                received: true,
+            })
+        }
+
+        useEffect(() => {
+            channel.on(EVENT_DATA_UPDATED, setData)
+
+            return () => channel.off(EVENT_DATA_UPDATED, setData)
+        })
+
+        return state.received
+            ? storyFn({
+                  ...context,
+                  data: state.data,
+              })
+            : null
+    },
+)
 
 export const headlessDecorator: (
     options: HeadlessOptions,
@@ -61,7 +70,15 @@ export const headlessDecorator: (
     wrapper: (storyFn, context, { options, parameters }) => {
         const channel = addons.getChannel()
 
-        channel.emit(EVENT_INIT, options)
+        channel.emit(EVENT_INITIALIZED, options, context.id)
+
+        console.log('wrapper', context.id)
+
+        channel.once(STORY_CHANGED, (storyId) => {
+            console.log(STORY_CHANGED, storyId)
+
+            channel.emit(EVENT_STORY_CHANGED, storyId)
+        })
 
         return (
             <Decorator

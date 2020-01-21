@@ -1,10 +1,16 @@
-import { background, styled } from '@storybook/theming'
+import { background, css, styled } from '@storybook/theming'
 
 export const Root = styled.div`
     width: 100%;
     min-height: 100%;
     background: ${background.app};
     position: absolute;
+    ${({ theme }) =>
+        !theme.active &&
+        css`
+            display: none;
+            pointer-events: none;
+        `}
 
     *:focus {
         outline: none;

@@ -11,6 +11,6 @@ addons.register(ADDON_ID, () => {
         paramKey: PARAM_KEY,
         route: ({ storyId }) => `/${ADDON_ID}/${storyId}`,
         match: ({ viewMode }) => viewMode === ADDON_ID,
-        render: ({ active, key }) => <Panel active={active} />,
+        render: (props) => <Panel {...props} />,
     })
 })
