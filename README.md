@@ -1,8 +1,7 @@
-# Storybook Addon Headless (WIP, unpublished)
+# Storybook Addon Headless
 
 Storybook Addon Headless allows you to preview data from a headless CMS inside stories in [Storybook](https://storybook.js.org/).
 
-<!--
 ## Getting Started
 
 First of all, you need to install Headless into your project as a dev dependency.
@@ -16,8 +15,12 @@ Then, configure it as an addon by adding it to your `addons.js` file (located in
 ```js
 import 'storybook-addon-headless/register'
 ```
--->
 
-<!--
-For reference: https://storybookjs-next.now.sh/official-storybook/?path=/story/*
--->
+Or to the `addons` parameter in your `main.js` file (located in the Storybook config directory).
+
+```js
+module.exports = {
+    addons: ['storybook-addon-headless/register'],
+    ...
+}
+```

@@ -32,8 +32,7 @@
     },
     "lint-staged": {
         "**/*.{ts,tsx,json,md}": [
-            "prettier --write",
-            "git add"
+            "prettier --write"
         ]
     },
     "commitlint": {
@@ -93,7 +92,7 @@
         "type": "git",
         "url": "https://github.com/ArrayKnight/storybook-addon-headless.git"
     },
-    "homepage": "https://arrayknight.github.io/storybook-addon-headless/",
+    "homepage": "https://storybook-addon-headless.netlify.com/",
     "bugs": {
         "url": "https://github.com/ArrayKnight/storybook-addon-headless/issues"
     },
