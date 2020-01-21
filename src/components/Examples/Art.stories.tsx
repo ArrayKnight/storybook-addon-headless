@@ -2,7 +2,7 @@ import { StoryContext } from '@storybook/addons'
 import gql from 'graphql-tag'
 import React from 'react'
 
-import { headlessDecorator, pack } from '../../../dist'
+import { pack, withHeadless } from '../../../dist'
 
 import { Artwork } from '.'
 
@@ -10,7 +10,7 @@ export default {
     title: 'Examples/Art',
     component: Artwork,
     decorators: [
-        headlessDecorator({
+        withHeadless({
             graphql: {
                 uri: 'https://metaphysics-production.artsy.net/',
             },

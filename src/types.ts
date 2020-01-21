@@ -36,7 +36,7 @@ export interface HeadlessParameters {
 }
 
 export interface HeadlessState {
-    isReady: boolean
+    storyId: string
     options: Required<HeadlessOptions>
     data: Dictionary
     errors: Dictionary

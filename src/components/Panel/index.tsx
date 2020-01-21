@@ -1,15 +1,10 @@
-import { useChannel, useParameter } from '@storybook/api'
+import { useChannel, useParameter, useStorybookApi } from '@storybook/api'
 import { TabsState } from '@storybook/components'
 import { Theme, ThemeProvider, useTheme } from '@storybook/theming'
 import React, { memo, useState } from 'react'
 import Json, { InteractionProps } from 'react-json-view'
 
-import {
-    EVENT_DATA_UPDATED,
-    EVENT_INITIALIZED,
-    EVENT_STORY_CHANGED,
-    PARAM_KEY,
-} from '../../config'
+import { EVENT_DATA_UPDATED, EVENT_INITIALIZED, PARAM_KEY } from '../../config'
 import {
     ApiParameters,
     Dictionary,
@@ -33,7 +28,7 @@ import { Variables } from '../Variables'
 import { Content, Root, Separator, TabContent } from './styled'
 
 const initialState: HeadlessState = {
-    isReady: false,
+    storyId: '',
     options: {
         graphql: {},
         restful: {},
@@ -49,18 +44,20 @@ interface Props {
 }
 
 export const Panel = memo(({ active }: Props) => {
+    const api = useStorybookApi()
     const theme = useTheme<Theme>()
     const parameters = useParameter<HeadlessParameters>(PARAM_KEY, {})
     const [state, setState] = useState<HeadlessState>(initialState)
 
-    const { isReady, data, errors, options } = state
+    const { storyId, data, errors, options } = state
     const { graphql, restful, jsonDark, jsonLight } = options
+    const isReady = storyId === api.getCurrentStoryData()?.id
 
     const emit = useChannel({
-        [EVENT_INITIALIZED]: (opts: HeadlessOptions, storyId: string) => {
+        [EVENT_INITIALIZED]: (opts: HeadlessOptions, id: string) => {
             setState({
                 ...state,
-                isReady: true,
+                storyId: id,
                 options: {
                     ...options,
                     ...opts,
@@ -70,11 +67,6 @@ export const Panel = memo(({ active }: Props) => {
             emit(EVENT_DATA_UPDATED, {
                 ...data,
             })
-        },
-        [EVENT_STORY_CHANGED]: (storyId: string) => {
-            console.log(EVENT_STORY_CHANGED, storyId)
-
-            // TODO fix isReady on story change
         },
     })
 

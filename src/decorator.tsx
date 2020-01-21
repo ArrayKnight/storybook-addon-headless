@@ -6,14 +6,12 @@ import {
     StoryContext,
 } from '@storybook/addons'
 import { Channel } from '@storybook/channels'
-import { STORY_CHANGED } from '@storybook/core-events'
 import React, { memo, ReactElement, useEffect, useState } from 'react'
 
 import {
     DECORATOR_NAME,
     EVENT_DATA_UPDATED,
     EVENT_INITIALIZED,
-    EVENT_STORY_CHANGED,
     PARAM_KEY,
 } from './config'
 import { HeadlessOptions, HeadlessParameters, HeadlessState } from './types'
@@ -61,7 +59,7 @@ export const Decorator = memo(
     },
 )
 
-export const headlessDecorator: (
+export const withHeadless: (
     options: HeadlessOptions,
 ) => DecoratorFunction<ReactElement<unknown>> = makeDecorator({
     name: DECORATOR_NAME,
@@ -71,14 +69,6 @@ export const headlessDecorator: (
         const channel = addons.getChannel()
 
         channel.emit(EVENT_INITIALIZED, options, context.id)
-
-        console.log('wrapper', context.id)
-
-        channel.once(STORY_CHANGED, (storyId) => {
-            console.log(STORY_CHANGED, storyId)
-
-            channel.emit(EVENT_STORY_CHANGED, storyId)
-        })
 
         return (
             <Decorator

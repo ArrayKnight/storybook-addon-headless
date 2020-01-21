@@ -1,7 +1,7 @@
 import { StoryContext } from '@storybook/addons'
 import React from 'react'
 
-import { headlessDecorator } from '../../../dist'
+import { withHeadless } from '../../../dist'
 
 import { User } from '.'
 
@@ -9,7 +9,7 @@ export default {
     title: 'Examples/User',
     component: User,
     decorators: [
-        headlessDecorator({
+        withHeadless({
             restful: {
                 baseURL: 'https://jsonplaceholder.typicode.com/',
             },
