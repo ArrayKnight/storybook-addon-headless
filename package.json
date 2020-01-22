@@ -100,8 +100,7 @@
         "branch": "master"
     },
     "files": [
-        "dist/**/*",
-        "docs/**/*",
+        "dist",
         "README.md",
         "*.js",
         "*.d.ts"
