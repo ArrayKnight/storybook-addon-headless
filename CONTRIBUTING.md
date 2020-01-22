@@ -50,3 +50,16 @@ This will run [NPM Check](https://github.com/dylang/npm-check) in interactive mo
 Dev-dependencies should be installed with an exact version.
 
 Dependencies should be installed with a `^`.
+
+#### Resources
+
+Because documentation is not extensive, having to read through Storybook addons and libs source code is necessary:
+
+-   [https://storybook.js.org/docs/addons/writing-addons/](https://storybook.js.org/docs/addons/writing-addons/)
+-   [https://storybook.js.org/docs/addons/api/](https://storybook.js.org/docs/addons/api/)
+-   [https://github.com/storybookjs/storybook/tree/next/addons](https://github.com/storybookjs/storybook/tree/next/addons)
+-   [https://github.com/storybookjs/storybook/tree/next/lib/addons](https://github.com/storybookjs/storybook/tree/next/lib/addons)
+-   [https://github.com/storybookjs/storybook/tree/next/lib/api](https://github.com/storybookjs/storybook/tree/next/lib/api)
+-   [https://github.com/storybookjs/storybook/tree/next/lib/components](https://github.com/storybookjs/storybook/tree/next/lib/components)
+
+It should also be noted that not all available tools will work everywhere. For example, React hooks from the `@storybook/addons` library will not function on the decorator, but should be used on the panel. It's not always clear when and where things will work so it requires a certain amount of trial and error. Please add to these notes on discovered quirks or undocumented restrictions/features.

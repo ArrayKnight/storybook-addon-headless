@@ -52,7 +52,7 @@ export default {
 }
 ```
 
-You can find options documented as [HeadlessOptions](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types.ts#L25)
+You can find options documented as [HeadlessOptions](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types.ts#L18)
 
 #### Parameterize
 
@@ -72,4 +72,8 @@ export default {
 }
 ```
 
-You can find parameters document as [HeadlessParameters](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types.ts#L34)
+You can find parameters document as [HeadlessParameters](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types.ts#L27)
+
+### Produced @ [GenUI](https://www.genui.com/)
+
+This addoon was developed while I was employed at GenUI, a software product development firm in Seattle, WA, USA. Interested in knowing more, starting a new project or working with us? Come check us out at [https://www.genui.com/](https://www.genui.com/)
