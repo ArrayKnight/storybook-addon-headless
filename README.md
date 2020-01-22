@@ -1,6 +1,6 @@
 # Storybook Addon Headless
 
-Storybook Addon Headless allows you to preview data from a headless CMS inside stories in [Storybook](https://storybook.js.org/).
+Storybook Addon Headless allows you to preview data from a headless CMS inside stories in [Storybook](https://storybook.js.org/). It supports Restful and GraphQL APIs with the help of [Axios](https://github.com/axios/axios) and [Apollo Client](https://github.com/apollographql/apollo-client) respectively. And each query can handle variables which are validated using [Ajv](https://github.com/epoberezkin/ajv).
 
 ## Examples
 
