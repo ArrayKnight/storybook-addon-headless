@@ -1,6 +1,6 @@
 import { ValidateFunction } from 'ajv'
-import { DocumentNode, PresetConfig } from 'apollo-boost'
-import { AxiosRequestConfig } from 'axios'
+import { DocumentNode, PresetConfig as ApolloClientConfig } from 'apollo-boost'
+import { AxiosRequestConfig as AxiosClientConfig } from 'axios'
 import { ThemeKeys } from 'react-json-view'
 
 export interface Dictionary<T = any> {
@@ -11,16 +11,9 @@ export type Required<T> = T extends object
     ? { [P in keyof T]-?: NonNullable<T[P]> }
     : T
 
-type UnsupportedAxiosOptions =
-    | 'url'
-    | 'method'
-    | 'transformRequest'
-    | 'transformResponse'
-    | 'adapter'
+export type RestfulOptions = AxiosClientConfig
 
-export type RestfulOptions = Omit<AxiosRequestConfig, UnsupportedAxiosOptions>
-
-export type GraphQLOptions = PresetConfig
+export type GraphQLOptions = ApolloClientConfig
 
 export interface HeadlessOptions {
     restful?: RestfulOptions
@@ -29,7 +22,7 @@ export interface HeadlessOptions {
     jsonLight?: ThemeKeys
 }
 
-export type HeadlessParameter = string | DocumentNode | ApiParameters
+export type HeadlessParameter = string | PackedDocumentNode | ApiParameters
 
 export interface HeadlessParameters {
     [name: string]: HeadlessParameter
@@ -69,12 +62,12 @@ export interface BaseParameters {
 
 export interface GraphQLParameters extends BaseParameters {
     query: PackedDocumentNode
-    config?: PresetConfig
+    config?: GraphQLOptions
 }
 
 export interface RestfulParameters extends BaseParameters {
     query: string
-    config?: AxiosRequestConfig
+    config?: RestfulOptions
     convertToFormData?: boolean
 }
 

@@ -22,7 +22,10 @@ export const Message = memo(
             <>
                 {!!children && (
                     <ThemeProvider
-                        theme={{ isCollapsed: collapisble && isCollapsed }}
+                        theme={{
+                            collapisble,
+                            isCollapsed: collapisble && isCollapsed,
+                        }}
                     >
                         <Root onClick={toggle}>
                             <Pre>{children}</Pre>

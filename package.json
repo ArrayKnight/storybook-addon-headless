@@ -51,7 +51,6 @@
         "@types/react": "16.9.18",
         "babel-loader": "8.0.6",
         "babel-preset-react-app": "9.1.0",
-        "graphql-tag": "2.10.1",
         "husky": "4.2.0",
         "lint-staged": "10.0.2",
         "npm-check": "5.9.0",
@@ -77,12 +76,8 @@
         "apollo-boost": "^0.4.7",
         "axios": "^0.19.1",
         "graphql": "^14.5.8",
-        "polished": "^3.4.2",
         "react": "^16.12.0",
         "react-json-view": "^1.19.1"
-    },
-    "peerDependencies": {
-        "graphql-tag": "^2.10.1"
     },
     "private": false,
     "repository": {

@@ -1,5 +1,5 @@
 import { StoryContext } from '@storybook/addons'
-import gql from 'graphql-tag'
+import { gql } from 'apollo-boost'
 import React from 'react'
 
 import { pack, withHeadless } from '../../../dist'
@@ -38,7 +38,7 @@ export default {
 }
 
 export const Artworks = ({ data }: StoryContext) => {
-    if (data && data.Artworks) {
+    if (data.Artworks) {
         return (
             <>
                 {data.Artworks.artworks.map((artwork: any, index: number) => (
