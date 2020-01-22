@@ -35,7 +35,7 @@ export default {
 }
 
 export const Many = ({ data }: StoryContext) => {
-    if (data && data.Users) {
+    if (data.Users) {
         return (
             <>
                 {data.Users.map((user: any) => (
@@ -49,7 +49,7 @@ export const Many = ({ data }: StoryContext) => {
 }
 
 export const One = ({ data }: StoryContext) => {
-    if (data && (data.User || data.Users)) {
+    if (data.User || data.Users) {
         return <User {...(data.User || data.Users[0])} />
     }
 

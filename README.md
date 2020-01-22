@@ -54,6 +54,19 @@ export default {
 
 You can find options documented as [HeadlessOptions](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types.ts#L18)
 
+##### Options
+
+```js
+{
+    graphql?: ApolloBoostClientConfig
+    restful?: AxiosClientConfig
+    jsonDark?: ReactJsonViewThemeKey
+    jsonLight?: ReactJsonViewThemeKey
+}
+```
+
+Under the covers, this addon uses Axios for Restful queries and Apollo Client for GraphQL queries. These configs are optional, though you'll likely want to use one or both. The configs will also be merged with the optional configs being passed through the parameters.
+
 #### Parameterize
 
 Parameters are added locally via:
@@ -73,6 +86,26 @@ export default {
 ```
 
 You can find parameters document as [HeadlessParameters](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types.ts#L27)
+
+```js
+{
+    headless: {
+        [name]: HeadlessParameter,
+        ...,
+    }
+}
+```
+
+`name` is the string to represent the query and data. It will be shown in the tab for the query and be the accessor on the data object in the story context.
+
+`HeadlessParameter` represents several different possible options:
+
+-   `string`: Restful URL
+-   `PackedDocumentNode`: A `pack`ed GraphQL Tag `DocumentNode`
+-   `GraphQLParameters`: [An object](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types.ts#L63) with a `PackedDocumentNode` as a query and some optional parameters
+-   `RestfulParameters`: [An object](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types.ts#L68) with a Restful URL string as a query and some optional parameters
+
+Due to an [issue within Storybook](https://github.com/storybookjs/storybook/issues/9534) where data is stringified with a maxDepth, there is data loss on ordinary GraphQL Tag `DocumentNode`s. To bypass this issue until it can be resolved, this addon exports a `pack` function which preemptively flattens the `DocumentNode` to avoid data loss.
 
 ### Produced @ [GenUI](https://www.genui.com/)
 

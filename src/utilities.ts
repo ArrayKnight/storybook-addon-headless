@@ -224,7 +224,9 @@ const validateDocument = ajv.compile({
     required: ['kind', 'definitions', 'loc'],
 })
 
-export function isQuery(value: any): value is DocumentNode {
+export function isQuery(
+    value: any,
+): value is DocumentNode | PackedDocumentNode {
     return !!validateDocument(value)
 }
 

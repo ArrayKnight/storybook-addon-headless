@@ -22,7 +22,7 @@ export interface HeadlessOptions {
     jsonLight?: ThemeKeys
 }
 
-export type HeadlessParameter = string | DocumentNode | ApiParameters
+export type HeadlessParameter = string | PackedDocumentNode | ApiParameters
 
 export interface HeadlessParameters {
     [name: string]: HeadlessParameter
