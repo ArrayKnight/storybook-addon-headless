@@ -1,11 +1,46 @@
-import React, { memo, ReactNode } from 'react'
+import { Icons } from '@storybook/components'
+import { ThemeProvider } from '@storybook/theming'
+import React, { memo, useState } from 'react'
 
-import { Root } from './styled'
+import { Button, Pre, Root } from './styled'
 
 interface Props {
-    children: ReactNode
+    children: string
+    collapisble?: boolean
+    collapsed?: boolean
 }
 
-export const Message = memo(({ children }: Props) => {
-    return <>{!!children && <Root>{children}</Root>}</>
-})
+export const Message = memo(
+    ({ children, collapisble = false, collapsed = true }: Props) => {
+        const [isCollapsed, setIsCollapsed] = useState(collapsed)
+
+        function toggle(): void {
+            setIsCollapsed(!isCollapsed)
+        }
+
+        return (
+            <>
+                {!!children && (
+                    <ThemeProvider
+                        theme={{ isCollapsed: collapisble && isCollapsed }}
+                    >
+                        <Root onClick={toggle}>
+                            <Pre>{children}</Pre>
+                            {collapisble && (
+                                <Button>
+                                    <Icons
+                                        icon={
+                                            isCollapsed
+                                                ? 'arrowleft'
+                                                : 'arrowdown'
+                                        }
+                                    />
+                                </Button>
+                            )}
+                        </Root>
+                    </ThemeProvider>
+                )}
+            </>
+        )
+    },
+)

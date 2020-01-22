@@ -190,7 +190,11 @@ export const Panel = memo(({ active }: Props) => {
                                     return (
                                         <div key={name} id={name} title={name}>
                                             <TabContent>
-                                                <Message>
+                                                <Message
+                                                    collapisble={isGraphQLParameters(
+                                                        params,
+                                                    )}
+                                                >
                                                     {isGraphQLParameters(params)
                                                         ? getGraphQLUri(
                                                               graphql,

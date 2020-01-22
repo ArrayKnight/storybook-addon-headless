@@ -86,25 +86,16 @@ export function getGraphQLUri(
     parameters: GraphQLParameters,
 ): string {
     const base = { ...options, ...(parameters.config || {}) }.uri || ''
-    // TODO determine if there's any value in revealing more about the query
-    /*const defs = parameters.query.definitions.reduce(
-        (operations, definition) => {
-            if (
-                definition.kind === 'OperationDefinition' &&
-                !isUndefined(definition.name)
-            ) {
-                return [
-                    ...operations,
-                    `${definition.operation} { ${definition.name.value} }`,
-                ]
-            }
+    let query = parameters.query.loc.source.body
+    const match = query.match(/( +)[^\s]/)
 
-            return operations
-        },
-        [],
-    )*/
+    if (!isNull(match)) {
+        const [, space] = match
 
-    return `${base}`
+        query = query.replace(new RegExp(`^${space}`, 'gm'), '')
+    }
+
+    return `${base}\r\n${query}`
 }
 
 export function getRestfulUrl(
