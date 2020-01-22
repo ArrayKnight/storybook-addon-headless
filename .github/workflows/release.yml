@@ -28,13 +28,3 @@ jobs:
               env:
                   GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
                   NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-            - if: steps.semantic.outputs.new-release-published == 'true'
-              run: |
-                  echo "$OUTPUTS"
-                  echo "$NEW_RELEASE_PUBLISHED"
-                  echo "$RELEASE_MAJOR"
-                  echo "$RELEASE_MINOR"
-                  echo "$RELEASE_PATH"
-              env:
-                  OUTPUTS: ${{ toJson(steps.semantic.outputs) }}
