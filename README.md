@@ -16,7 +16,7 @@ Check out examples and detailed documentation:
 First of all, you need to install Headless into your project as a dev dependency.
 
 ```sh
-npm i --save-dev storybook-addon-headless
+npm install --save-dev storybook-addon-headless
 ```
 
 #### Register
