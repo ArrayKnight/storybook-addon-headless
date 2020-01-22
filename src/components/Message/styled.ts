@@ -1,5 +1,4 @@
 import { background, color, css, styled } from '@storybook/theming'
-import { darken, lighten } from 'polished'
 
 export const Root = styled.div(
     ({ theme }) => css`
@@ -7,18 +6,29 @@ export const Root = styled.div(
         padding: 0.42em 1em;
         border: 1px solid ${color.border};
         border-radius: ${theme.appBorderRadius}px;
-        background: ${theme.base === 'light'
-            ? lighten(0.015, background.app)
-            : darken(0.015, background.app)};
         position: relative;
         transition: max-height 500ms;
         overflow: ${theme.isCollapsed ? 'hidden' : 'auto'};
+
+        &:before {
+            content: '';
+            width: 100%;
+            height: 100%;
+            background: ${background.app};
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            opacity: 0.5;
+        }
     `,
 )
 
 export const Pre = styled.pre`
     padding: 0;
     margin: 0;
+    position: relative;
 `
 
 export const Button = styled.button`

@@ -1,10 +1,5 @@
 module.exports = {
-    addons: [
-        '@storybook/addon-actions/register',
-        '@storybook/addon-knobs/register',
-        '@storybook/addon-viewport/register',
-        './dist/register',
-    ],
+    addons: ['@storybook/addon-knobs/register', './dist/register'],
     stories: ['../src/**/*.stories.tsx'],
     webpackFinal: async (config) => {
         config.module.rules.push({

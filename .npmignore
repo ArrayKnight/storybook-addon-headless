@@ -1,7 +1,0 @@
-/.storybook/
-/docs/
-/node_modules/
-/src/
-.*ignore
-rollup.config.js
-ts*.json
