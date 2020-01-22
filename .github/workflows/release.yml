@@ -3,7 +3,7 @@ name: Release
 on: push
 
 jobs:
-    build:
+    release:
         runs-on: ubuntu-latest
 
         steps:
@@ -15,14 +15,6 @@ jobs:
 
             - run: npm install
             - run: npm run build
-
-    release:
-        needs: build
-
-        runs-on: ubuntu-latest
-
-        steps:
-            - uses: actions/checkout@master
 
             - uses: codfish/semantic-release-action@master
               env:
