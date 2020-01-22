@@ -9,6 +9,7 @@ export const Root = styled.div(
         position: relative;
         transition: max-height 500ms;
         overflow: ${theme.isCollapsed ? 'hidden' : 'auto'};
+        cursor: ${theme.collapisble ? 'pointer' : 'default'};
 
         &:before {
             content: '';
@@ -41,4 +42,5 @@ export const Button = styled.button`
     top: 0;
     right: 0;
     appearance: none;
+    cursor: pointer;
 `

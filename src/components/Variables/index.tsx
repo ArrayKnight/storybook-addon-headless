@@ -58,7 +58,6 @@ export const Variables = memo(
         const isInactive = status === FetchStatus.Inactive
         const isLoading = status === FetchStatus.Loading
         const isRejected = status === FetchStatus.Rejected
-        const isResolved = status === FetchStatus.Resolved
 
         function areValid(obj: Dictionary<VariableState>): boolean {
             return Object.values(obj).every(({ error }) => isNull(error))
@@ -107,8 +106,6 @@ export const Variables = memo(
             )
         }
 
-        // TODO reset from resolved to inactive after timeout, clear timeout on unmount
-
         useEffect(() => {
             if (autoFetchOnInit && isValid && !hasData && !hasError) {
                 fetch()
@@ -139,10 +136,7 @@ export const Variables = memo(
                         ),
                     )}
                 </Fieldset>
-                <Button
-                    disabled={!isValid || isLoading || isResolved}
-                    onClick={fetch}
-                >
+                <Button disabled={!isValid || isLoading} onClick={fetch}>
                     {!isInactive && (
                         <Icons
                             icon={
