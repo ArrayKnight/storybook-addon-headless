@@ -36,6 +36,7 @@ This will:
 -   Run [Git's Interactive Staging](https://git-scm.com/book/en/v2/Git-Tools-Interactive-Staging) to select the files to commit
 -   Run [Prettier](https://github.com/prettier/prettier) on all staged files
 -   Run [Git CZ](https://github.com/streamich/git-cz) for semantic commit messages
+-   Push the commit to your current branch
 
 It is important to use this method of committing to maintain code cleanliness, project history, and to release version updates correctly. There is also a mechanism in place to validate commit messages, so it's possible that you'll run into issues trying to commit using a different method.
 
