@@ -109,4 +109,4 @@ Due to an [issue within Storybook](https://github.com/storybookjs/storybook/issu
 
 ### Produced @ [GenUI](https://www.genui.com/)
 
-This addoon was developed while I was employed at GenUI, a software product development firm in Seattle, WA, USA. Interested in knowing more, starting a new project or working with us? Come check us out at [https://www.genui.com/](https://www.genui.com/)
+This addon was developed while I was employed at GenUI, a software product development firm in Seattle, WA, USA. Interested in knowing more, starting a new project or working with us? Come check us out at [https://www.genui.com/](https://www.genui.com/)
