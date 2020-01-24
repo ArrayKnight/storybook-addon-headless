@@ -43,7 +43,7 @@ export const Variable = memo(
                             return (
                                 <Row>
                                     <input
-                                        type={type}
+                                        type="checkbox"
                                         checked={!!value}
                                         onChange={update}
                                     />
@@ -55,7 +55,7 @@ export const Variable = memo(
                             return (
                                 <Row>
                                     <Input
-                                        type={type}
+                                        type={isNumber ? 'number' : 'text'}
                                         valid={isInvalid ? 'error' : null}
                                         value={value}
                                         onChange={update}

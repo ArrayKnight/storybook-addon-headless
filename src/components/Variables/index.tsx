@@ -36,7 +36,7 @@ export const Variables = memo(
                     const type = getVariableType(schema)
                     const isBoolean = type === VariableType.Boolean
                     const validator = ajv.compile(schema)
-                    const value = defaults[name] ?? isBoolean ? true : ''
+                    const value = defaults[name] ?? (isBoolean ? true : '')
 
                     validator(value)
 

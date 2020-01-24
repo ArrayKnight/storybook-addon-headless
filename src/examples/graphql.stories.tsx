@@ -34,10 +34,15 @@ export default {
             },
             Shows: {
                 query: pack(gql`
-                    query Shows($At_a_Fair: Boolean, $Featured: Boolean) {
+                    query Shows(
+                        $At_a_Fair: Boolean
+                        $Featured: Boolean
+                        $Size: Int
+                    ) {
                         partner_shows(
                             at_a_fair: $At_a_Fair
                             featured: $Featured
+                            size: $Size
                         ) {
                             id
                             name
@@ -57,6 +62,13 @@ export default {
                     Featured: {
                         type: 'boolean',
                     },
+                    Size: {
+                        type: 'integer',
+                        minimum: 1,
+                    },
+                },
+                defaults: {
+                    Size: 10,
                 },
             },
         },
