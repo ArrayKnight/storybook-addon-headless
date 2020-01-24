@@ -36,7 +36,7 @@ export const Variable = memo(
         }
 
         return (
-            <Field label={name.replace(/_/, ' ')}>
+            <Field label={name.replace(/_/g, ' ')}>
                 {(() => {
                     switch (true) {
                         case isBoolean:
