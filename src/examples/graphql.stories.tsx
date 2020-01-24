@@ -2,12 +2,12 @@ import { StoryContext } from '@storybook/addons'
 import { gql } from 'apollo-boost'
 import React from 'react'
 
-import { pack, withHeadless } from '../../../dist'
+import { pack, withHeadless } from '../../dist'
 
-import { Artwork } from '.'
+import { Artwork } from './index'
 
 export default {
-    title: 'Examples/Art',
+    title: 'Examples/GraphQL',
     component: Artwork,
     decorators: [
         withHeadless({

@@ -7,7 +7,7 @@ Storybook Addon Headless allows you to preview data from a headless CMS inside s
 Check out examples and detailed documentation:
 
 -   [https://storybook-addon-headless.netlify.com/](https://storybook-addon-headless.netlify.com/)
--   [https://github.com/ArrayKnight/storybook-addon-headless/tree/master/src/components/Examples](https://github.com/ArrayKnight/storybook-addon-headless/tree/master/src/components/Examples)
+-   [https://github.com/ArrayKnight/storybook-addon-headless/tree/master/src/examples](https://github.com/ArrayKnight/storybook-addon-headless/tree/master/src/examples)
 
 ## Getting Started
 

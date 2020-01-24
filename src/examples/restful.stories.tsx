@@ -1,12 +1,12 @@
 import { StoryContext } from '@storybook/addons'
 import React from 'react'
 
-import { withHeadless } from '../../../dist'
+import { withHeadless } from '../../dist'
 
-import { User } from '.'
+import { User } from './index'
 
 export default {
-    title: 'Examples/User',
+    title: 'Examples/Restful',
     component: User,
     decorators: [
         withHeadless({
