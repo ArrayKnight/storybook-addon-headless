@@ -52,7 +52,7 @@ export default {
 }
 ```
 
-You can find options documented as [HeadlessOptions](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types.ts#L18)
+You can find options documented as [HeadlessOptions](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types/options.ts)
 
 ##### Options
 
@@ -85,7 +85,7 @@ export default {
 }
 ```
 
-You can find parameters document as [HeadlessParameters](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types.ts#L27)
+You can find parameters document as [HeadlessParameters](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types/parameters.ts)
 
 ```js
 {
@@ -102,8 +102,8 @@ You can find parameters document as [HeadlessParameters](https://github.com/Arra
 
 -   `string`: Restful URL
 -   `PackedDocumentNode`: A `pack`ed GraphQL Tag `DocumentNode`
--   `GraphQLParameters`: [An object](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types.ts#L63) with a `PackedDocumentNode` as a query and some optional parameters
--   `RestfulParameters`: [An object](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types.ts#L68) with a Restful URL string as a query and some optional parameters
+-   `GraphQLParameters`: [An object](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types/parameters.ts) with a `PackedDocumentNode` as a query and some optional parameters
+-   `RestfulParameters`: [An object](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types/parameters.ts) with a Restful URL string as a query and some optional parameters
 
 Due to an [issue within Storybook](https://github.com/storybookjs/storybook/issues/9534) where data is stringified with a maxDepth, there is data loss on ordinary GraphQL Tag `DocumentNode`s. To bypass this issue until it can be resolved, this addon exports a `pack` function which preemptively flattens the `DocumentNode` to avoid data loss.
 
