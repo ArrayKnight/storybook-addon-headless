@@ -7,6 +7,7 @@ import {
     Dictionary,
     FetchStatus,
     VariableState,
+    VariableType,
 } from '../../types'
 import { getVariableType, isNull } from '../../utilities'
 import { Variable } from '../Variable'
@@ -32,8 +33,10 @@ export const Variables = memo(
         const [states, setStates] = useState<Dictionary<VariableState>>(
             Object.entries(variables).reduce(
                 (obj: Dictionary<VariableState>, [name, schema]) => {
+                    const type = getVariableType(schema)
+                    const isBoolean = type === VariableType.Boolean
                     const validator = ajv.compile(schema)
-                    const value = defaults[name] ?? ''
+                    const value = defaults[name] ?? (isBoolean ? true : '')
 
                     validator(value)
 
@@ -42,7 +45,7 @@ export const Variables = memo(
                     return {
                         ...obj,
                         [name]: {
-                            type: getVariableType(schema),
+                            type,
                             validator,
                             dirty: false,
                             error: error?.message || null,

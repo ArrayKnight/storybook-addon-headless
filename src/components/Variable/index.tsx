@@ -17,7 +17,6 @@ interface Props {
 
 export const Variable = memo(
     ({ name, type, value, error, onChange }: Props) => {
-        const isUnknown = type === VariableType.Unknown
         const isBoolean = type === VariableType.Boolean
         const isNumber = type === VariableType.Number
         const isString = type === VariableType.String
@@ -36,19 +35,42 @@ export const Variable = memo(
             }
         }
 
-        return !isUnknown ? (
-            <Field label={name}>
-                <Row>
-                    <Input
-                        type={type}
-                        valid={isInvalid ? 'error' : null}
-                        value={value}
-                        onChange={update}
-                    />
-                    {isInvalid && <Error>{error}</Error>}
-                </Row>
+        return (
+            <Field label={name.replace(/_/, ' ')}>
+                {(() => {
+                    switch (true) {
+                        case isBoolean:
+                            return (
+                                <Row>
+                                    <input
+                                        type="checkbox"
+                                        checked={!!value}
+                                        onChange={update}
+                                    />
+                                </Row>
+                            )
+
+                        case isNumber:
+                        case isString:
+                            return (
+                                <Row>
+                                    <Input
+                                        type={isNumber ? 'number' : 'text'}
+                                        valid={isInvalid ? 'error' : null}
+                                        value={value}
+                                        onChange={update}
+                                    />
+                                    {isInvalid && <Error>{error}</Error>}
+                                </Row>
+                            )
+
+                        default:
+                            return <></>
+                    }
+                })()}
             </Field>
-        ) : null
+        )
+
         // TODO support more schemas:
         // date
         // (array of strings, numbers, mixed) => rows of inputs
