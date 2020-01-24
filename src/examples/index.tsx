@@ -54,6 +54,30 @@ export const Artwork = ({ title, imageUrl, artist }: ArtworkProps) => {
     )
 }
 
+export interface ShowProps {
+    name: string
+    description: string
+    cover_image: {
+        image_versions: string[]
+        image_url: string
+    }
+}
+
+export const Show = ({
+    name,
+    description,
+    cover_image: { image_versions, image_url },
+}: ShowProps) => {
+    return (
+        <Card
+            title={name}
+            image={image_url.replace(/:version/, image_versions[0])}
+        >
+            <Typography variant="subtitle1">{description}</Typography>
+        </Card>
+    )
+}
+
 export interface UserProps {
     id: number
     name: string

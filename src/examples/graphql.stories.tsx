@@ -4,7 +4,7 @@ import React from 'react'
 
 import { pack, withHeadless } from '../../dist'
 
-import { Artwork as ArtworkCard } from './index'
+import { Artwork as ArtworkCard, Show as ShowCard } from './index'
 
 export default {
     title: 'Examples/GraphQL',
@@ -44,6 +44,7 @@ export default {
                             description
                             cover_image {
                                 id
+                                image_versions
                                 image_url
                             }
                         }
@@ -63,7 +64,7 @@ export default {
 }
 
 export const Artworks = ({ data }: StoryContext) => {
-    if (data.Artworks) {
+    if (data.Artworks && Array.isArray(data.Artworks.artworks)) {
         return (
             <>
                 {data.Artworks.artworks.map((artwork: any, index: number) => (
@@ -77,7 +78,15 @@ export const Artworks = ({ data }: StoryContext) => {
 }
 
 export const Shows = ({ data }: StoryContext) => {
-    console.log(data)
+    if (data.Shows && Array.isArray(data.Shows.partner_shows)) {
+        return (
+            <>
+                {data.Shows.partner_shows.map((show: any, index: number) => (
+                    <ShowCard key={index} {...show} />
+                ))}
+            </>
+        )
+    }
 
     return <></>
 }
