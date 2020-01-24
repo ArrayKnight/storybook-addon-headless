@@ -4,11 +4,10 @@ import React from 'react'
 
 import { pack, withHeadless } from '../../dist'
 
-import { Artwork } from './index'
+import { Artwork as ArtworkCard } from './index'
 
 export default {
     title: 'Examples/GraphQL',
-    component: Artwork,
     decorators: [
         withHeadless({
             graphql: {
@@ -42,7 +41,7 @@ export const Artworks = ({ data }: StoryContext) => {
         return (
             <>
                 {data.Artworks.artworks.map((artwork: any, index: number) => (
-                    <Artwork key={index} {...artwork} />
+                    <ArtworkCard key={index} {...artwork} />
                 ))}
             </>
         )

@@ -3,11 +3,10 @@ import React from 'react'
 
 import { withHeadless } from '../../dist'
 
-import { User } from './index'
+import { User as UserCard } from './index'
 
 export default {
     title: 'Examples/Restful',
-    component: User,
     decorators: [
         withHeadless({
             restful: {
@@ -34,12 +33,12 @@ export default {
     },
 }
 
-export const Many = ({ data }: StoryContext) => {
+export const Users = ({ data }: StoryContext) => {
     if (data.Users) {
         return (
             <>
                 {data.Users.map((user: any) => (
-                    <User key={user.id} {...user} />
+                    <UserCard key={user.id} {...user} />
                 ))}
             </>
         )
@@ -48,9 +47,9 @@ export const Many = ({ data }: StoryContext) => {
     return null
 }
 
-export const One = ({ data }: StoryContext) => {
+export const User = ({ data }: StoryContext) => {
     if (data.User || data.Users) {
-        return <User {...(data.User || data.Users[0])} />
+        return <UserCard {...(data.User || data.Users[0])} />
     }
 
     return null
