@@ -32,6 +32,32 @@ export default {
                 `),
                 autoFetchOnInit: true,
             },
+            Shows: {
+                query: pack(gql`
+                    query Shows($At_a_Fair: Boolean, $Featured: Boolean) {
+                        partner_shows(
+                            at_a_fair: $At_a_Fair
+                            featured: $Featured
+                        ) {
+                            id
+                            name
+                            description
+                            cover_image {
+                                id
+                                image_url
+                            }
+                        }
+                    }
+                `),
+                variables: {
+                    At_a_Fair: {
+                        type: 'boolean',
+                    },
+                    Featured: {
+                        type: 'boolean',
+                    },
+                },
+            },
         },
     },
 }
@@ -48,4 +74,10 @@ export const Artworks = ({ data }: StoryContext) => {
     }
 
     return null
+}
+
+export const Shows = ({ data }: StoryContext) => {
+    console.log(data)
+
+    return <></>
 }

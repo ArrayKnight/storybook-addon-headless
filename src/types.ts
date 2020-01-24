@@ -49,7 +49,7 @@ export interface VariableState {
 
 export enum VariableType {
     Unknown = 'unknown',
-    Boolean = 'chechbox',
+    Boolean = 'checkbox',
     Number = 'number',
     String = 'string',
 }
