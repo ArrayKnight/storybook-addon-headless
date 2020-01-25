@@ -27,6 +27,9 @@ export const VariablesStory = () => {
             String: {
                 type: 'string',
             },
+            Unknown: {
+                type: 'object',
+            },
         },
         defaults: {
             Float: 1.75,

@@ -7,6 +7,7 @@ import { isNull } from '../../utilities'
 import { BooleanInput } from './Boolean'
 import { NumberInput } from './Number'
 import { StringInput } from './String'
+import { Row } from './styled'
 
 export interface Props {
     name: string
@@ -55,7 +56,11 @@ export const Variable = memo(
                             )
 
                         default:
-                            return <></>
+                            return (
+                                <Row>
+                                    <span>Unknown variable type</span>
+                                </Row>
+                            )
                     }
                 })()}
             </Form.Field>
