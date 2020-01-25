@@ -1,13 +1,15 @@
 import { Form } from '@storybook/components'
-import React, { ChangeEvent, memo } from 'react'
+import { noCase } from 'no-case'
+import React, { memo } from 'react'
 
 import { VariableType } from '../../types'
 import { isNull } from '../../utilities'
-import { Error, Row } from './styled'
+import { BooleanInput } from './Boolean'
+import { NumberInput } from './Number'
+import { StringInput } from './String'
+import { Row } from './styled'
 
-const { Field, Input } = Form
-
-interface Props {
+export interface Props {
     name: string
     type: VariableType
     value: any
@@ -17,58 +19,51 @@ interface Props {
 
 export const Variable = memo(
     ({ name, type, value, error, onChange }: Props) => {
-        const isBoolean = type === VariableType.Boolean
-        const isNumber = type === VariableType.Number
-        const isString = type === VariableType.String
-        const isInvalid = !isNull(error)
-
-        function update(event: ChangeEvent<HTMLInputElement>): void {
-            switch (true) {
-                case isBoolean:
-                    return onChange(event.target.checked)
-
-                case isNumber:
-                    return onChange(parseFloat(event.target.value))
-
-                case isString:
-                    return onChange(event.target.value)
-            }
-        }
+        const isValid = isNull(error)
 
         return (
-            <Field label={name.replace(/_/g, ' ')}>
+            <Form.Field label={noCase(name, { transform: (_) => _ })}>
                 {(() => {
                     switch (true) {
-                        case isBoolean:
+                        case type === VariableType.Boolean:
                             return (
-                                <Row>
-                                    <input
-                                        type="checkbox"
-                                        checked={!!value}
-                                        onChange={update}
-                                    />
-                                </Row>
+                                <BooleanInput
+                                    value={value}
+                                    error={error}
+                                    isValid={isValid}
+                                    onChange={onChange}
+                                />
                             )
 
-                        case isNumber:
-                        case isString:
+                        case type === VariableType.Number:
                             return (
-                                <Row>
-                                    <Input
-                                        type={isNumber ? 'number' : 'text'}
-                                        valid={isInvalid ? 'error' : null}
-                                        value={value}
-                                        onChange={update}
-                                    />
-                                    {isInvalid && <Error>{error}</Error>}
-                                </Row>
+                                <NumberInput
+                                    value={value}
+                                    error={error}
+                                    isValid={isValid}
+                                    onChange={onChange}
+                                />
+                            )
+
+                        case type === VariableType.String:
+                            return (
+                                <StringInput
+                                    value={value}
+                                    error={error}
+                                    isValid={isValid}
+                                    onChange={onChange}
+                                />
                             )
 
                         default:
-                            return <></>
+                            return (
+                                <Row>
+                                    <span>Unknown variable type</span>
+                                </Row>
+                            )
                     }
                 })()}
-            </Field>
+            </Form.Field>
         )
 
         // TODO support more schemas:

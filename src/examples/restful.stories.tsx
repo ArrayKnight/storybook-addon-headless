@@ -3,7 +3,7 @@ import React from 'react'
 
 import { withHeadless } from '../../dist'
 
-import { User as UserCard } from './index'
+import { User as UserCard } from '.'
 
 export default {
     title: 'Examples/Restful',

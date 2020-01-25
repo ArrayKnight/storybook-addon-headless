@@ -16,7 +16,7 @@ import { Fieldset } from './styled'
 const { Button } = Form
 const ajv = new Ajv()
 
-interface Props {
+export interface Props {
     hasData: boolean
     hasError: boolean
     parameters: ApiParameters
