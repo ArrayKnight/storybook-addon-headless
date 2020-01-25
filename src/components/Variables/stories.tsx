@@ -51,6 +51,6 @@ export const VariablesStory = () => {
 }
 
 VariablesStory.story = {
-    name: 'Variables',
+    name: 'Parameters',
     decorators: [withKnobs],
 }

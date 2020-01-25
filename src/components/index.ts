@@ -1,4 +1,4 @@
-export * from './Message'
-export * from './Panel'
-export * from './Variable'
-export * from './Variables'
+export { Message } from './Message'
+export { Panel } from './Panel'
+export { Variable } from './Variable'
+export { Variables } from './Variables'

@@ -4,7 +4,7 @@ import React from 'react'
 
 import { pack, withHeadless } from '../../dist'
 
-import { Artwork as ArtworkCard, Show as ShowCard } from './index'
+import { Artwork as ArtworkCard, Show as ShowCard } from '.'
 
 export default {
     title: 'Examples/GraphQL',
