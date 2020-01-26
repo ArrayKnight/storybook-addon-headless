@@ -18,6 +18,7 @@ export enum FetchStatus {
 export enum VariableType {
     Unknown,
     Boolean,
+    Date,
     Number,
     String,
 }
@@ -28,16 +29,28 @@ export type PackedDocumentNode = Omit<DocumentNode, 'definitions'> & {
 
 export interface Schema extends Object {
     type: string
+    [key: string]: any
 }
 
-export interface BooleanSchema {
+export interface BooleanSchema extends Schema {
     type: 'boolean'
 }
 
-export interface NumberSchema {
+export interface DateTimeSchema extends Schema {
+    type: 'string'
+    format: 'date' | 'date-time' | 'time'
+}
+
+export interface NumberSchema extends Schema {
     type: 'number' | 'integer'
 }
 
-export interface StringSchema {
+export interface StringSchema extends Schema {
     type: 'string'
 }
+
+export type KnownSchema =
+    | BooleanSchema
+    | DateTimeSchema
+    | NumberSchema
+    | StringSchema

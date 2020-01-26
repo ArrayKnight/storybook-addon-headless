@@ -1,6 +1,6 @@
 import { ValidateFunction } from 'ajv'
 
-import { Dictionary, Required, VariableType } from './generic'
+import { Dictionary, Required, Schema, VariableType } from './generic'
 import { HeadlessOptions } from './options'
 
 export interface HeadlessState {
@@ -11,6 +11,7 @@ export interface HeadlessState {
 }
 
 export interface VariableState {
+    schema: Schema
     type: VariableType
     validator: ValidateFunction
     dirty: boolean

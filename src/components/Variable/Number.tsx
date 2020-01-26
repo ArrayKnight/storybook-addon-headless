@@ -1,9 +1,11 @@
 import { Form } from '@storybook/components'
 import React, { ChangeEvent, memo } from 'react'
 
+import { NumberSchema } from '../../types'
 import { Error, Row } from './styled'
 
 export interface Props {
+    schema: NumberSchema
     value: number
     error: string | null
     isValid: boolean
@@ -21,7 +23,7 @@ export const NumberInput = memo(
                 <Form.Input
                     type="number"
                     valid={!isValid ? 'error' : null}
-                    value={value}
+                    value={`${value}`}
                     onChange={update}
                 />
                 {!isValid && <Error>{error}</Error>}

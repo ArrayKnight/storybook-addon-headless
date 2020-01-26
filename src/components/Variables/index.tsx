@@ -34,9 +34,10 @@ export const Variables = memo(
             Object.entries(variables).reduce(
                 (obj: Dictionary<VariableState>, [name, schema]) => {
                     const type = getVariableType(schema)
-                    const isBoolean = type === VariableType.Boolean
                     const validator = ajv.compile(schema)
-                    const value = defaults[name] ?? (isBoolean ? true : '')
+                    const value =
+                        defaults[name] ??
+                        (type === VariableType.Boolean ? false : '')
 
                     validator(value)
 
@@ -45,6 +46,7 @@ export const Variables = memo(
                     return {
                         ...obj,
                         [name]: {
+                            schema,
                             type,
                             validator,
                             dirty: false,
@@ -127,10 +129,11 @@ export const Variables = memo(
             <>
                 <Fieldset>
                     {Object.entries(states).map(
-                        ([name, { type, dirty, error, value }]) => (
+                        ([name, { schema, type, dirty, error, value }]) => (
                             <Variable
                                 key={name}
                                 name={name}
+                                schema={schema}
                                 type={type}
                                 value={value}
                                 error={dirty ? error : null}

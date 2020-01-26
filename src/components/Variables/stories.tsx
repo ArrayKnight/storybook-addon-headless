@@ -2,19 +2,32 @@ import { action } from '@storybook/addon-actions'
 import { object, withKnobs } from '@storybook/addon-knobs'
 import React from 'react'
 
+import { ApiParameters, Dictionary } from '../../types'
 import { Variables } from '.'
-import { Dictionary } from '../../types'
 
 export default {
     title: 'Variables',
+    decorators: [withKnobs],
 }
 
 export const VariablesStory = () => {
-    const parameters = object('parameters', {
+    const parameters = object<ApiParameters>('parameters', {
         query: 'https://server.mock/',
         variables: {
             Boolean: {
                 type: 'boolean',
+            },
+            Date: {
+                type: 'string',
+                format: 'date',
+            },
+            DateTime: {
+                type: 'string',
+                format: 'date-time',
+            },
+            Time: {
+                type: 'string',
+                format: 'time',
             },
             Float: {
                 type: 'number',
@@ -27,9 +40,6 @@ export const VariablesStory = () => {
             String: {
                 type: 'string',
             },
-            Unknown: {
-                type: 'object',
-            },
         },
         defaults: {
             Float: 1.75,
@@ -40,7 +50,15 @@ export const VariablesStory = () => {
     function onFetch(variables: Dictionary): Promise<any> {
         action('onFetch')(variables)
 
-        return Math.random() > 0.5 ? Promise.resolve() : Promise.reject()
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                if (Math.random() > 0.5) {
+                    resolve()
+                } else {
+                    reject()
+                }
+            }, 3000 * Math.random())
+        })
     }
 
     return (
@@ -55,5 +73,4 @@ export const VariablesStory = () => {
 
 VariablesStory.story = {
     name: 'Parameters',
-    decorators: [withKnobs],
 }
