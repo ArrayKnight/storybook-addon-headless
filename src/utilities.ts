@@ -119,7 +119,7 @@ export function getVariableType(schema: Schema): VariableType {
         case isBooleanSchema(schema):
             return VariableType.Boolean
 
-        case isDateSchema(schema):
+        case isDateTimeSchema(schema):
             return VariableType.Date
 
         case isNumberSchema(schema):
@@ -137,10 +137,12 @@ export function isBooleanSchema(value: any): value is BooleanSchema {
     return isObject<Schema>(value) && value.type === 'boolean'
 }
 
-export function isDateSchema(value: any): value is DateTimeSchema {
+export function isDateTimeSchema(value: any): value is DateTimeSchema {
     return (
         isObject<Schema>(value) &&
-        (value.format === 'date' || value.format === 'date-time')
+        (value.format === 'date' ||
+            value.format === 'date-time' ||
+            value.format === 'time')
     )
 }
 
