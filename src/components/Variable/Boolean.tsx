@@ -1,8 +1,10 @@
 import React, { ChangeEvent, memo } from 'react'
 
+import { BooleanSchema } from '../../types'
 import { Error, Row } from './styled'
 
 export interface Props {
+    schema: BooleanSchema
     value: boolean
     error: string | null
     isValid: boolean

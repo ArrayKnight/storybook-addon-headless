@@ -1,7 +1,7 @@
 import { useChannel, useParameter, useStorybookApi } from '@storybook/api'
 import { TabsState } from '@storybook/components'
 import { Theme, ThemeProvider, useTheme } from '@storybook/theming'
-import React, { memo, useState } from 'react'
+import React, { memo, ReactNode, useState } from 'react'
 import Json, { InteractionProps } from 'react-json-view'
 
 import { EVENT_DATA_UPDATED, EVENT_INITIALIZED, PARAM_KEY } from '../../config'
@@ -9,6 +9,7 @@ import {
     ApiParameters,
     Dictionary,
     HeadlessOptions,
+    HeadlessParameter,
     HeadlessParameters,
     HeadlessState,
 } from '../../types'
@@ -169,103 +170,67 @@ export const Panel = memo(({ active }: Props) => {
         return ({ updated_src }) => setDataTo(updated_src)
     }
 
+    function renderTab(name: string, parameter: HeadlessParameter): ReactNode {
+        const params: ApiParameters =
+            isString(parameter) || isQuery(parameter)
+                ? ({
+                      query: parameter,
+                  } as ApiParameters)
+                : parameter
+        const hasData = !!state.data[name]
+        const hasError = !!state.errors[name]
+
+        return (
+            <div key={name} id={name} title={name}>
+                <TabContent>
+                    <Message collapisble={isGraphQLParameters(params)}>
+                        {isGraphQLParameters(params)
+                            ? getGraphQLUri(graphql, params)
+                            : getRestfulUrl(restful, params, {}, true)}
+                    </Message>
+                    <Variables
+                        hasData={hasData}
+                        hasError={hasError}
+                        parameters={params}
+                        onFetch={fetch(name, params)}
+                    />
+                    {(hasData || hasError) && (
+                        <>
+                            <Separator />
+                            <Json
+                                src={state.data[name] || state.errors[name]}
+                                name={null}
+                                iconStyle="square"
+                                theme={
+                                    theme.base === 'light'
+                                        ? jsonLight
+                                        : jsonDark
+                                }
+                                collapsed={hasError ? 1 : false}
+                                displayObjectSize={false}
+                                displayDataTypes={false}
+                                enableClipboard={hasData}
+                                onAdd={updateData(name)}
+                                onDelete={updateData(name)}
+                                onEdit={updateData(name)}
+                            />
+                        </>
+                    )}
+                </TabContent>
+            </div>
+        )
+    }
+
     if (isReady) {
         return (
             <ThemeProvider theme={{ active }}>
                 <Root>
                     <Content>
                         <TabsState>
-                            {Object.entries(parameters).map(
-                                ([name, parameter]) => {
-                                    const params: ApiParameters =
-                                        isString(parameter) ||
-                                        isQuery(parameter)
-                                            ? ({
-                                                  query: parameter,
-                                              } as ApiParameters)
-                                            : parameter
-                                    const hasData = !!state.data[name]
-                                    const hasError = !!state.errors[name]
-
-                                    return (
-                                        <div key={name} id={name} title={name}>
-                                            <TabContent>
-                                                <Message
-                                                    collapisble={isGraphQLParameters(
-                                                        params,
-                                                    )}
-                                                >
-                                                    {isGraphQLParameters(params)
-                                                        ? getGraphQLUri(
-                                                              graphql,
-                                                              params,
-                                                          )
-                                                        : getRestfulUrl(
-                                                              restful,
-                                                              params,
-                                                              {},
-                                                              true,
-                                                          )}
-                                                </Message>
-                                                <Variables
-                                                    hasData={hasData}
-                                                    hasError={hasError}
-                                                    parameters={params}
-                                                    onFetch={fetch(
-                                                        name,
-                                                        params,
-                                                    )}
-                                                />
-                                                {(hasData || hasError) && (
-                                                    <>
-                                                        <Separator />
-                                                        <Json
-                                                            src={
-                                                                state.data[
-                                                                    name
-                                                                ] ||
-                                                                state.errors[
-                                                                    name
-                                                                ]
-                                                            }
-                                                            name={null}
-                                                            iconStyle="square"
-                                                            theme={
-                                                                theme.base ===
-                                                                'light'
-                                                                    ? jsonLight
-                                                                    : jsonDark
-                                                            }
-                                                            collapsed={
-                                                                hasError
-                                                                    ? 1
-                                                                    : false
-                                                            }
-                                                            displayObjectSize={
-                                                                false
-                                                            }
-                                                            displayDataTypes={
-                                                                false
-                                                            }
-                                                            enableClipboard={
-                                                                hasData
-                                                            }
-                                                            onAdd={updateData(
-                                                                name,
-                                                            )}
-                                                            onDelete={updateData(
-                                                                name,
-                                                            )}
-                                                            onEdit={updateData(
-                                                                name,
-                                                            )}
-                                                        />
-                                                    </>
-                                                )}
-                                            </TabContent>
-                                        </div>
-                                    )
-                                },
+                            {Object.entries(
+                                parameters,
+                            ).map(([name, parameter]) =>
+                                renderTab(name, parameter),
                             )}
                         </TabsState>
                     </Content>

@@ -2,15 +2,24 @@ import { Form } from '@storybook/components'
 import { noCase } from 'no-case'
 import React, { memo } from 'react'
 
-import { VariableType } from '../../types'
+import {
+    BooleanSchema,
+    DateTimeSchema,
+    NumberSchema,
+    Schema,
+    StringSchema,
+    VariableType,
+} from '../../types'
 import { isNull } from '../../utilities'
 import { BooleanInput } from './Boolean'
+import { DateTimeInput } from './Date'
 import { NumberInput } from './Number'
 import { StringInput } from './String'
 import { Row } from './styled'
 
 export interface Props {
     name: string
+    schema: Schema
     type: VariableType
     value: any
     error: string | null
@@ -18,16 +27,18 @@ export interface Props {
 }
 
 export const Variable = memo(
-    ({ name, type, value, error, onChange }: Props) => {
+    ({ name, schema, type, value, error, onChange }: Props) => {
+        const label = noCase(name, { transform: (_) => _ })
         const isValid = isNull(error)
 
         return (
-            <Form.Field label={noCase(name, { transform: (_) => _ })}>
+            <Form.Field label={label}>
                 {(() => {
-                    switch (true) {
-                        case type === VariableType.Boolean:
+                    switch (type) {
+                        case VariableType.Boolean:
                             return (
                                 <BooleanInput
+                                    schema={schema as BooleanSchema}
                                     value={value}
                                     error={error}
                                     isValid={isValid}
@@ -35,9 +46,21 @@ export const Variable = memo(
                                 />
                             )
 
-                        case type === VariableType.Number:
+                        case VariableType.Date:
+                            return (
+                                <DateTimeInput
+                                    schema={schema as DateTimeSchema}
+                                    value={value}
+                                    error={error}
+                                    isValid={isValid}
+                                    onChange={onChange}
+                                />
+                            )
+
+                        case VariableType.Number:
                             return (
                                 <NumberInput
+                                    schema={schema as NumberSchema}
                                     value={value}
                                     error={error}
                                     isValid={isValid}
@@ -45,9 +68,10 @@ export const Variable = memo(
                                 />
                             )
 
-                        case type === VariableType.String:
+                        case VariableType.String:
                             return (
                                 <StringInput
+                                    schema={schema as StringSchema}
                                     value={value}
                                     error={error}
                                     isValid={isValid}

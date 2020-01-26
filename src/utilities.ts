@@ -5,6 +5,7 @@ import { Source } from 'graphql'
 
 import {
     BooleanSchema,
+    DateTimeSchema,
     Dictionary,
     GraphQLOptions,
     GraphQLParameters,
@@ -118,6 +119,9 @@ export function getVariableType(schema: Schema): VariableType {
         case isBooleanSchema(schema):
             return VariableType.Boolean
 
+        case isDateTimeSchema(schema):
+            return VariableType.Date
+
         case isNumberSchema(schema):
             return VariableType.Number
 
@@ -131,6 +135,15 @@ export function getVariableType(schema: Schema): VariableType {
 
 export function isBooleanSchema(value: any): value is BooleanSchema {
     return isObject<Schema>(value) && value.type === 'boolean'
+}
+
+export function isDateTimeSchema(value: any): value is DateTimeSchema {
+    return (
+        isObject<Schema>(value) &&
+        (value.format === 'date' ||
+            value.format === 'date-time' ||
+            value.format === 'time')
+    )
 }
 
 export function isFunction(value: any): value is Function {

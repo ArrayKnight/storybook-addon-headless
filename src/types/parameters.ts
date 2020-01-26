@@ -1,4 +1,4 @@
-import { Dictionary, PackedDocumentNode, Schema } from './generic'
+import { Dictionary, KnownSchema, PackedDocumentNode } from './generic'
 import { GraphQLOptions, RestfulOptions } from './options'
 
 export type HeadlessParameter = string | PackedDocumentNode | ApiParameters
@@ -8,7 +8,7 @@ export interface HeadlessParameters {
 }
 
 export interface VariableParameters {
-    [name: string]: Schema
+    [name: string]: KnownSchema
 }
 
 export interface BaseParameters {
