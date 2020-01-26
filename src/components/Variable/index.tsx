@@ -12,10 +12,10 @@ import {
 } from '../../types'
 import { isNull } from '../../utilities'
 import { BooleanInput } from './Boolean'
+import { DateTimeInput } from './Date'
 import { NumberInput } from './Number'
 import { StringInput } from './String'
 import { Row } from './styled'
-import { DateTimeInput } from './Date'
 
 export interface Props {
     name: string

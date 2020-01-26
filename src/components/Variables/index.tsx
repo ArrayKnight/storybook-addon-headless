@@ -52,7 +52,7 @@ export const Variables = memo(
                             schema,
                             type,
                             validator,
-                            dirty: false,
+                            dirty: defaults.hasOwnProperty(name),
                             error: error?.message || null,
                             value,
                         },
