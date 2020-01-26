@@ -1,5 +1,6 @@
 import { Form, Icons } from '@storybook/components'
 import Ajv from 'ajv'
+import defineKeywords from 'ajv-keywords'
 import React, { memo, useEffect, useState } from 'react'
 
 import {
@@ -15,6 +16,8 @@ import { Fieldset } from './styled'
 
 const { Button } = Form
 const ajv = new Ajv()
+
+defineKeywords(ajv)
 
 export interface Props {
     hasData: boolean
