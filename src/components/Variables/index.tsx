@@ -41,10 +41,11 @@ export const Variables = memo(
                     const value =
                         defaults[name] ??
                         (type === VariableType.Boolean ? false : '')
-
-                    validator(value)
-
+                    const isInitialValueValid = validator(value)
+                    const dirty =
+                        defaults.hasOwnProperty(name) && !isInitialValueValid
                     const [error] = validator.errors || []
+                    const message = error?.message || null
 
                     return {
                         ...obj,
@@ -52,8 +53,8 @@ export const Variables = memo(
                             schema,
                             type,
                             validator,
-                            dirty: defaults.hasOwnProperty(name),
-                            error: error?.message || null,
+                            dirty,
+                            error: message,
                             value,
                         },
                     }
@@ -79,12 +80,13 @@ export const Variables = memo(
                 validator(value)
 
                 const [error] = validator.errors || []
+                const message = error?.message || null
                 const updated = {
                     ...states,
                     [name]: {
                         ...state,
                         dirty: true,
-                        error: error?.message || null,
+                        error: message,
                         value,
                     },
                 }
