@@ -7,6 +7,7 @@ import { isNull } from '../../utilities'
 import { BooleanInput } from './Boolean'
 import { DateTimeInput } from './Date'
 import { NumberInput } from './Number'
+import { SelectInput } from './Select'
 import { StringInput } from './String'
 import { Row } from './styled'
 
@@ -29,6 +30,7 @@ export const Variable = memo(
             [VariableType.Boolean]: BooleanInput,
             [VariableType.Date]: DateTimeInput,
             [VariableType.Number]: NumberInput,
+            [VariableType.Select]: SelectInput,
             [VariableType.String]: StringInput,
             [VariableType.Unknown]: ({}: ComponentProps) => (
                 <Row>

@@ -20,6 +20,7 @@ export enum VariableType {
     Boolean,
     Date,
     Number,
+    Select,
     String,
 }
 
@@ -45,6 +46,10 @@ export interface NumberSchema extends Schema {
     type: 'number' | 'integer'
 }
 
+export interface SelectSchema extends Schema {
+    enum: any[]
+}
+
 export interface StringSchema extends Schema {
     type: 'string'
 }
@@ -53,4 +58,5 @@ export type KnownSchema =
     | BooleanSchema
     | DateTimeSchema
     | NumberSchema
+    | SelectSchema
     | StringSchema
