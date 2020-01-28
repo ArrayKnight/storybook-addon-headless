@@ -273,6 +273,10 @@ export function isUndefined(value: any): value is undefined {
     return value === undefined
 }
 
+export function noopTransform(value: any): any {
+    return value
+}
+
 export function objectToTag(obj: object): string {
     return Object.prototype.toString.call(obj)
 }

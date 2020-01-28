@@ -3,7 +3,7 @@ import { noCase } from 'no-case'
 import React, { memo } from 'react'
 
 import { Schema, VariableType } from '../../types'
-import { isNull } from '../../utilities'
+import { isNull, noopTransform } from '../../utilities'
 import { BooleanInput } from './Boolean'
 import { DateTimeInput } from './Date'
 import { NumberInput } from './Number'
@@ -24,7 +24,7 @@ type ComponentProps = Omit<Props, 'name' | 'type'> & { isValid: boolean }
 
 export const Variable = memo(
     ({ name, schema, type, value, error, onChange }: Props) => {
-        const label = noCase(name, { transform: (_) => _ })
+        const label = noCase(name, { transform: noopTransform })
         const isValid = isNull(error)
         const Component = {
             [VariableType.Boolean]: BooleanInput,

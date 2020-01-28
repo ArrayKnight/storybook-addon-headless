@@ -10,7 +10,7 @@ import {
     VariableState,
     VariableType,
 } from '../../types'
-import { getVariableType, isNull } from '../../utilities'
+import { getVariableType, isNull, noopTransform } from '../../utilities'
 import { Variable } from '../Variable'
 import { Fieldset } from './styled'
 
@@ -32,6 +32,7 @@ export const Variables = memo(
             autoFetchOnInit = false,
             defaults = {},
             variables = {},
+            transforms = {},
         } = parameters
         const [states, setStates] = useState<Dictionary<VariableState>>(
             Object.entries(variables).reduce(
@@ -106,7 +107,7 @@ export const Variables = memo(
                 Object.entries(states).reduce(
                     (obj, [name, { value }]) => ({
                         ...obj,
-                        [name]: value,
+                        [name]: (transforms[name] || noopTransform)(value),
                     }),
                     {},
                 ),
