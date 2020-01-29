@@ -10,7 +10,7 @@ import {
     VariableState,
     VariableType,
 } from '../../types'
-import { getVariableType, isNull, noopTransform } from '../../utilities'
+import { getVariableType, isItem, isNull, noopTransform } from '../../utilities'
 import { Variable } from '../Variable'
 import { Fieldset } from './styled'
 
@@ -38,7 +38,16 @@ export const Variables = memo(
             Object.entries(variables).reduce(
                 (obj: Dictionary<VariableState>, [name, schema]) => {
                     const type = getVariableType(schema)
-                    const validator = ajv.compile(schema)
+                    const validator = ajv.compile(
+                        type === VariableType.Select
+                            ? {
+                                  ...schema,
+                                  enum: schema.enum.map((option: any) =>
+                                      isItem(option) ? option.value : option,
+                                  ),
+                              }
+                            : schema,
+                    )
                     const value =
                         defaults[name] ??
                         (type === VariableType.Boolean ? false : undefined)
