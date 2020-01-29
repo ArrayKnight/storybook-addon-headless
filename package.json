@@ -79,10 +79,10 @@
         "ajv-keywords": "^3.4.1",
         "apollo-boost": "^0.4.7",
         "axios": "^0.19.1",
+        "change-case": "^4.1.1",
         "date-fns": "^2.9.0",
         "downshift": "^4.0.7",
         "graphql": "^14.5.8",
-        "no-case": "^3.0.3",
         "react": "^16.12.0",
         "react-json-view": "^1.19.1"
     },

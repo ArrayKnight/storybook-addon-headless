@@ -1,6 +1,7 @@
 import Ajv from 'ajv'
 import ApolloClient, { DocumentNode } from 'apollo-boost'
 import axios from 'axios'
+import { sentenceCase } from 'change-case'
 import { Source } from 'graphql'
 
 import {
@@ -9,16 +10,40 @@ import {
     Dictionary,
     GraphQLOptions,
     GraphQLParameters,
+    Item,
     NumberSchema,
     PackedDocumentNode,
     RestfulOptions,
     RestfulParameters,
     Schema,
+    SelectSchema,
     StringSchema,
     VariableType,
 } from './types'
 
 const ajv = new Ajv()
+
+export function convertToItem(value: any): Item {
+    switch (true) {
+        case isBoolean(value):
+        case isNil(value):
+        case isNumber(value):
+        case isString(value):
+            return {
+                label: isNumber(value) ? `${value}` : sentenceCase(`${value}`),
+                value,
+            }
+
+        case isItem(value):
+            return value
+
+        default:
+            return {
+                label: 'Unhandled item conversion',
+                value,
+            }
+    }
+}
 
 export function createGraphQLPromise(
     options: GraphQLOptions,
@@ -125,12 +150,23 @@ export function getVariableType(schema: Schema): VariableType {
         case isNumberSchema(schema):
             return VariableType.Number
 
+        case isSelectSchema(schema):
+            return VariableType.Select
+
         case isStringSchema(schema):
             return VariableType.String
 
         default:
             return VariableType.Unknown
     }
+}
+
+export function isArray<T = any>(value: any): value is T[] {
+    return Array.isArray(value)
+}
+
+export function isBoolean(value: any): value is boolean {
+    return value === true || value === false
 }
 
 export function isBooleanSchema(value: any): value is BooleanSchema {
@@ -168,12 +204,24 @@ export function isGraphQLParameters(value: any): value is GraphQLParameters {
     return !!validateGraphQLParameters(value) && isQuery(value.query)
 }
 
+export function isItem(value: any): value is Item {
+    return (
+        isObject(value) &&
+        value.hasOwnProperty('label') &&
+        value.hasOwnProperty('value')
+    )
+}
+
 export function isNil(value: any): value is null | undefined {
     return isNull(value) || isUndefined(value)
 }
 
 export function isNull(value: any): value is null {
     return value === null
+}
+
+export function isNumber(value: any): value is number {
+    return typeof value === 'number'
 }
 
 export function isNumberSchema(value: any): value is NumberSchema {
@@ -259,6 +307,12 @@ const validateRestfulParameters = ajv.compile({
 
 export function isRestfulParameters(value: any): value is RestfulParameters {
     return !!validateRestfulParameters(value)
+}
+
+export function isSelectSchema(value: any): value is SelectSchema {
+    return (
+        isObject<Schema>(value) && isArray(value.enum) && value.enum.length > 1
+    )
 }
 
 export function isString(value: any): value is string {

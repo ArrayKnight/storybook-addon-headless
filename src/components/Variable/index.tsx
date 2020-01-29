@@ -1,5 +1,5 @@
 import { Form } from '@storybook/components'
-import { noCase } from 'no-case'
+import { noCase } from 'change-case'
 import React, { memo } from 'react'
 
 import { Schema, VariableType } from '../../types'

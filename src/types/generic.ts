@@ -2,6 +2,11 @@ export interface Dictionary<T = any> {
     [key: string]: T
 }
 
+export interface Item {
+    label: string
+    value: any
+}
+
 export type Transform<T = any> = (value: T) => T
 
 export type Required<T> = T extends object

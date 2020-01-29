@@ -3,30 +3,34 @@ import { ThemeProvider } from '@storybook/theming'
 import { useCombobox } from 'downshift'
 import React, { memo, useState } from 'react'
 
+import { Item } from '../../types'
 import { Chip, Container, Menu, MenuItem, Remove, Root, Toggle } from './styled'
-
-interface Item {
-    label: string
-    value: any
-}
+import { isArray, isUndefined } from '../../utilities'
 
 export type Props = {
     items: Item[]
+    valid?: 'valid' | 'error' | 'warn'
 } & (
     | {
+          selected: Item | undefined
           isMulti?: false
           onChange: (item: Item | null) => void
       }
     | {
+          selected: Item[] | undefined
           isMulti: true
           onChange: (items: Item[]) => void
       }
 )
 
 export const Select = memo((props: Props) => {
-    const { items, isMulti } = props
+    const { items, selected, isMulti, valid } = props
+    const selectedItems = isUndefined(selected)
+        ? []
+        : isArray(selected)
+        ? selected
+        : [selected]
     const [filteredItems, setFilteredItems] = useState(items)
-    const [selectedItems, setSelectedItems] = useState<Item[]>([])
     const {
         getComboboxProps,
         getInputProps,
@@ -62,16 +66,14 @@ export const Select = memo((props: Props) => {
         },
     })
 
-    function update(selected: Item[]): void {
-        setSelectedItems(selected)
-
+    function update(updated: Item[]): void {
         switch (props.isMulti) {
             case true:
-                return props.onChange(selected)
+                return props.onChange(updated)
 
             case false:
             case undefined:
-                const [item] = selected
+                const [item] = updated
 
                 return props.onChange(item || null)
         }
@@ -84,7 +86,14 @@ export const Select = memo((props: Props) => {
     }
 
     return (
-        <ThemeProvider theme={{ isOpen }}>
+        <ThemeProvider
+            theme={{
+                isOpen,
+                isError: valid === 'error',
+                isWarn: valid === 'warn',
+                isValid: isUndefined(valid) || valid === 'valid',
+            }}
+        >
             <Root {...getLabelProps()} {...getComboboxProps()}>
                 <Container>
                     {selectedItems.map((item, index) => (

@@ -44,6 +44,21 @@ export const Container = styled.div(
                 border-bottom-right-radius: 0;
                 border-bottom-left-radius: 0;
             `};
+
+        ${theme.isValid &&
+            css`
+                boxshadow: ${theme.color.positive} 0 0 0 1px inset;
+            `};
+
+        ${theme.isError &&
+            css`
+                boxshadow: ${theme.color.negative} 0 0 0 1px inset;
+            `};
+
+        ${theme.isWarn &&
+            css`
+                boxshadow: ${theme.color.warning} 0 0 0 1px inset;
+            `};
     `,
 )
 
@@ -115,10 +130,12 @@ export const Menu = styled.ul(
         margin: 0;
         list-style-type: none;
         display: ${theme.isOpen ? 'block' : 'none'};
+        background: ${theme.background.content};
         position: absolute;
         top: 100%;
         right: 0;
         left: 0;
+        z-index: 1;
 
         &:empty {
             &:after {

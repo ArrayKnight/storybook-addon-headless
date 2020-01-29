@@ -41,7 +41,7 @@ export const Variables = memo(
                     const validator = ajv.compile(schema)
                     const value =
                         defaults[name] ??
-                        (type === VariableType.Boolean ? false : '')
+                        (type === VariableType.Boolean ? false : undefined)
                     const isInitialValueValid = validator(value)
                     const dirty =
                         defaults.hasOwnProperty(name) && !isInitialValueValid

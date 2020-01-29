@@ -1,5 +1,5 @@
 export interface Schema extends Object {
-    type: string
+    type: string | string[]
     [key: string]: any
 }
 
