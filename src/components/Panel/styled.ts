@@ -1,9 +1,9 @@
-import { background, css, styled } from '@storybook/theming'
+import { css, styled } from '@storybook/theming'
 
 export const Root = styled.div`
     width: 100%;
     min-height: 100%;
-    background: ${background.app};
+    background: ${theme.background.app};
     position: absolute;
     ${({ theme }) =>
         !theme.active &&
@@ -23,7 +23,7 @@ export const Content = styled.div`
     max-width: 800px;
     padding: 20px;
     margin: 20px auto;
-    background: ${background.content};
+    background: ${theme.background.content};
 `
 
 export const TabContent = styled.div`
@@ -34,5 +34,5 @@ export const Separator = styled.hr`
     border: 0;
     height: 20px;
     margin: 20px -20px;
-    background: ${background.app};
+    background: ${theme.background.app};
 `

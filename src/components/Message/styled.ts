@@ -1,11 +1,11 @@
-import { background, color, css, styled } from '@storybook/theming'
+import { css, styled } from '@storybook/theming'
 
 export const Root = styled.div(
     ({ theme }) => css`
         max-height: ${theme.isCollapsed ? '30px' : '600px'};
         padding: 0.42em 1em;
-        border: 1px solid ${color.border};
-        border-radius: ${theme.appBorderRadius}px;
+        border: 1px solid ${theme.input.border};
+        border-radius: ${theme.input.borderRadius}px;
         position: relative;
         transition: max-height 500ms;
         overflow: ${theme.isCollapsed ? 'hidden' : 'auto'};
@@ -15,7 +15,7 @@ export const Root = styled.div(
             content: '';
             width: 100%;
             height: 100%;
-            background: ${background.app};
+            background: ${theme.background.app};
             position: absolute;
             top: 0;
             right: 0;
