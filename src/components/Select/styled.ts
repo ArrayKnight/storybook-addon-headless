@@ -1,6 +1,6 @@
 import { css, styled } from '@storybook/theming'
 
-export const Root = styled.label(
+export const Root = styled.div(
     ({ theme }) => css`
         display: inline-flex;
         position: relative;
@@ -70,6 +70,7 @@ export const Chip = styled.div(
         display: inline-flex;
         align-items: center;
         flex: 0 0 auto;
+        order: -1;
 
         span {
             max-width: 75px;
@@ -94,7 +95,8 @@ export const Remove = styled.button(
         opacity: 0.5;
         transition: opacity 250ms;
 
-        &:hover {
+        &:hover,
+        &:focus {
             background: ${theme.background.warning};
             opacity: 1;
         }

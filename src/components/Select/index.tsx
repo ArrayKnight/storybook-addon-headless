@@ -35,7 +35,6 @@ export const Select = memo((props: Props) => {
         getComboboxProps,
         getInputProps,
         getItemProps,
-        getLabelProps,
         getMenuProps,
         getToggleButtonProps,
         highlightedIndex,
@@ -51,6 +50,8 @@ export const Select = memo((props: Props) => {
             )
         },
         onSelectedItemChange: ({ selectedItem }) => {
+            console.log('onSelectedItemChange', { selectedItem })
+
             if (selectedItem) {
                 update(
                     isMulti
@@ -94,8 +95,9 @@ export const Select = memo((props: Props) => {
                 isValid: isUndefined(valid) || valid === 'valid',
             }}
         >
-            <Root {...getLabelProps()} {...getComboboxProps()}>
+            <Root {...getComboboxProps()}>
                 <Container>
+                    <Form.Input {...getInputProps()} />
                     {selectedItems.map((item, index) => (
                         <Chip key={`${index}-${item.label}-chip`}>
                             <span>{item.label}</span>
@@ -104,7 +106,6 @@ export const Select = memo((props: Props) => {
                             </Remove>
                         </Chip>
                     ))}
-                    <Form.Input {...getInputProps()} />
                     <Toggle
                         {...getToggleButtonProps()}
                         aria-label="toggle menu"
