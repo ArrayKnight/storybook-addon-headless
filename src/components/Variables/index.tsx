@@ -10,7 +10,7 @@ import {
     VariableState,
     VariableType,
 } from '../../types'
-import { getVariableType, isNull } from '../../utilities'
+import { getVariableType, isItem, isNull, noopTransform } from '../../utilities'
 import { Variable } from '../Variable'
 import { Fieldset } from './styled'
 
@@ -32,19 +32,30 @@ export const Variables = memo(
             autoFetchOnInit = false,
             defaults = {},
             variables = {},
+            transforms = {},
         } = parameters
         const [states, setStates] = useState<Dictionary<VariableState>>(
             Object.entries(variables).reduce(
                 (obj: Dictionary<VariableState>, [name, schema]) => {
                     const type = getVariableType(schema)
-                    const validator = ajv.compile(schema)
+                    const validator = ajv.compile(
+                        type === VariableType.Select
+                            ? {
+                                  ...schema,
+                                  enum: schema.enum.map((option: any) =>
+                                      isItem(option) ? option.value : option,
+                                  ),
+                              }
+                            : schema,
+                    )
                     const value =
                         defaults[name] ??
-                        (type === VariableType.Boolean ? false : '')
-
-                    validator(value)
-
+                        (type === VariableType.Boolean ? false : undefined)
+                    const isInitialValueValid = validator(value)
+                    const dirty =
+                        defaults.hasOwnProperty(name) && !isInitialValueValid
                     const [error] = validator.errors || []
+                    const message = error?.message || null
 
                     return {
                         ...obj,
@@ -52,8 +63,8 @@ export const Variables = memo(
                             schema,
                             type,
                             validator,
-                            dirty: defaults.hasOwnProperty(name),
-                            error: error?.message || null,
+                            dirty,
+                            error: message,
                             value,
                         },
                     }
@@ -79,12 +90,13 @@ export const Variables = memo(
                 validator(value)
 
                 const [error] = validator.errors || []
+                const message = error?.message || null
                 const updated = {
                     ...states,
                     [name]: {
                         ...state,
                         dirty: true,
-                        error: error?.message || null,
+                        error: message,
                         value,
                     },
                 }
@@ -104,7 +116,7 @@ export const Variables = memo(
                 Object.entries(states).reduce(
                     (obj, [name, { value }]) => ({
                         ...obj,
-                        [name]: value,
+                        [name]: (transforms[name] || noopTransform)(value),
                     }),
                     {},
                 ),

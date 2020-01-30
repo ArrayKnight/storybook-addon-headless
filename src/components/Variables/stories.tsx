@@ -37,12 +37,24 @@ export const VariablesStory = () => {
                 type: 'integer',
                 minimum: 0,
             },
+            Select: {
+                type: 'string',
+                enum: [
+                    'foo',
+                    'bar',
+                    'baz',
+                    'wux',
+                    'Lorem Ipsum',
+                    { label: 'Item 6', value: '666' },
+                ],
+            },
             String: {
                 type: 'string',
             },
         },
         defaults: {
             Float: 1.75,
+            Select: '666',
             String: 'foo bar',
         },
     })

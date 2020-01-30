@@ -173,6 +173,52 @@ IntegerStory.story = {
     name: 'Integer',
 }
 
+export const SelectStory = () => {
+    const name = text('name', 'Select')
+    const error = text('error', '') || null
+    const [value, setValue] = useState<
+        boolean | null | number | string | undefined
+    >(undefined)
+
+    function onChange(val: boolean | null | number | string): void {
+        action('onChange')(val)
+
+        setValue(val)
+    }
+
+    return (
+        <Variable
+            name={name}
+            schema={{
+                type: ['boolean', 'null', 'number', 'string'],
+                enum: [
+                    true,
+                    false,
+                    null,
+                    -3,
+                    0,
+                    9,
+                    'foo',
+                    'bar',
+                    'Lorem Ipsum',
+                    {
+                        label: 'Item 10',
+                        value: Infinity,
+                    },
+                ],
+            }}
+            type={VariableType.Select}
+            value={value}
+            error={error}
+            onChange={onChange}
+        />
+    )
+}
+
+SelectStory.story = {
+    name: 'Select',
+}
+
 export const StringStory = () => {
     const name = text('name', 'String')
     const error = text('error', '') || null

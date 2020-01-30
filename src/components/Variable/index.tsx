@@ -1,19 +1,13 @@
 import { Form } from '@storybook/components'
-import { noCase } from 'no-case'
+import { noCase } from 'change-case'
 import React, { memo } from 'react'
 
-import {
-    BooleanSchema,
-    DateTimeSchema,
-    NumberSchema,
-    Schema,
-    StringSchema,
-    VariableType,
-} from '../../types'
-import { isNull } from '../../utilities'
+import { Schema, VariableType } from '../../types'
+import { isNull, noopTransform } from '../../utilities'
 import { BooleanInput } from './Boolean'
 import { DateTimeInput } from './Date'
 import { NumberInput } from './Number'
+import { SelectInput } from './Select'
 import { StringInput } from './String'
 import { Row } from './styled'
 
@@ -26,72 +20,38 @@ export interface Props {
     onChange: (value: any) => void
 }
 
+type ComponentProps = Omit<Props, 'name' | 'type'> & { isValid: boolean }
+
 export const Variable = memo(
     ({ name, schema, type, value, error, onChange }: Props) => {
-        const label = noCase(name, { transform: (_) => _ })
+        const label = noCase(name, { transform: noopTransform })
         const isValid = isNull(error)
+        const Component = {
+            [VariableType.Boolean]: BooleanInput,
+            [VariableType.Date]: DateTimeInput,
+            [VariableType.Number]: NumberInput,
+            [VariableType.Select]: SelectInput,
+            [VariableType.String]: StringInput,
+            [VariableType.Unknown]: ({}: ComponentProps) => (
+                <Row>
+                    <span>Unknown variable type</span>
+                </Row>
+            ),
+        }[type]
 
         return (
             <Form.Field label={label}>
-                {(() => {
-                    switch (type) {
-                        case VariableType.Boolean:
-                            return (
-                                <BooleanInput
-                                    schema={schema as BooleanSchema}
-                                    value={value}
-                                    error={error}
-                                    isValid={isValid}
-                                    onChange={onChange}
-                                />
-                            )
-
-                        case VariableType.Date:
-                            return (
-                                <DateTimeInput
-                                    schema={schema as DateTimeSchema}
-                                    value={value}
-                                    error={error}
-                                    isValid={isValid}
-                                    onChange={onChange}
-                                />
-                            )
-
-                        case VariableType.Number:
-                            return (
-                                <NumberInput
-                                    schema={schema as NumberSchema}
-                                    value={value}
-                                    error={error}
-                                    isValid={isValid}
-                                    onChange={onChange}
-                                />
-                            )
-
-                        case VariableType.String:
-                            return (
-                                <StringInput
-                                    schema={schema as StringSchema}
-                                    value={value}
-                                    error={error}
-                                    isValid={isValid}
-                                    onChange={onChange}
-                                />
-                            )
-
-                        default:
-                            return (
-                                <Row>
-                                    <span>Unknown variable type</span>
-                                </Row>
-                            )
-                    }
-                })()}
+                <Component
+                    schema={schema as any}
+                    value={value as never}
+                    error={error}
+                    isValid={isValid}
+                    onChange={onChange}
+                />
             </Form.Field>
         )
 
         // TODO support more schemas:
-        // date
         // (array of strings, numbers, mixed) => rows of inputs
         // (array of objects) => select
     },
