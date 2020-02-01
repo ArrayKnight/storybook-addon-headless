@@ -34,7 +34,11 @@ import { pack } from 'storybook-addon-headless'
 }
 ```
 
-## Query
+## Config
+
+If a specific query needs to augment the base config, you can optionally pass a partial config to be merged with the config that may have been supplied in the options. See options about what configs are accepted.
+
+## Query [required]
 
 For Restful requests the query should be a string. Depending on the options passed, this might be an absolute or relative path.
 

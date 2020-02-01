@@ -11,3 +11,17 @@ import { DocsContainer, DocsPage, Meta } from '@storybook/addon-docs/blocks'
 />
 
 # Options
+
+By utilizing options when setting up the Headless decorator, its possible to establish a base config that will keep individual story parameters simple. Global setup pieces like authentication headers should be done here too.
+
+## Restful
+
+A partial [Axios config](https://github.com/axios/axios#request-config) can be passed in as a base config. The most common use case would be to establish a `baseURL` so that all stories can have a simpler relative query.
+
+## GraphQL
+
+A partial [Apollo Boost config](https://www.apollographql.com/docs/react/get-started/#configuration-options) can be passed in as a base config. The most common use case would be to establish a `uri` so that all stories can simply define a query without the need for an additional config.
+
+## Theming
+
+If you're customizing the theme of your Storybook to match your company's branding, you may wish to switch up the JSON editor theme as well. The `jsonDark` and `jsonLight` options allow you to [pick a theme](https://github.com/mac-s-g/react-json-view#customizing-style) of your choosing. All other component styles should inherit theme from Storybook.
