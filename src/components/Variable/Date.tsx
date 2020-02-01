@@ -7,7 +7,7 @@ import { Error, Row } from './styled'
 
 export interface Props {
     schema: DateTimeSchema
-    value: string
+    value: string | undefined
     error: string | null
     isValid: boolean
     onChange: (value: string) => void
@@ -43,9 +43,9 @@ export const DateTimeInput = memo(
             return parseISO(val)
         }
 
-        function getter(val: string): string {
+        function getter(val: string | undefined): string {
             if (!val) {
-                return val
+                return ''
             }
 
             const date = getDate(val, true)
