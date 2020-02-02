@@ -1,0 +1,207 @@
+import { DocsContainer, DocsPage, Meta } from '@storybook/addon-docs/blocks'
+
+<Meta
+    title="Parameters"
+    parameters={{
+        docs: {
+            container: DocsContainer,
+            page: DocsPage,
+        },
+    }}
+/>
+
+# Parameters
+
+For each endpoint you need to establish add an entry to the parameters object. It's possible to do a mix of Restful and GraphQL queries as well as simple and advanced configs.
+
+Example:
+
+```js
+import { gql } from 'apollo-boost'
+import { pack } from 'storybook-addon-headless'
+
+{
+    Foos: '/foos' // Simple Restful
+    Foo: { // Advanced Restful
+        query: '/foos/{id}',
+        // Variables, etc
+    },
+    Bars: pack(gql``), // Simple GraphQL
+    Bar: { // Advanced GraphQL
+        query: pack(gql``),
+        // Variables, etc
+    }
+}
+```
+
+## Config
+
+If a specific query needs to augment the base config, you can optionally pass a partial config to be merged with the config that may have been supplied in the options. See options about what configs are accepted.
+
+## Query [required]
+
+For Restful requests the query should be a string. Depending on the options passed, this might be an absolute or relative path.
+
+For GraphQL requests the query must be a `pack`ed GraphQL Tag DocumentNode.
+
+Example:
+
+```js
+import { gql } from 'apollo-boost'
+import { pack } from 'storybook-addon-headless'
+
+pack(gql`
+    {
+        entities {
+            id
+        }
+    }
+`)
+```
+
+## Variable Types
+
+If your query requires variables/parameters, pass an object of variable schemas where the key is the variable name and the value is the schema. In order to define a variable type, a matching [Ajv](https://ajv.js.org/#validation-keywords) schema.
+
+Example:
+
+```js
+{
+    variables: {
+        foo: {
+            type: 'integer',
+            multipleOf: 3,
+        },
+    },
+}
+```
+
+### Boolean
+
+```js
+{
+    type: 'boolean'
+}
+```
+
+This schema will render a checkbox input.
+
+### Date
+
+```js
+{
+    type: 'string',
+    format: 'date',
+    // Optional additional rules
+}
+```
+
+This schema will render a date input. There are optional [keywords](https://ajv.js.org/keywords.html#formatmaximum--formatminimum-and-formatexclusivemaximum--formatexclusiveminimum-proposed) for additional validation.
+
+### DateTime
+
+```js
+{
+    type: 'string',
+    format: 'date-time',
+    // Optional additional rules
+}
+```
+
+This schema will render a date time input. Time entered by the user is in local timezone, but the value is converted to UTC. There are optional [keywords](https://ajv.js.org/keywords.html#formatmaximum--formatminimum-and-formatexclusivemaximum--formatexclusiveminimum-proposed) for additional validation.
+
+### Time
+
+```js
+{
+    type: 'string',
+    format: 'time',
+    // Optional additional rules
+}
+```
+
+This schema will render a time input. Time entered by the user is in local timezone, but the value is converted to UTC. There are optional [keywords](https://ajv.js.org/keywords.html#formatmaximum--formatminimum-and-formatexclusivemaximum--formatexclusiveminimum-proposed) for additional validation.
+
+### Number
+
+```js
+{
+    type: 'number' | 'integer',
+    // Optional additional rules
+}
+```
+
+This schema will render a number input. There are optional [keywords](https://ajv.js.org/keywords.html#keywords-for-numbers) for additional validation.
+
+### Select
+
+```js
+{
+    type: any, // Type should match the type of the values in enum
+    enum: any[],
+}
+```
+
+This schema will render a select dropdown. If values are not basic types or if you want to differentiate the label from the value, you can use an object with `label` and `value` keys.
+
+Example:
+
+```js
+{
+    type: ['integer', 'null'],
+    enum: [
+        42,
+        { label: 'Seven', value: 7 },
+        { label: 'None of the above', value: null },
+    ]
+}
+```
+
+### String
+
+```js
+{
+    type: 'string',
+    // Optional additional rules
+}
+```
+
+This schema will render a text input. There are optional [keywords](https://ajv.js.org/keywords.html#keywords-for-strings) for additional validation.
+
+## Default Values
+
+To provide default values for any/all of your variables, pass an object of values where the key is the variable name and the value is the default.
+
+Example:
+
+```js
+{
+    defaults: {
+        foo: 3
+    }
+}
+```
+
+## Transforms
+
+To transform values before the query is sent, pass an object of values where the key is the variable name and the value is a function that accepts and returns a value. The output value will not be validated against the schema and can therefore be any value, it's up to you to pass something valid to the query.
+
+Example:
+
+```js
+{
+    transforms: {
+        foo: (value) => value * 10000
+    }
+}
+```
+
+## Other Features
+
+### autoFetchOnInit
+
+If you would like data to be fetched on story load, pass `autoFetchOnInit: true`. This also requires that the query variables (if present) have default values that are valid.
+
+### convertToFormData
+
+For Restful queries, if you're setting up a POST request, it might be necessary to pass data through as Multipart Form-data. In that case, pass `convertToFormData: true`.

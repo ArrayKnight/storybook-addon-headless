@@ -6,7 +6,7 @@ import { Error, Row } from './styled'
 
 export interface Props {
     schema: StringSchema
-    value: string
+    value: string | undefined
     error: string | null
     isValid: boolean
     onChange: (value: string) => void

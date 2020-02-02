@@ -1,0 +1,20 @@
+import {
+    Description,
+    DocsContainer,
+    DocsPage,
+    Meta,
+} from '@storybook/addon-docs/blocks'
+
+import readme from '../../README.md'
+
+<Meta
+    title="Intro"
+    parameters={{
+        docs: {
+            container: DocsContainer,
+            page: DocsPage,
+        },
+    }}
+/>
+
+export default () => <Description markdown={readme} />
