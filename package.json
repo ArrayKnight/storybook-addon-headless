@@ -1,6 +1,6 @@
 {
     "name": "storybook-addon-headless",
-    "author": "Ray Knight <array.knight+github@gmail.com>",
+    "author": "Ray Knight <array.knight+headless@gmail.com>",
     "description": "Storybook addon to preview content from a headless CMS in components",
     "version": "0.0.0-development",
     "license": "MIT",
@@ -11,7 +11,7 @@
         "build:dist": "npm run rollup",
         "build:docs": "npm run storybook:build",
         "clean": "rm -rf dist && rm -rf docs",
-        "commit": "npm run lint && git add -i && npx git-cz",
+        "commit": "npm run lint && git add -i && npx git-cz@4.2.0",
         "lint": "tslint --fix -p tsconfig.json -c tslint.json",
         "rollup": "rollup -c",
         "rollup:watch": "rollup -c -w",
