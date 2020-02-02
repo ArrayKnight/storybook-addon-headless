@@ -6,7 +6,7 @@ Storybook Addon Headless allows you to preview data from a headless CMS inside s
 
 Check out examples and detailed documentation:
 
--   [https://storybook-addon-headless.netlify.com/](https://storybook-addon-headless.netlify.com/)
+-   [https://storybook-addon-headless.netlify.com/?path=/story/examples](https://storybook-addon-headless.netlify.com/?path=/story/examples)
 -   [https://github.com/ArrayKnight/storybook-addon-headless/tree/master/src/examples](https://github.com/ArrayKnight/storybook-addon-headless/tree/master/src/examples)
 
 ## Getting Started
@@ -52,9 +52,9 @@ export default {
 }
 ```
 
-You can find options documented as [HeadlessOptions](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types/options.ts)
+You can find options documented as [HeadlessOptions](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types/options.ts) and on the [documentation site](https://storybook-addon-headless.netlify.com/?path=/story/options--page).
 
-##### Options
+##### [Options](https://storybook-addon-headless.netlify.com/?path=/story/options--page)
 
 ```js
 {
@@ -67,7 +67,7 @@ You can find options documented as [HeadlessOptions](https://github.com/ArrayKni
 
 Under the covers, this addon uses Axios for Restful queries and Apollo Client for GraphQL queries. These configs are optional, though you'll likely want to use one or both. The configs will also be merged with the optional configs being passed through the parameters.
 
-#### Parameterize
+#### [Parameters](https://storybook-addon-headless.netlify.com/?path=/story/parameters--page)
 
 Parameters are added locally via:
 
@@ -85,7 +85,7 @@ export default {
 }
 ```
 
-You can find parameters document as [HeadlessParameters](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types/parameters.ts)
+You can find parameters document as [HeadlessParameters](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types/parameters.ts) and on the [documentation site](https://storybook-addon-headless.netlify.com/?path=/story/parameters--page).
 
 ```js
 {

@@ -1,4 +1,11 @@
-import { DocsContainer, DocsPage, Meta } from '@storybook/addon-docs/blocks'
+import {
+    Description,
+    DocsContainer,
+    DocsPage,
+    Meta,
+} from '@storybook/addon-docs/blocks'
+
+import readme from '../../README.md'
 
 <Meta
     title="Intro"
@@ -10,4 +17,4 @@ import { DocsContainer, DocsPage, Meta } from '@storybook/addon-docs/blocks'
     }}
 />
 
-# Intro
+export default () => <Description markdown={readme} />
