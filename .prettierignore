@@ -5,6 +5,7 @@
 /.vscode/
 
 # Local
+/src/assets/
 .env*
 .*ignore
 LICENSE

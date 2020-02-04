@@ -8,6 +8,11 @@ Check out examples and detailed documentation:
 
 -   [https://storybook-addon-headless.netlify.com/?path=/story/examples](https://storybook-addon-headless.netlify.com/?path=/story/examples)
 -   [https://github.com/ArrayKnight/storybook-addon-headless/tree/master/src/examples](https://github.com/ArrayKnight/storybook-addon-headless/tree/master/src/examples)
+-   [https://medium.com/arrayknight/how-to-get-real-data-into-storybook-8915f5371b6](https://medium.com/arrayknight/how-to-get-real-data-into-storybook-8915f5371b6)
+
+|                                             Headless                                             |                                             Story                                             |
+| :----------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------: |
+| ![](https://github.com/ArrayKnight/storybook-addon-headless/tree/master/src/assets/headless.png) | ![](https://github.com/ArrayKnight/storybook-addon-headless/tree/master/src/assets/story.png) |
 
 ## Getting Started
 
