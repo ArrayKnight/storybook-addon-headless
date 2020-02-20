@@ -63,8 +63,8 @@ You can find options documented as [HeadlessOptions](https://github.com/ArrayKni
 
 ```js
 {
-    graphql?: ApolloBoostClientConfig
-    restful?: AxiosClientConfig
+    graphql?: GraphQLOptionsTypes
+    restful?: RestfulOptionsTypes
     jsonDark?: ReactJsonViewThemeKey
     jsonLight?: ReactJsonViewThemeKey
 }

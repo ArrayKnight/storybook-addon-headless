@@ -5,15 +5,20 @@ import { sentenceCase } from 'change-case'
 import { Source } from 'graphql'
 
 import {
+    BaseParameters,
     BooleanSchema,
     DateTimeSchema,
     Dictionary,
     GraphQLOptions,
+    GraphQLOptionsTypes,
     GraphQLParameters,
+    Identifiable,
     Item,
     NumberSchema,
+    OneOrMore,
     PackedDocumentNode,
     RestfulOptions,
+    RestfulOptionsTypes,
     RestfulParameters,
     Schema,
     SelectSchema,
@@ -46,12 +51,14 @@ export function convertToItem(value: any): Item {
 }
 
 export function createGraphQLPromise(
-    options: GraphQLOptions,
-    { config = {}, query }: GraphQLParameters,
+    options: GraphQLOptionsTypes,
+    parameters: GraphQLParameters,
     variables: Dictionary,
 ): Promise<any> {
+    const opts = getBaseOptions(options, parameters)
+    const { config = {}, query } = parameters
     const instance = new ApolloClient({
-        ...options,
+        ...opts,
         ...config,
     })
 
@@ -73,15 +80,16 @@ export function createGraphQLPromise(
 }
 
 export function createRestfulPromise(
-    options: RestfulOptions,
+    options: RestfulOptionsTypes,
     parameters: RestfulParameters,
     variables: Dictionary,
 ): Promise<any> {
     const { config = {}, convertToFormData } = parameters
+    const opts = getBaseOptions(options, parameters)
 
     return axios({
-        url: getRestfulUrl(options, parameters, variables, false),
-        ...options,
+        url: getRestfulUrl(opts, parameters, variables),
+        ...opts,
         ...config,
         data: convertToFormData
             ? Object.entries(variables).reduce((data, [key, value]) => {
@@ -107,11 +115,24 @@ export function functionToTag(func: Function): string {
     return Function.prototype.toString.call(func)
 }
 
+export function getBaseOptions<T = GraphQLOptions | RestfulOptions>(
+    options: OneOrMore<T>,
+    { base }: BaseParameters,
+): T {
+    const all: Identifiable<T>[] = isArray(options)
+        ? options
+        : [{ ...options, id: 'default' }]
+    const name = base || 'default'
+
+    return all.find(({ id }) => id === name) || ({} as T)
+}
+
 export function getGraphQLUri(
-    options: GraphQLOptions,
+    options: GraphQLOptionsTypes,
     parameters: GraphQLParameters,
 ): string {
-    const base = { ...options, ...(parameters.config || {}) }.uri || ''
+    const opts = getBaseOptions(options, parameters)
+    const base = { ...opts, ...(parameters.config || {}) }.uri || ''
     let query = parameters.query.loc.source.body
     const match = query.match(/( +)[^\s]/)
 
@@ -125,18 +146,18 @@ export function getGraphQLUri(
 }
 
 export function getRestfulUrl(
-    options: RestfulOptions,
+    options: RestfulOptionsTypes,
     parameters: RestfulParameters,
     variables: Dictionary,
-    absolute: boolean,
 ): string {
-    const base = { ...options, ...(parameters.config || {}) }.baseURL || ''
+    const opts = getBaseOptions(options, parameters)
+    const base = { ...opts, ...(parameters.config || {}) }.baseURL || ''
     const path = Object.entries(variables).reduce(
-        (url, [name, value]) => url.replace(`{${name}}`, value),
+        (url, [name, value]) => url.replace(`{${name}}`, `${value}`),
         parameters.query,
     )
 
-    return absolute ? `${base}${path}` : path
+    return `${base}${path}`
 }
 
 export function getVariableType(schema: Schema): VariableType {

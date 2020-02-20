@@ -19,6 +19,7 @@ export interface VariableParameters {
 }
 
 export interface BaseParameters {
+    base?: string
     variables?: VariableParameters
     defaults?: Dictionary
     transforms?: Dictionary<Transform>
