@@ -186,7 +186,7 @@ export const Panel = memo(({ active }: Props) => {
                     <Message collapisble={isGraphQLParameters(params)}>
                         {isGraphQLParameters(params)
                             ? getGraphQLUri(graphql, params)
-                            : getRestfulUrl(restful, params, {}, true)}
+                            : getRestfulUrl(restful, params, {})}
                     </Message>
                     <Variables
                         hasData={hasData}

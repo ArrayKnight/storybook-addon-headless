@@ -1,7 +1,8 @@
 import { ValidateFunction } from 'ajv'
 
-import { Dictionary, Required, Schema, VariableType } from './generic'
+import { Dictionary, Required, VariableType } from './generic'
 import { HeadlessOptions } from './options'
+import { Schema } from './schemas'
 
 export interface HeadlessState {
     storyId: string
