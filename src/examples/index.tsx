@@ -26,15 +26,18 @@ export interface CardProps {
     children: ReactNode
 }
 
-export const Card = ({ title, subhead, image, children }: CardProps) => {
-    return (
-        <StyledCard>
-            <CardHeader title={title} subheader={subhead} />
-            {image && <StyledMedia image={image} />}
-            <CardContent>{children}</CardContent>
-        </StyledCard>
-    )
-}
+export const Card = ({
+    title,
+    subhead,
+    image,
+    children,
+}: CardProps): ReactNode => (
+    <StyledCard>
+        <CardHeader title={title} subheader={subhead} />
+        {image && <StyledMedia image={image} />}
+        <CardContent>{children}</CardContent>
+    </StyledCard>
+)
 
 export interface ArtworkProps {
     title: string
@@ -45,14 +48,16 @@ export interface ArtworkProps {
     }
 }
 
-export const Artwork = ({ title, imageUrl, artist }: ArtworkProps) => {
-    return (
-        <Card title={title} image={imageUrl}>
-            <Typography variant="subtitle1">{artist.name}</Typography>
-            <Typography variant="body2">{artist.location}</Typography>
-        </Card>
-    )
-}
+export const Artwork = ({
+    title,
+    imageUrl,
+    artist,
+}: ArtworkProps): ReactNode => (
+    <Card title={title} image={imageUrl}>
+        <Typography variant="subtitle1">{artist.name}</Typography>
+        <Typography variant="body2">{artist.location}</Typography>
+    </Card>
+)
 
 export interface ShowProps {
     name: string
@@ -63,20 +68,17 @@ export interface ShowProps {
     }
 }
 
+/* eslint-disable @typescript-eslint/camelcase */
 export const Show = ({
     name,
     description,
     cover_image: { image_versions, image_url },
-}: ShowProps) => {
-    return (
-        <Card
-            title={name}
-            image={image_url.replace(/:version/, image_versions[0])}
-        >
-            <Typography variant="subtitle1">{description}</Typography>
-        </Card>
-    )
-}
+}: ShowProps): ReactNode => (
+    <Card title={name} image={image_url.replace(/:version/, image_versions[0])}>
+        <Typography variant="subtitle1">{description}</Typography>
+    </Card>
+)
+/* eslint-enable @typescript-eslint/camelcase */
 
 export interface UserProps {
     id: number
@@ -88,7 +90,13 @@ export interface UserProps {
     }
 }
 
-export const User = ({ id, name, email, website, company }: UserProps) => (
+export const User = ({
+    id,
+    name,
+    email,
+    website,
+    company,
+}: UserProps): ReactNode => (
     <Card
         title={name}
         subhead={company.name}

@@ -7,10 +7,10 @@ import { Error, Row } from './styled'
 
 export interface Props {
     schema: SelectSchema
-    value: any
+    value: unknown
     error: string | null
     isValid: boolean
-    onChange: (value: any) => void
+    onChange: (value: unknown) => void
 }
 
 export const SelectInput = memo(

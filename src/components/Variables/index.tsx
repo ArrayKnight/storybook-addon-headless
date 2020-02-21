@@ -10,7 +10,13 @@ import {
     VariableState,
     VariableType,
 } from '../../types'
-import { getVariableType, isItem, isNull, noopTransform } from '../../utilities'
+import {
+    getVariableType,
+    hasOwnProperty,
+    isItem,
+    isNull,
+    noopTransform,
+} from '../../utilities'
 import { Variable } from '../Variable'
 import { Fieldset } from './styled'
 
@@ -23,7 +29,7 @@ export interface Props {
     hasData: boolean
     hasError: boolean
     parameters: ApiParameters
-    onFetch: (variables: Dictionary) => Promise<any>
+    onFetch: (variables: Dictionary) => Promise<unknown>
 }
 
 export const Variables = memo(
@@ -42,7 +48,7 @@ export const Variables = memo(
                         type === VariableType.Select
                             ? {
                                   ...schema,
-                                  enum: schema.enum.map((option: any) =>
+                                  enum: schema.enum.map((option: unknown) =>
                                       isItem(option) ? option.value : option,
                                   ),
                               }
@@ -53,7 +59,7 @@ export const Variables = memo(
                         (type === VariableType.Boolean ? false : undefined)
                     const isInitialValueValid = validator(value)
                     const dirty =
-                        defaults.hasOwnProperty(name) && !isInitialValueValid
+                        hasOwnProperty(defaults, name) && !isInitialValueValid
                     const [error] = validator.errors || []
                     const message = error?.message || null
 
@@ -82,7 +88,7 @@ export const Variables = memo(
             return Object.values(obj).every(({ error }) => isNull(error))
         }
 
-        function onChange(name: string): (value: any) => void {
+        function onChange(name: string): (value: unknown) => void {
             return (value) => {
                 const { [name]: state } = states
                 const { validator } = state

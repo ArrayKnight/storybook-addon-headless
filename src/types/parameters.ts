@@ -1,4 +1,4 @@
-import { DocumentNode } from 'apollo-boost'
+import { DocumentNode } from '@apollo/client'
 
 import { Dictionary, Transform } from './generic'
 import { GraphQLOptions, RestfulOptions } from './options'

@@ -1,5 +1,5 @@
 import { StoryContext } from '@storybook/addons'
-import React from 'react'
+import React, { ReactNode } from 'react'
 
 import { withHeadless } from '../../dist'
 
@@ -33,11 +33,11 @@ export default {
     },
 }
 
-export const Users = ({ data }: StoryContext) => {
+export const Users = ({ data }: StoryContext): ReactNode => {
     if (data.Users) {
         return (
             <>
-                {data.Users.map((user: any) => (
+                {data.Users.map((user: unknown) => (
                     <UserCard key={user.id} {...user} />
                 ))}
             </>
@@ -47,7 +47,7 @@ export const Users = ({ data }: StoryContext) => {
     return null
 }
 
-export const User = ({ data }: StoryContext) => {
+export const User = ({ data }: StoryContext): ReactNode => {
     if (data.User || data.Users) {
         return <UserCard {...(data.User || data.Users[0])} />
     }

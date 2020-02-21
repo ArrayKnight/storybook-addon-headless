@@ -1,6 +1,6 @@
+import { gql } from '@apollo/client'
 import { StoryContext } from '@storybook/addons'
-import { gql } from 'apollo-boost'
-import React from 'react'
+import React, { ReactNode } from 'react'
 
 import { pack, withHeadless } from '../../dist'
 
@@ -56,6 +56,7 @@ export default {
                     }
                 `),
                 variables: {
+                    // eslint-disable-next-line @typescript-eslint/camelcase
                     At_a_Fair: {
                         type: 'boolean',
                     },
@@ -75,13 +76,15 @@ export default {
     },
 }
 
-export const Artworks = ({ data }: StoryContext) => {
+export const Artworks = ({ data }: StoryContext): ReactNode => {
     if (data.Artworks && Array.isArray(data.Artworks.artworks)) {
         return (
             <>
-                {data.Artworks.artworks.map((artwork: any, index: number) => (
-                    <ArtworkCard key={index} {...artwork} />
-                ))}
+                {data.Artworks.artworks.map(
+                    (artwork: unknown, index: number) => (
+                        <ArtworkCard key={index} {...artwork} />
+                    ),
+                )}
             </>
         )
     }
@@ -89,13 +92,15 @@ export const Artworks = ({ data }: StoryContext) => {
     return null
 }
 
-export const Shows = ({ data }: StoryContext) => {
+export const Shows = ({ data }: StoryContext): ReactNode => {
     if (data.Shows && Array.isArray(data.Shows.partner_shows)) {
         return (
             <>
-                {data.Shows.partner_shows.map((show: any, index: number) => (
-                    <ShowCard key={index} {...show} />
-                ))}
+                {data.Shows.partner_shows.map(
+                    (show: unknown, index: number) => (
+                        <ShowCard key={index} {...show} />
+                    ),
+                )}
             </>
         )
     }

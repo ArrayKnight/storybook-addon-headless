@@ -15,12 +15,10 @@ export interface Props {
     name: string
     schema: Schema
     type: VariableType
-    value: any
+    value: unknown
     error: string | null
-    onChange: (value: any) => void
+    onChange: (value: unknown) => void
 }
-
-type ComponentProps = Omit<Props, 'name' | 'type'> & { isValid: boolean }
 
 export const Variable = memo(
     ({ name, schema, type, value, error, onChange }: Props) => {
@@ -32,7 +30,7 @@ export const Variable = memo(
             [VariableType.Number]: NumberInput,
             [VariableType.Select]: SelectInput,
             [VariableType.String]: StringInput,
-            [VariableType.Unknown]: ({}: ComponentProps) => (
+            [VariableType.Unknown]: () => (
                 <Row>
                     <span>Unknown variable type</span>
                 </Row>
@@ -42,7 +40,7 @@ export const Variable = memo(
         return (
             <Form.Field label={label}>
                 <Component
-                    schema={schema as any}
+                    schema={schema as never}
                     value={value as never}
                     error={error}
                     isValid={isValid}

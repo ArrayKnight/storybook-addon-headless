@@ -41,7 +41,7 @@ const initialState: HeadlessState = {
 }
 
 interface Props {
-    active: boolean
+    active?: boolean
 }
 
 export const Panel = memo(({ active }: Props) => {
@@ -130,7 +130,7 @@ export const Panel = memo(({ active }: Props) => {
     function fetch(
         name: string,
         params: ApiParameters,
-    ): (variables: Dictionary) => Promise<any> {
+    ): (variables: Dictionary) => Promise<unknown> {
         const setDataTo = setData(name)
         const setErrorTo = setError(name)
 
@@ -167,6 +167,7 @@ export const Panel = memo(({ active }: Props) => {
     function updateData(name: string): (props: InteractionProps) => void {
         const setDataTo = setData(name)
 
+        // eslint-disable-next-line @typescript-eslint/camelcase
         return ({ updated_src }) => setDataTo(updated_src)
     }
 

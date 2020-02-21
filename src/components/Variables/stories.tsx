@@ -1,6 +1,6 @@
 import { action } from '@storybook/addon-actions'
 import { object, withKnobs } from '@storybook/addon-knobs'
-import React from 'react'
+import React, { ReactNode } from 'react'
 
 import { ApiParameters, Dictionary } from '../../types'
 import { Variables } from '.'
@@ -10,7 +10,7 @@ export default {
     decorators: [withKnobs],
 }
 
-export const VariablesStory = () => {
+export const VariablesStory = (): ReactNode => {
     const parameters = object<ApiParameters>('parameters', {
         query: 'https://server.mock/',
         variables: {
@@ -59,7 +59,7 @@ export const VariablesStory = () => {
         },
     })
 
-    function onFetch(variables: Dictionary): Promise<any> {
+    function onFetch(variables: Dictionary): Promise<unknown> {
         action('onFetch')(variables)
 
         return new Promise((resolve, reject) => {

@@ -74,9 +74,7 @@ export const Select = memo((props: Props) => {
 
             case false:
             case undefined:
-                const [item] = updated
-
-                return props.onChange(item || null)
+                return props.onChange(updated[0] || null)
         }
     }
 

@@ -1,5 +1,5 @@
+import { ApolloClient, DocumentNode, InMemoryCache } from '@apollo/client'
 import Ajv from 'ajv'
-import ApolloClient, { DocumentNode } from 'apollo-boost'
 import axios from 'axios'
 import { sentenceCase } from 'change-case'
 import { Source } from 'graphql'
@@ -28,7 +28,7 @@ import {
 
 const ajv = new Ajv()
 
-export function convertToItem(value: any): Item {
+export function convertToItem(value: unknown): Item {
     switch (true) {
         case isBoolean(value):
         case isNil(value):
@@ -40,7 +40,7 @@ export function convertToItem(value: any): Item {
             }
 
         case isItem(value):
-            return value
+            return value as Item
 
         default:
             return {
@@ -54,12 +54,13 @@ export function createGraphQLPromise(
     options: GraphQLOptionsTypes,
     parameters: GraphQLParameters,
     variables: Dictionary,
-): Promise<any> {
+): Promise<unknown> {
     const opts = getBaseOptions(options, parameters)
     const { config = {}, query } = parameters
     const instance = new ApolloClient({
         ...opts,
         ...config,
+        cache: new InMemoryCache(),
     })
 
     return new Promise((resolve, reject) => {
@@ -70,7 +71,7 @@ export function createGraphQLPromise(
                 fetchPolicy: 'network-only',
             })
             .then(({ data, errors }) => {
-                if (!!errors) {
+                if (errors) {
                     reject(errors)
                 } else {
                     resolve(data)
@@ -83,7 +84,7 @@ export function createRestfulPromise(
     options: RestfulOptionsTypes,
     parameters: RestfulParameters,
     variables: Dictionary,
-): Promise<any> {
+): Promise<unknown> {
     const { config = {}, convertToFormData } = parameters
     const opts = getBaseOptions(options, parameters)
 
@@ -134,7 +135,7 @@ export function getGraphQLUri(
     const opts = getBaseOptions(options, parameters)
     const base = { ...opts, ...(parameters.config || {}) }.uri || ''
     let query = parameters.query.loc.source.body
-    const match = query.match(/( +)[^\s]/)
+    const match = /( +)[^\s]/.exec(query)
 
     if (!isNull(match)) {
         const [, space] = match
@@ -182,19 +183,23 @@ export function getVariableType(schema: Schema): VariableType {
     }
 }
 
-export function isArray<T = any>(value: any): value is T[] {
+export function hasOwnProperty(instance: unknown, property: string): boolean {
+    return Object.prototype.hasOwnProperty.call(instance, property)
+}
+
+export function isArray<T = unknown>(value: unknown): value is T[] {
     return Array.isArray(value)
 }
 
-export function isBoolean(value: any): value is boolean {
+export function isBoolean(value: unknown): value is boolean {
     return value === true || value === false
 }
 
-export function isBooleanSchema(value: any): value is BooleanSchema {
+export function isBooleanSchema(value: unknown): value is BooleanSchema {
     return isObject<Schema>(value) && value.type === 'boolean'
 }
 
-export function isDateTimeSchema(value: any): value is DateTimeSchema {
+export function isDateTimeSchema(value: unknown): value is DateTimeSchema {
     return (
         isObject<Schema>(value) &&
         (value.format === 'date' ||
@@ -203,7 +208,7 @@ export function isDateTimeSchema(value: any): value is DateTimeSchema {
     )
 }
 
-export function isFunction(value: any): value is Function {
+export function isFunction(value: unknown): value is Function {
     return typeof value === 'function'
 }
 
@@ -221,38 +226,40 @@ const validateGraphQLParameters = ajv.compile({
     required: ['query'],
 })
 
-export function isGraphQLParameters(value: any): value is GraphQLParameters {
+export function isGraphQLParameters(
+    value: unknown,
+): value is GraphQLParameters {
     return !!validateGraphQLParameters(value) && isQuery(value.query)
 }
 
-export function isItem(value: any): value is Item {
+export function isItem(value: unknown): value is Item {
     return (
         isObject(value) &&
-        value.hasOwnProperty('label') &&
-        value.hasOwnProperty('value')
+        hasOwnProperty(value, 'label') &&
+        hasOwnProperty(value, 'value')
     )
 }
 
-export function isNil(value: any): value is null | undefined {
+export function isNil(value: unknown): value is null | undefined {
     return isNull(value) || isUndefined(value)
 }
 
-export function isNull(value: any): value is null {
+export function isNull(value: unknown): value is null {
     return value === null
 }
 
-export function isNumber(value: any): value is number {
+export function isNumber(value: unknown): value is number {
     return typeof value === 'number'
 }
 
-export function isNumberSchema(value: any): value is NumberSchema {
+export function isNumberSchema(value: unknown): value is NumberSchema {
     return (
         isObject<Schema>(value) &&
         (value.type === 'integer' || value.type === 'number')
     )
 }
 
-export function isObject<T extends {}>(value: any): value is T {
+export function isObject<T extends {}>(value: unknown): value is T {
     if (!isObjectLike(value) || objectToTag(value) !== '[object Object]') {
         return false
     }
@@ -274,7 +281,7 @@ export function isObject<T extends {}>(value: any): value is T {
     )
 }
 
-export function isObjectLike(value: any): boolean {
+export function isObjectLike(value: unknown): boolean {
     return !isNull(value) && typeof value === 'object'
 }
 
@@ -307,7 +314,7 @@ const validateDocument = ajv.compile({
 })
 
 export function isQuery(
-    value: any,
+    value: unknown,
 ): value is DocumentNode | PackedDocumentNode {
     return !!validateDocument(value)
 }
@@ -326,34 +333,36 @@ const validateRestfulParameters = ajv.compile({
     required: ['query'],
 })
 
-export function isRestfulParameters(value: any): value is RestfulParameters {
+export function isRestfulParameters(
+    value: unknown,
+): value is RestfulParameters {
     return !!validateRestfulParameters(value)
 }
 
-export function isSelectSchema(value: any): value is SelectSchema {
+export function isSelectSchema(value: unknown): value is SelectSchema {
     return (
         isObject<Schema>(value) && isArray(value.enum) && value.enum.length > 1
     )
 }
 
-export function isString(value: any): value is string {
+export function isString(value: unknown): value is string {
     return typeof value === 'string'
 }
 
-export function isStringSchema(value: any): value is StringSchema {
+export function isStringSchema(value: unknown): value is StringSchema {
     return isObject<Schema>(value) && value.type === 'string'
 }
 
-export function isUndefined(value: any): value is undefined {
+export function isUndefined(value: unknown): value is undefined {
     return value === undefined
 }
 
-export function noopTransform(value: any): any {
+export function noopTransform<T = unknown>(value: T): T {
     return value
 }
 
-export function objectToTag(obj: object): string {
-    return Object.prototype.toString.call(obj)
+export function objectToTag(value: unknown): string {
+    return Object.prototype.toString.call(value)
 }
 
 /*

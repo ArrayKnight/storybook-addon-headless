@@ -17,5 +17,5 @@ export interface VariableState {
     validator: ValidateFunction
     dirty: boolean
     error: string | null
-    value: any
+    value: unknown
 }
