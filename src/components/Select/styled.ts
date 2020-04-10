@@ -40,25 +40,25 @@ export const Container = styled.div(
         }
 
         ${theme.isOpen &&
-            css`
-                border-bottom-right-radius: 0;
-                border-bottom-left-radius: 0;
-            `};
+        css`
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 0;
+        `};
 
         ${theme.isValid &&
-            css`
-                boxshadow: ${theme.color.positive} 0 0 0 1px inset;
-            `};
+        css`
+            boxshadow: ${theme.color.positive} 0 0 0 1px inset;
+        `};
 
         ${theme.isError &&
-            css`
-                boxshadow: ${theme.color.negative} 0 0 0 1px inset;
-            `};
+        css`
+            boxshadow: ${theme.color.negative} 0 0 0 1px inset;
+        `};
 
         ${theme.isWarn &&
-            css`
-                boxshadow: ${theme.color.warning} 0 0 0 1px inset;
-            `};
+        css`
+            boxshadow: ${theme.color.warning} 0 0 0 1px inset;
+        `};
     `,
 )
 
@@ -156,13 +156,13 @@ export const MenuItem = styled.li(
         padding: 0.42em 1em;
 
         ${theme.isHighlighted &&
-            css`
-                background: ${theme.background.hoverable};
-            `};
+        css`
+            background: ${theme.background.hoverable};
+        `};
 
         ${theme.isSelected &&
-            css`
-                background: ${theme.background.positive};
-            `};
+        css`
+            background: ${theme.background.positive};
+        `};
     `,
 )
