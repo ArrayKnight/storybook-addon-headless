@@ -87,18 +87,22 @@ export function createRestfulPromise(
 ): Promise<unknown> {
     const { config = {}, convertToFormData } = parameters
     const opts = getBaseOptions(options, parameters)
+    const data = new FormData()
+
+    if (convertToFormData) {
+        Object.entries(variables).forEach(([key, value]) => {
+            data.append(
+                key,
+                value instanceof Blob ? value : JSON.stringify(value),
+            )
+        })
+    }
 
     return axios({
         url: getRestfulUrl(opts, parameters, variables),
         ...opts,
         ...config,
-        data: convertToFormData
-            ? Object.entries(variables).reduce((data, [key, value]) => {
-                  data.append(key, value)
-
-                  return data
-              }, new FormData())
-            : variables,
+        data: convertToFormData ? data : variables,
     }).then(({ data }) => data)
 }
 
@@ -106,7 +110,7 @@ export function errorToJSON(error: Error): Dictionary {
     return Object.getOwnPropertyNames(error).reduce(
         (obj, key) => ({
             ...obj,
-            [key]: (error as Dictionary)[key],
+            [key]: error[key as keyof Error],
         }),
         {},
     )
@@ -229,7 +233,10 @@ const validateGraphQLParameters = ajv.compile({
 export function isGraphQLParameters(
     value: unknown,
 ): value is GraphQLParameters {
-    return !!validateGraphQLParameters(value) && isQuery(value.query)
+    return (
+        !!validateGraphQLParameters(value) &&
+        isQuery((value as GraphQLParameters).query)
+    )
 }
 
 export function isItem(value: unknown): value is Item {
@@ -387,7 +394,7 @@ export function pack({
                   source: Object.getOwnPropertyNames(loc.source).reduce(
                       (obj, key) => ({
                           ...obj,
-                          [key]: (loc.source as Dictionary)[key],
+                          [key]: loc.source[key as keyof Source],
                       }),
                       {} as Source,
                   ),

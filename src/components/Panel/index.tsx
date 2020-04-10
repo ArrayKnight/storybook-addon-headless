@@ -149,7 +149,7 @@ export const Panel = memo(({ active }: Props) => {
                       )
 
                 promise.then(
-                    (response) => {
+                    (response: Dictionary) => {
                         setDataTo(response)
 
                         resolve(response)
@@ -168,7 +168,7 @@ export const Panel = memo(({ active }: Props) => {
         const setDataTo = setData(name)
 
         // eslint-disable-next-line @typescript-eslint/camelcase
-        return ({ updated_src }) => setDataTo(updated_src)
+        return ({ updated_src }) => setDataTo(updated_src as Dictionary)
     }
 
     function renderTab(name: string, parameter: HeadlessParameter): ReactNode {
@@ -199,7 +199,10 @@ export const Panel = memo(({ active }: Props) => {
                         <>
                             <Separator />
                             <Json
-                                src={state.data[name] || state.errors[name]}
+                                src={
+                                    (state.data[name] as object | undefined) ||
+                                    (state.errors[name] as object | undefined)
+                                }
                                 name={null}
                                 iconStyle="square"
                                 theme={

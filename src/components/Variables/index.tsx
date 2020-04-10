@@ -7,6 +7,7 @@ import {
     ApiParameters,
     Dictionary,
     FetchStatus,
+    SelectSchema,
     VariableState,
     VariableType,
 } from '../../types'
@@ -48,8 +49,11 @@ export const Variables = memo(
                         type === VariableType.Select
                             ? {
                                   ...schema,
-                                  enum: schema.enum.map((option: unknown) =>
-                                      isItem(option) ? option.value : option,
+                                  enum: (schema as SelectSchema).enum.map(
+                                      (option: unknown) =>
+                                          isItem(option)
+                                              ? option.value
+                                              : option,
                                   ),
                               }
                             : schema,
