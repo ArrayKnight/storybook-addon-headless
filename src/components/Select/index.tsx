@@ -4,8 +4,8 @@ import { useCombobox } from 'downshift'
 import React, { memo, useState } from 'react'
 
 import { Item } from '../../types'
-import { Chip, Container, Menu, MenuItem, Remove, Root, Toggle } from './styled'
 import { isArray, isUndefined } from '../../utilities'
+import { Chip, Container, Menu, MenuItem, Remove, Root, Toggle } from './styled'
 
 export type Props = {
     items: Item[]
