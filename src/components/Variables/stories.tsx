@@ -1,6 +1,6 @@
 import { action } from '@storybook/addon-actions'
 import { object, withKnobs } from '@storybook/addon-knobs'
-import React, { ReactNode } from 'react'
+import React, { ReactElement } from 'react'
 
 import { ApiParameters, Dictionary } from '../../types'
 import { Variables } from '.'
@@ -10,7 +10,7 @@ export default {
     decorators: [withKnobs],
 }
 
-export const VariablesStory = (): ReactNode => {
+export const VariablesStory = (): ReactElement => {
     const parameters = object<ApiParameters>('parameters', {
         query: 'https://server.mock/',
         variables: {

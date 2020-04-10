@@ -1,5 +1,6 @@
 import { ApolloClient, DocumentNode, InMemoryCache } from '@apollo/client'
 import Ajv from 'ajv'
+import defineKeywords from 'ajv-keywords'
 import axios from 'axios'
 import { sentenceCase } from 'change-case'
 import { Source } from 'graphql'
@@ -26,7 +27,9 @@ import {
     VariableType,
 } from './types'
 
-const ajv = new Ajv()
+export const ajv = new Ajv({ $data: true })
+
+defineKeywords(ajv)
 
 export function convertToItem(value: unknown): Item {
     switch (true) {

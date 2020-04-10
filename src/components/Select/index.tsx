@@ -50,8 +50,6 @@ export const Select = memo((props: Props) => {
             )
         },
         onSelectedItemChange: ({ selectedItem }) => {
-            console.log('onSelectedItemChange', { selectedItem })
-
             if (selectedItem) {
                 update(
                     isMulti

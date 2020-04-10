@@ -1,6 +1,6 @@
 import { action } from '@storybook/addon-actions'
 import { array, boolean, withKnobs } from '@storybook/addon-knobs'
-import React, { ReactNode, useState } from 'react'
+import React, { ReactElement, useState } from 'react'
 
 import { Select } from '.'
 import { convertToItem, isArray, isNull } from '../../utilities'
@@ -12,7 +12,7 @@ export default {
     decorators: [withKnobs],
 }
 
-export const SelectStory = (): ReactNode => {
+export const SelectStory = (): ReactElement => {
     const items = array('items', [
         'Foo',
         'Bar',

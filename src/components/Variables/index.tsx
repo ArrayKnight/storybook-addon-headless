@@ -1,6 +1,4 @@
 import { Form, Icons } from '@storybook/components'
-import Ajv from 'ajv'
-import defineKeywords from 'ajv-keywords'
 import React, { memo, useEffect, useState } from 'react'
 
 import {
@@ -12,6 +10,7 @@ import {
     VariableType,
 } from '../../types'
 import {
+    ajv,
     getVariableType,
     hasOwnProperty,
     isItem,
@@ -20,11 +19,6 @@ import {
 } from '../../utilities'
 import { Variable } from '../Variable'
 import { Fieldset } from './styled'
-
-const { Button } = Form
-const ajv = new Ajv()
-
-defineKeywords(ajv)
 
 export interface Props {
     hasData: boolean
@@ -167,7 +161,7 @@ export const Variables = memo(
                         ),
                     )}
                 </Fieldset>
-                <Button disabled={!isValid || isLoading} onClick={fetch}>
+                <Form.Button disabled={!isValid || isLoading} onClick={fetch}>
                     {!isInactive && (
                         <Icons
                             icon={
@@ -180,7 +174,7 @@ export const Variables = memo(
                         />
                     )}
                     Fetch{isInactive ? null : isLoading ? 'ing' : 'ed'}
-                </Button>
+                </Form.Button>
             </>
         )
     },

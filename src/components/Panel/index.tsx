@@ -1,7 +1,7 @@
 import { useChannel, useParameter, useStorybookApi } from '@storybook/api'
 import { TabsState } from '@storybook/components'
 import { Theme, ThemeProvider, useTheme } from '@storybook/theming'
-import React, { memo, ReactNode, useState } from 'react'
+import React, { memo, ReactElement, useState } from 'react'
 import Json, { InteractionProps } from 'react-json-view'
 
 import { EVENT_DATA_UPDATED, EVENT_INITIALIZED, PARAM_KEY } from '../../config'
@@ -171,7 +171,10 @@ export const Panel = memo(({ active }: Props) => {
         return ({ updated_src }) => setDataTo(updated_src as Dictionary)
     }
 
-    function renderTab(name: string, parameter: HeadlessParameter): ReactNode {
+    function renderTab(
+        name: string,
+        parameter: HeadlessParameter,
+    ): ReactElement {
         const params: ApiParameters =
             isString(parameter) || isQuery(parameter)
                 ? ({
