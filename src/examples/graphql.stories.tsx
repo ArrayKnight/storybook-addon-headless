@@ -1,10 +1,15 @@
 import { gql } from '@apollo/client'
 import { StoryContext } from '@storybook/addons'
-import React, { ReactNode } from 'react'
+import React, { ReactElement } from 'react'
 
 import { pack, withHeadless } from '../../dist'
 
-import { Artwork as ArtworkCard, Show as ShowCard } from '.'
+import {
+    Artwork as ArtworkCard,
+    ArtworkProps,
+    Show as ShowCard,
+    ShowProps,
+} from '.'
 
 export default {
     title: 'Examples/GraphQL',
@@ -76,12 +81,12 @@ export default {
     },
 }
 
-export const Artworks = ({ data }: StoryContext): ReactNode => {
+export const Artworks = ({ data }: StoryContext): ReactElement | null => {
     if (data.Artworks && Array.isArray(data.Artworks.artworks)) {
         return (
             <>
                 {data.Artworks.artworks.map(
-                    (artwork: unknown, index: number) => (
+                    (artwork: ArtworkProps, index: number) => (
                         <ArtworkCard key={index} {...artwork} />
                     ),
                 )}
@@ -92,12 +97,12 @@ export const Artworks = ({ data }: StoryContext): ReactNode => {
     return null
 }
 
-export const Shows = ({ data }: StoryContext): ReactNode => {
+export const Shows = ({ data }: StoryContext): ReactElement | null => {
     if (data.Shows && Array.isArray(data.Shows.partner_shows)) {
         return (
             <>
                 {data.Shows.partner_shows.map(
-                    (show: unknown, index: number) => (
+                    (show: ShowProps, index: number) => (
                         <ShowCard key={index} {...show} />
                     ),
                 )}

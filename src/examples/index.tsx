@@ -6,7 +6,7 @@ import {
     Typography,
 } from '@material-ui/core'
 import { styled } from '@storybook/theming'
-import React, { ReactNode } from 'react'
+import React, { ReactElement, ReactNode } from 'react'
 
 const StyledCard = styled(CardBase)`
     width: 240px;
@@ -31,7 +31,7 @@ export const Card = ({
     subhead,
     image,
     children,
-}: CardProps): ReactNode => (
+}: CardProps): ReactElement => (
     <StyledCard>
         <CardHeader title={title} subheader={subhead} />
         {image && <StyledMedia image={image} />}
@@ -52,7 +52,7 @@ export const Artwork = ({
     title,
     imageUrl,
     artist,
-}: ArtworkProps): ReactNode => (
+}: ArtworkProps): ReactElement => (
     <Card title={title} image={imageUrl}>
         <Typography variant="subtitle1">{artist.name}</Typography>
         <Typography variant="body2">{artist.location}</Typography>
@@ -73,7 +73,7 @@ export const Show = ({
     name,
     description,
     cover_image: { image_versions, image_url },
-}: ShowProps): ReactNode => (
+}: ShowProps): ReactElement => (
     <Card title={name} image={image_url.replace(/:version/, image_versions[0])}>
         <Typography variant="subtitle1">{description}</Typography>
     </Card>
@@ -96,7 +96,7 @@ export const User = ({
     email,
     website,
     company,
-}: UserProps): ReactNode => (
+}: UserProps): ReactElement => (
     <Card
         title={name}
         subhead={company.name}
