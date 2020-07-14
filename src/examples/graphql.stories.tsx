@@ -121,5 +121,5 @@ export const Shows = ({ data }: StoryContext): ReactElement | null => {
         )
     }
 
-    return <></>
+    return null
 }
