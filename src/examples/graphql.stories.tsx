@@ -61,7 +61,6 @@ export default {
                     }
                 `),
                 variables: {
-                    // eslint-disable-next-line @typescript-eslint/camelcase
                     At_a_Fair: {
                         type: 'boolean',
                     },
@@ -81,11 +80,17 @@ export default {
     },
 }
 
+interface Artworks {
+    artworks?: ArtworkProps[]
+}
+
 export const Artworks = ({ data }: StoryContext): ReactElement | null => {
-    if (data.Artworks && Array.isArray(data.Artworks.artworks)) {
+    const payload = data as { Artworks?: Artworks }
+
+    if (payload.Artworks && Array.isArray(payload.Artworks.artworks)) {
         return (
             <>
-                {data.Artworks.artworks.map(
+                {payload.Artworks.artworks.map(
                     (artwork: ArtworkProps, index: number) => (
                         <ArtworkCard key={index} {...artwork} />
                     ),
@@ -97,11 +102,17 @@ export const Artworks = ({ data }: StoryContext): ReactElement | null => {
     return null
 }
 
+interface Shows {
+    partner_shows?: ShowProps[]
+}
+
 export const Shows = ({ data }: StoryContext): ReactElement | null => {
-    if (data.Shows && Array.isArray(data.Shows.partner_shows)) {
+    const payload = data as { Shows?: Shows }
+
+    if (payload.Shows && Array.isArray(payload.Shows.partner_shows)) {
         return (
             <>
-                {data.Shows.partner_shows.map(
+                {payload.Shows.partner_shows.map(
                     (show: ShowProps, index: number) => (
                         <ShowCard key={index} {...show} />
                     ),

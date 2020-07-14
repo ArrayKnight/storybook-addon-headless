@@ -2,7 +2,7 @@ import { action } from '@storybook/addon-actions'
 import { object, withKnobs } from '@storybook/addon-knobs'
 import React, { ReactElement } from 'react'
 
-import { ApiParameters, Dictionary } from '../../types'
+import { ApiParameters } from '../../types'
 import { Variables } from '.'
 
 export default {
@@ -59,7 +59,7 @@ export const VariablesStory = (): ReactElement => {
         },
     })
 
-    function onFetch(variables: Dictionary): Promise<unknown> {
+    function onFetch(variables: Record<string, unknown>): Promise<unknown> {
         action('onFetch')(variables)
 
         return new Promise((resolve, reject) => {

@@ -3,7 +3,6 @@ import React, { memo, useEffect, useState } from 'react'
 
 import {
     ApiParameters,
-    Dictionary,
     FetchStatus,
     SelectSchema,
     VariableState,
@@ -24,7 +23,7 @@ export interface Props {
     hasData: boolean
     hasError: boolean
     parameters: ApiParameters
-    onFetch: (variables: Dictionary) => Promise<unknown>
+    onFetch: (variables: Record<string, unknown>) => Promise<unknown>
 }
 
 export const Variables = memo(
@@ -35,9 +34,9 @@ export const Variables = memo(
             variables = {},
             transforms = {},
         } = parameters
-        const [states, setStates] = useState<Dictionary<VariableState>>(
+        const [states, setStates] = useState<Record<string, VariableState>>(
             Object.entries(variables).reduce(
-                (obj: Dictionary<VariableState>, [name, schema]) => {
+                (obj: Record<string, VariableState>, [name, schema]) => {
                     const type = getVariableType(schema)
                     const validator = ajv.compile(
                         type === VariableType.Select
@@ -82,7 +81,7 @@ export const Variables = memo(
         const isLoading = status === FetchStatus.Loading
         const isRejected = status === FetchStatus.Rejected
 
-        function areValid(obj: Dictionary<VariableState>): boolean {
+        function areValid(obj: Record<string, VariableState>): boolean {
             return Object.values(obj).every(({ error }) => isNull(error))
         }
 
@@ -91,7 +90,7 @@ export const Variables = memo(
                 const { [name]: state } = states
                 const { validator } = state
 
-                validator(value)
+                void validator(value)
 
                 const [error] = validator.errors || []
                 const message = error?.message || null

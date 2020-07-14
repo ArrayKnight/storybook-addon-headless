@@ -7,7 +7,6 @@ import Json, { InteractionProps } from 'react-json-view'
 import { EVENT_DATA_UPDATED, EVENT_INITIALIZED, PARAM_KEY } from '../../config'
 import {
     ApiParameters,
-    Dictionary,
     HeadlessOptions,
     HeadlessParameter,
     HeadlessParameters,
@@ -130,7 +129,7 @@ export const Panel = memo(({ active }: Props) => {
     function fetch(
         name: string,
         params: ApiParameters,
-    ): (variables: Dictionary) => Promise<unknown> {
+    ): (variables: Record<string, unknown>) => Promise<unknown> {
         const setDataTo = setData(name)
         const setErrorTo = setError(name)
 
@@ -149,7 +148,7 @@ export const Panel = memo(({ active }: Props) => {
                       )
 
                 promise.then(
-                    (response: Dictionary) => {
+                    (response: Record<string, unknown>) => {
                         setDataTo(response)
 
                         resolve(response)
@@ -167,8 +166,8 @@ export const Panel = memo(({ active }: Props) => {
     function updateData(name: string): (props: InteractionProps) => void {
         const setDataTo = setData(name)
 
-        // eslint-disable-next-line @typescript-eslint/camelcase
-        return ({ updated_src }) => setDataTo(updated_src as Dictionary)
+        return ({ updated_src }) =>
+            setDataTo(updated_src as Record<string, unknown>)
     }
 
     function renderTab(
@@ -203,8 +202,12 @@ export const Panel = memo(({ active }: Props) => {
                             <Separator />
                             <Json
                                 src={
-                                    (state.data[name] as object | undefined) ||
-                                    (state.errors[name] as object | undefined)
+                                    (state.data[name] as
+                                        | Record<string, unknown>
+                                        | undefined) ||
+                                    (state.errors[name] as
+                                        | Record<string, unknown>
+                                        | undefined)
                                 }
                                 name={null}
                                 iconStyle="square"

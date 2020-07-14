@@ -1,19 +1,11 @@
-export interface Dictionary<T = unknown> {
-    [key: string]: T
-}
-
-export type Identifiable<T extends {}> = T & { id: string }
+export type Identifiable<T extends unknown> = T & { id: string }
 
 export interface Item {
     label: string
     value: unknown
 }
 
-export type OneOrMore<T extends {}> = T | Identifiable<T>[]
-
-export type Required<T> = T extends object
-    ? { [P in keyof T]-?: NonNullable<T[P]> }
-    : T
+export type OneOrMore<T extends unknown> = T | Array<Identifiable<T>>
 
 export type Transform<T = unknown> = (value: T) => T
 

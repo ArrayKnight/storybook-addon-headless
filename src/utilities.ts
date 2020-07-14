@@ -3,13 +3,12 @@ import Ajv from 'ajv'
 import defineKeywords from 'ajv-keywords'
 import axios from 'axios'
 import { sentenceCase } from 'change-case'
-import { Source } from 'graphql'
+import { Location, Source } from 'graphql'
 
 import {
     BaseParameters,
     BooleanSchema,
     DateTimeSchema,
-    Dictionary,
     GraphQLOptions,
     GraphQLOptionsTypes,
     GraphQLParameters,
@@ -56,7 +55,7 @@ export function convertToItem(value: unknown): Item {
 export function createGraphQLPromise(
     options: GraphQLOptionsTypes,
     parameters: GraphQLParameters,
-    variables: Dictionary,
+    variables: Record<string, unknown>,
 ): Promise<unknown> {
     const opts = getBaseOptions(options, parameters)
     const { config = {}, query } = parameters
@@ -86,7 +85,7 @@ export function createGraphQLPromise(
 export function createRestfulPromise(
     options: RestfulOptionsTypes,
     parameters: RestfulParameters,
-    variables: Dictionary,
+    variables: Record<string, unknown>,
 ): Promise<unknown> {
     const { config = {}, convertToFormData } = parameters
     const opts = getBaseOptions(options, parameters)
@@ -106,10 +105,10 @@ export function createRestfulPromise(
         ...opts,
         ...config,
         data: convertToFormData ? data : variables,
-    }).then(({ data }) => data)
+    }).then(({ data }) => data) as Promise<unknown>
 }
 
-export function errorToJSON(error: Error): Dictionary {
+export function errorToJSON(error: Error): Record<string, unknown> {
     return Object.getOwnPropertyNames(error).reduce(
         (obj, key) => ({
             ...obj,
@@ -119,7 +118,7 @@ export function errorToJSON(error: Error): Dictionary {
     )
 }
 
-export function functionToTag(func: Function): string {
+export function functionToTag(func: (...args: unknown[]) => unknown): string {
     return Function.prototype.toString.call(func)
 }
 
@@ -156,7 +155,7 @@ export function getGraphQLUri(
 export function getRestfulUrl(
     options: RestfulOptionsTypes,
     parameters: RestfulParameters,
-    variables: Dictionary,
+    variables: Record<string, unknown>,
 ): string {
     const opts = getBaseOptions(options, parameters)
     const base = { ...opts, ...(parameters.config || {}) }.baseURL || ''
@@ -215,7 +214,9 @@ export function isDateTimeSchema(value: unknown): value is DateTimeSchema {
     )
 }
 
-export function isFunction(value: unknown): value is Function {
+export function isFunction(
+    value: unknown,
+): value is (...args: unknown[]) => unknown {
     return typeof value === 'function'
 }
 
@@ -269,12 +270,12 @@ export function isNumberSchema(value: unknown): value is NumberSchema {
     )
 }
 
-export function isObject<T extends {}>(value: unknown): value is T {
+export function isObject<T extends unknown>(value: unknown): value is T {
     if (!isObjectLike(value) || objectToTag(value) !== '[object Object]') {
         return false
     }
 
-    const prototype = Object.getPrototypeOf(Object(value))
+    const prototype = Object.getPrototypeOf(Object(value)) as unknown
 
     if (isNull(prototype)) {
         return true
@@ -414,6 +415,8 @@ export function unpack({
     return {
         kind,
         definitions: definitions.map((definition) => JSON.parse(definition)),
-        loc,
+        loc: !isUndefined(loc)
+            ? new Location(loc.startToken, loc.endToken, loc.source)
+            : loc,
     }
 }

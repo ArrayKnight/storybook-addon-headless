@@ -68,7 +68,6 @@ export interface ShowProps {
     }
 }
 
-/* eslint-disable @typescript-eslint/camelcase */
 export const Show = ({
     name,
     description,
@@ -78,7 +77,6 @@ export const Show = ({
         <Typography variant="subtitle1">{description}</Typography>
     </Card>
 )
-/* eslint-enable @typescript-eslint/camelcase */
 
 export interface UserProps {
     id: number

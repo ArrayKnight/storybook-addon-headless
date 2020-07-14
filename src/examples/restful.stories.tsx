@@ -34,10 +34,12 @@ export default {
 }
 
 export const Users = ({ data }: StoryContext): ReactElement | null => {
-    if (data.Users) {
+    const payload = data as { Users?: UserProps[] }
+
+    if (Array.isArray(payload.Users)) {
         return (
             <>
-                {data.Users.map((user: UserProps) => (
+                {payload.Users.map((user: UserProps) => (
                     <UserCard key={user.id} {...user} />
                 ))}
             </>
@@ -48,8 +50,13 @@ export const Users = ({ data }: StoryContext): ReactElement | null => {
 }
 
 export const User = ({ data }: StoryContext): ReactElement | null => {
-    if (data.User || data.Users) {
-        return <UserCard {...(data.User || data.Users[0])} />
+    const payload = data as { Users?: UserProps[]; User?: UserProps }
+
+    if (
+        payload.User ||
+        (Array.isArray(payload.Users) && payload.Users.length)
+    ) {
+        return <UserCard {...(payload.User || payload.Users[0])} />
     }
 
     return null

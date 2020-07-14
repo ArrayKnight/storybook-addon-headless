@@ -20,6 +20,10 @@ export interface Props {
     onChange: (value: unknown) => void
 }
 
+interface VariableProps extends Omit<Props, 'name'> {
+    isValid: boolean
+}
+
 export const Variable = memo(
     ({ name, schema, type, value, error, onChange }: Props) => {
         const label = noCase(name, { transform: noopTransform })
@@ -30,27 +34,34 @@ export const Variable = memo(
             [VariableType.Number]: NumberInput,
             [VariableType.Select]: SelectInput,
             [VariableType.String]: StringInput,
-            [VariableType.Unknown]: () => (
-                <Row>
-                    <span>Unknown variable type</span>
-                </Row>
+            [VariableType.Unknown]: memo(
+                (props: VariableProps): JSX.Element => {
+                    console.warn(`Unknown variable type. Props received: `, {
+                        schema: props.schema,
+                        value: props.value,
+                    })
+
+                    return (
+                        <Row>
+                            <span>Unknown variable type</span>
+                        </Row>
+                    )
+                },
             ),
         }[type]
 
+        /* eslint-disable */
         return (
             <Form.Field label={label}>
-                <Component
-                    schema={schema as never}
-                    value={value as never}
-                    error={error}
-                    isValid={isValid}
-                    onChange={onChange}
+                <Component // @ts-ignore
+                    schema={schema} // @ts-ignore
+                    value={value} // @ts-ignore
+                    error={error} // @ts-ignore
+                    isValid={isValid} // @ts-ignore
+                    onChange={onChange} // @ts-ignore
                 />
             </Form.Field>
         )
-
-        // TODO support more schemas:
-        // (array of strings, numbers, mixed) => rows of inputs
-        // (array of objects) => select
+        /* eslint-enable */
     },
 )
