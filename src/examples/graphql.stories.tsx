@@ -85,12 +85,12 @@ interface Artworks {
 }
 
 export const Artworks = ({ data }: StoryContext): ReactElement | null => {
-    const payload = data as { Artworks?: Artworks }
+    const payload = data as { Artworks?: Artworks } | undefined
 
-    if (payload.Artworks && Array.isArray(payload.Artworks.artworks)) {
+    if (payload?.Artworks && Array.isArray(payload?.Artworks?.artworks)) {
         return (
             <>
-                {payload.Artworks.artworks.map(
+                {payload?.Artworks?.artworks.map(
                     (artwork: ArtworkProps, index: number) => (
                         <ArtworkCard key={index} {...artwork} />
                     ),
@@ -107,12 +107,12 @@ interface Shows {
 }
 
 export const Shows = ({ data }: StoryContext): ReactElement | null => {
-    const payload = data as { Shows?: Shows }
+    const payload = data as { Shows?: Shows } | undefined
 
-    if (payload.Shows && Array.isArray(payload.Shows.partner_shows)) {
+    if (payload?.Shows && Array.isArray(payload?.Shows?.partner_shows)) {
         return (
             <>
-                {payload.Shows.partner_shows.map(
+                {payload?.Shows?.partner_shows.map(
                     (show: ShowProps, index: number) => (
                         <ShowCard key={index} {...show} />
                     ),

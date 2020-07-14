@@ -3,7 +3,6 @@ import Ajv from 'ajv'
 import defineKeywords from 'ajv-keywords'
 import axios from 'axios'
 import { sentenceCase } from 'change-case'
-import { Location, Source } from 'graphql'
 
 import {
     BaseParameters,
@@ -140,7 +139,7 @@ export function getGraphQLUri(
 ): string {
     const opts = getBaseOptions(options, parameters)
     const base = { ...opts, ...(parameters.config || {}) }.uri || ''
-    let query = parameters.query.loc.source.body
+    let query = parameters.query.source
     const match = /( +)[^\s]/.exec(query)
 
     if (!isNull(match)) {
@@ -308,20 +307,11 @@ const validateDocument = ajv.compile({
             type: 'array',
             minItems: 1,
         },
-        loc: {
-            type: 'object',
-            properties: {
-                start: {
-                    type: 'integer',
-                },
-                end: {
-                    type: 'integer',
-                },
-            },
-            required: ['start', 'end'],
+        source: {
+            type: 'string',
         },
     },
-    required: ['kind', 'definitions', 'loc'],
+    required: ['kind', 'definitions'],
 })
 
 export function isQuery(
@@ -392,31 +382,16 @@ export function pack({
         definitions: definitions.map((definition) =>
             JSON.stringify(definition),
         ),
-        loc: !isUndefined(loc)
-            ? {
-                  ...loc,
-                  source: Object.getOwnPropertyNames(loc.source).reduce(
-                      (obj, key) => ({
-                          ...obj,
-                          [key]: loc.source[key as keyof Source],
-                      }),
-                      {} as Source,
-                  ),
-              }
-            : loc,
+        source: loc?.source.body,
     }
 }
 
 export function unpack({
     kind,
     definitions,
-    loc,
 }: PackedDocumentNode): DocumentNode {
     return {
         kind,
         definitions: definitions.map((definition) => JSON.parse(definition)),
-        loc: !isUndefined(loc)
-            ? new Location(loc.startToken, loc.endToken, loc.source)
-            : loc,
     }
 }
