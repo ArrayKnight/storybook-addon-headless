@@ -1,4 +1,4 @@
-import { StoryContext } from '@storybook/addons'
+import { Args, StoryContext } from '@storybook/addons'
 import React, { ReactElement } from 'react'
 
 import { withHeadless } from '../../dist'
@@ -33,7 +33,10 @@ export default {
     },
 }
 
-export const Users = ({ data }: StoryContext): ReactElement | null => {
+export const Users = (
+    args: Args,
+    { data }: StoryContext,
+): ReactElement | null => {
     const payload = data as { Users?: UserProps[] } | undefined
 
     if (Array.isArray(payload?.Users)) {
@@ -49,7 +52,10 @@ export const Users = ({ data }: StoryContext): ReactElement | null => {
     return null
 }
 
-export const User = ({ data }: StoryContext): ReactElement | null => {
+export const User = (
+    args: Args,
+    { data }: StoryContext,
+): ReactElement | null => {
     const payload = data as
         | { Users?: UserProps[]; User?: UserProps }
         | undefined
