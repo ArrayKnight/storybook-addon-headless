@@ -9,7 +9,7 @@ export const Root = styled.div(
         position: relative;
         transition: max-height 500ms;
         overflow: ${theme.isCollapsed ? 'hidden' : 'auto'};
-        cursor: ${theme.collapisble ? 'pointer' : 'default'};
+        cursor: ${theme.collapasble ? 'pointer' : 'default'};
 
         &:before {
             content: '';

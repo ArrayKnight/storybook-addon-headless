@@ -10,7 +10,9 @@
         "plugin:@typescript-eslint/eslint-recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/recommended-requiring-type-checking",
+        "plugin:jest-dom/recommended",
         "plugin:prettier/recommended",
+        "plugin:testing-library/recommended",
         "prettier/@typescript-eslint"
     ],
     "parser": "@typescript-eslint/parser",

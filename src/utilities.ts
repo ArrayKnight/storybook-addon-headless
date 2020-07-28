@@ -11,7 +11,6 @@ import {
     GraphQLOptions,
     GraphQLOptionsTypes,
     GraphQLParameters,
-    Identifiable,
     Item,
     NumberSchema,
     OneOrMore,
@@ -125,22 +124,24 @@ export function getBaseOptions<T = GraphQLOptions | RestfulOptions>(
     options: OneOrMore<T>,
     { base }: BaseParameters,
 ): T {
-    const all: Identifiable<T>[] = isArray(options)
-        ? options
-        : [{ ...options, id: 'default' }]
-    const name = base || 'default'
+    if (isArray(options)) {
+        const name = base || 'default'
 
-    return all.find(({ id }) => id === name) || ({} as T)
+        return options.find(({ id }) => id === name) || ({} as T)
+    }
+
+    return options
 }
 
 export function getGraphQLUri(
     options: GraphQLOptionsTypes,
     parameters: GraphQLParameters,
 ): string {
-    const opts = getBaseOptions(options, parameters)
-    const base = { ...opts, ...(parameters.config || {}) }.uri || ''
+    const base =
+        { ...getBaseOptions(options, parameters), ...(parameters.config || {}) }
+            .uri || ''
     let query = parameters.query.source
-    const match = /( +)[^\s]/.exec(query)
+    const match = /([ \t]+)[^\s]/.exec(query)
 
     if (!isNull(match)) {
         const [, space] = match
@@ -148,7 +149,7 @@ export function getGraphQLUri(
         query = query.replace(new RegExp(`^${space}`, 'gm'), '')
     }
 
-    return `${base}\r\n${query}`
+    return query ? `${base}\r\n${query}` : `${base}`
 }
 
 export function getRestfulUrl(
@@ -156,8 +157,9 @@ export function getRestfulUrl(
     parameters: RestfulParameters,
     variables: Record<string, unknown>,
 ): string {
-    const opts = getBaseOptions(options, parameters)
-    const base = { ...opts, ...(parameters.config || {}) }.baseURL || ''
+    const base =
+        { ...getBaseOptions(options, parameters), ...(parameters.config || {}) }
+            .baseURL || ''
     const path = Object.entries(variables).reduce(
         (url, [name, value]) => url.replace(`{${name}}`, `${value}`),
         parameters.query,
@@ -213,6 +215,31 @@ export function isDateTimeSchema(value: unknown): value is DateTimeSchema {
     )
 }
 
+// TODO any more validation necessary?
+const validateDocument = ajv.compile({
+    type: 'object',
+    properties: {
+        kind: {
+            type: 'string',
+            pattern: '^Document$',
+        },
+        definitions: {
+            type: 'array',
+            minItems: 1,
+        },
+        source: {
+            type: 'string',
+        },
+    },
+    required: ['kind', 'definitions'],
+})
+
+export function isDocumentNode(
+    value: unknown,
+): value is DocumentNode | PackedDocumentNode {
+    return !!validateDocument(value)
+}
+
 export function isFunction(
     value: unknown,
 ): value is (...args: unknown[]) => unknown {
@@ -238,7 +265,7 @@ export function isGraphQLParameters(
 ): value is GraphQLParameters {
     return (
         !!validateGraphQLParameters(value) &&
-        isQuery((value as GraphQLParameters).query)
+        isDocumentNode((value as GraphQLParameters).query)
     )
 }
 
@@ -246,6 +273,7 @@ export function isItem(value: unknown): value is Item {
     return (
         isObject(value) &&
         hasOwnProperty(value, 'label') &&
+        isString((value as { label: unknown }).label) &&
         hasOwnProperty(value, 'value')
     )
 }
@@ -259,7 +287,7 @@ export function isNull(value: unknown): value is null {
 }
 
 export function isNumber(value: unknown): value is number {
-    return typeof value === 'number'
+    return typeof value === 'number' && !isNaN(value)
 }
 
 export function isNumberSchema(value: unknown): value is NumberSchema {
@@ -293,31 +321,6 @@ export function isObject<T extends unknown>(value: unknown): value is T {
 
 export function isObjectLike(value: unknown): boolean {
     return !isNull(value) && typeof value === 'object'
-}
-
-// TODO any more validation necessary?
-const validateDocument = ajv.compile({
-    type: 'object',
-    properties: {
-        kind: {
-            type: 'string',
-            pattern: '^Document$',
-        },
-        definitions: {
-            type: 'array',
-            minItems: 1,
-        },
-        source: {
-            type: 'string',
-        },
-    },
-    required: ['kind', 'definitions'],
-})
-
-export function isQuery(
-    value: unknown,
-): value is DocumentNode | PackedDocumentNode {
-    return !!validateDocument(value)
 }
 
 // TODO any more validation necessary?

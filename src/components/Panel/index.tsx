@@ -19,7 +19,7 @@ import {
     getGraphQLUri,
     getRestfulUrl,
     isGraphQLParameters,
-    isQuery,
+    isDocumentNode,
     isRestfulParameters,
     isString,
 } from '../../utilities'
@@ -175,7 +175,7 @@ export const Panel = memo(({ active }: Props) => {
         parameter: HeadlessParameter,
     ): ReactElement {
         const params: ApiParameters =
-            isString(parameter) || isQuery(parameter)
+            isString(parameter) || isDocumentNode(parameter)
                 ? ({
                       query: parameter,
                   } as ApiParameters)
@@ -186,7 +186,7 @@ export const Panel = memo(({ active }: Props) => {
         return (
             <div key={name} id={name} title={name}>
                 <TabContent>
-                    <Message collapisble={isGraphQLParameters(params)}>
+                    <Message collapsible={isGraphQLParameters(params)}>
                         {isGraphQLParameters(params)
                             ? getGraphQLUri(graphql, params)
                             : getRestfulUrl(restful, params, {})}
