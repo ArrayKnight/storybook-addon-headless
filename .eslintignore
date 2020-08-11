@@ -1,3 +1,5 @@
 /coverage/
 /dist/
 /docs/
+/node_modules/
+/src/**/*.stories.tsx

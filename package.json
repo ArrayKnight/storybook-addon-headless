@@ -12,7 +12,7 @@
         "build:docs": "npm run storybook:build",
         "clean": "rm -rf dist && rm -rf docs",
         "commit": "npm run lint && git add -i && npx git-cz",
-        "lint": "eslint \"!(dist|node_modules)/**/*.[jt]s?(x)\"",
+        "lint": "eslint",
         "rollup": "rollup -c",
         "rollup:watch": "rollup -c -w",
         "semantic-release": "semantic-release",
