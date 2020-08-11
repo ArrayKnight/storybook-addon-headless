@@ -21,11 +21,11 @@ interface Props {
     context: StoryContext
     options: HeadlessOptions & OptionsParameter
     parameters: HeadlessParameters
-    storyFn: (context: StoryContext) => any
+    storyFn: (context: StoryContext) => ReactElement
 }
 
 export const Decorator = memo(
-    ({ channel, context, options, parameters, storyFn }: Props) => {
+    ({ channel, context, parameters, storyFn }: Props): ReactElement => {
         const [state, setState] = useState({
             data: Object.keys(parameters).reduce(
                 (obj, key) => ({ ...obj, [key]: null }),

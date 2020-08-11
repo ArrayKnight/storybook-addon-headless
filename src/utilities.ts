@@ -1,18 +1,16 @@
+import { ApolloClient, DocumentNode, InMemoryCache } from '@apollo/client'
 import Ajv from 'ajv'
-import ApolloClient, { DocumentNode } from 'apollo-boost'
+import defineKeywords from 'ajv-keywords'
 import axios from 'axios'
 import { sentenceCase } from 'change-case'
-import { Source } from 'graphql'
 
 import {
     BaseParameters,
     BooleanSchema,
     DateTimeSchema,
-    Dictionary,
     GraphQLOptions,
     GraphQLOptionsTypes,
     GraphQLParameters,
-    Identifiable,
     Item,
     NumberSchema,
     OneOrMore,
@@ -26,9 +24,11 @@ import {
     VariableType,
 } from './types'
 
-const ajv = new Ajv()
+export const ajv = new Ajv({ $data: true })
 
-export function convertToItem(value: any): Item {
+defineKeywords(ajv)
+
+export function convertToItem(value: unknown): Item {
     switch (true) {
         case isBoolean(value):
         case isNil(value):
@@ -40,7 +40,7 @@ export function convertToItem(value: any): Item {
             }
 
         case isItem(value):
-            return value
+            return value as Item
 
         default:
             return {
@@ -53,13 +53,14 @@ export function convertToItem(value: any): Item {
 export function createGraphQLPromise(
     options: GraphQLOptionsTypes,
     parameters: GraphQLParameters,
-    variables: Dictionary,
-): Promise<any> {
+    variables: Record<string, unknown>,
+): Promise<unknown> {
     const opts = getBaseOptions(options, parameters)
     const { config = {}, query } = parameters
     const instance = new ApolloClient({
         ...opts,
         ...config,
+        cache: new InMemoryCache(),
     })
 
     return new Promise((resolve, reject) => {
@@ -70,7 +71,7 @@ export function createGraphQLPromise(
                 fetchPolicy: 'network-only',
             })
             .then(({ data, errors }) => {
-                if (!!errors) {
+                if (errors) {
                     reject(errors)
                 } else {
                     resolve(data)
@@ -82,36 +83,40 @@ export function createGraphQLPromise(
 export function createRestfulPromise(
     options: RestfulOptionsTypes,
     parameters: RestfulParameters,
-    variables: Dictionary,
-): Promise<any> {
+    variables: Record<string, unknown>,
+): Promise<unknown> {
     const { config = {}, convertToFormData } = parameters
     const opts = getBaseOptions(options, parameters)
+    const data = new FormData()
+
+    if (convertToFormData) {
+        Object.entries(variables).forEach(([key, value]) => {
+            data.append(
+                key,
+                value instanceof Blob ? value : JSON.stringify(value),
+            )
+        })
+    }
 
     return axios({
         url: getRestfulUrl(opts, parameters, variables),
         ...opts,
         ...config,
-        data: convertToFormData
-            ? Object.entries(variables).reduce((data, [key, value]) => {
-                  data.append(key, value)
-
-                  return data
-              }, new FormData())
-            : variables,
-    }).then(({ data }) => data)
+        data: convertToFormData ? data : variables,
+    }).then(({ data }) => data) as Promise<unknown>
 }
 
-export function errorToJSON(error: Error): Dictionary {
+export function errorToJSON(error: Error): Record<string, unknown> {
     return Object.getOwnPropertyNames(error).reduce(
         (obj, key) => ({
             ...obj,
-            [key]: (error as Dictionary)[key],
+            [key]: error[key as keyof Error],
         }),
         {},
     )
 }
 
-export function functionToTag(func: Function): string {
+export function functionToTag(func: (...args: unknown[]) => unknown): string {
     return Function.prototype.toString.call(func)
 }
 
@@ -119,22 +124,24 @@ export function getBaseOptions<T = GraphQLOptions | RestfulOptions>(
     options: OneOrMore<T>,
     { base }: BaseParameters,
 ): T {
-    const all: Identifiable<T>[] = isArray(options)
-        ? options
-        : [{ ...options, id: 'default' }]
-    const name = base || 'default'
+    if (isArray(options)) {
+        const name = base || 'default'
 
-    return all.find(({ id }) => id === name) || ({} as T)
+        return options.find(({ id }) => id === name) || ({} as T)
+    }
+
+    return options
 }
 
 export function getGraphQLUri(
     options: GraphQLOptionsTypes,
     parameters: GraphQLParameters,
 ): string {
-    const opts = getBaseOptions(options, parameters)
-    const base = { ...opts, ...(parameters.config || {}) }.uri || ''
-    let query = parameters.query.loc.source.body
-    const match = query.match(/( +)[^\s]/)
+    const base =
+        { ...getBaseOptions(options, parameters), ...(parameters.config || {}) }
+            .uri || ''
+    let query = parameters.query.source
+    const match = /([ \t]+)[^\s]/.exec(query)
 
     if (!isNull(match)) {
         const [, space] = match
@@ -142,16 +149,17 @@ export function getGraphQLUri(
         query = query.replace(new RegExp(`^${space}`, 'gm'), '')
     }
 
-    return `${base}\r\n${query}`
+    return query ? `${base}\r\n${query}` : `${base}`
 }
 
 export function getRestfulUrl(
     options: RestfulOptionsTypes,
     parameters: RestfulParameters,
-    variables: Dictionary,
+    variables: Record<string, unknown>,
 ): string {
-    const opts = getBaseOptions(options, parameters)
-    const base = { ...opts, ...(parameters.config || {}) }.baseURL || ''
+    const base =
+        { ...getBaseOptions(options, parameters), ...(parameters.config || {}) }
+            .baseURL || ''
     const path = Object.entries(variables).reduce(
         (url, [name, value]) => url.replace(`{${name}}`, `${value}`),
         parameters.query,
@@ -182,19 +190,23 @@ export function getVariableType(schema: Schema): VariableType {
     }
 }
 
-export function isArray<T = any>(value: any): value is T[] {
+export function hasOwnProperty(instance: unknown, property: string): boolean {
+    return Object.prototype.hasOwnProperty.call(instance, property)
+}
+
+export function isArray<T = unknown>(value: unknown): value is T[] {
     return Array.isArray(value)
 }
 
-export function isBoolean(value: any): value is boolean {
+export function isBoolean(value: unknown): value is boolean {
     return value === true || value === false
 }
 
-export function isBooleanSchema(value: any): value is BooleanSchema {
+export function isBooleanSchema(value: unknown): value is BooleanSchema {
     return isObject<Schema>(value) && value.type === 'boolean'
 }
 
-export function isDateTimeSchema(value: any): value is DateTimeSchema {
+export function isDateTimeSchema(value: unknown): value is DateTimeSchema {
     return (
         isObject<Schema>(value) &&
         (value.format === 'date' ||
@@ -203,7 +215,34 @@ export function isDateTimeSchema(value: any): value is DateTimeSchema {
     )
 }
 
-export function isFunction(value: any): value is Function {
+// TODO any more validation necessary?
+const validateDocument = ajv.compile({
+    type: 'object',
+    properties: {
+        kind: {
+            type: 'string',
+            pattern: '^Document$',
+        },
+        definitions: {
+            type: 'array',
+            minItems: 1,
+        },
+        source: {
+            type: 'string',
+        },
+    },
+    required: ['kind', 'definitions'],
+})
+
+export function isDocumentNode(
+    value: unknown,
+): value is DocumentNode | PackedDocumentNode {
+    return !!validateDocument(value)
+}
+
+export function isFunction(
+    value: unknown,
+): value is (...args: unknown[]) => unknown {
     return typeof value === 'function'
 }
 
@@ -221,43 +260,49 @@ const validateGraphQLParameters = ajv.compile({
     required: ['query'],
 })
 
-export function isGraphQLParameters(value: any): value is GraphQLParameters {
-    return !!validateGraphQLParameters(value) && isQuery(value.query)
-}
-
-export function isItem(value: any): value is Item {
+export function isGraphQLParameters(
+    value: unknown,
+): value is GraphQLParameters {
     return (
-        isObject(value) &&
-        value.hasOwnProperty('label') &&
-        value.hasOwnProperty('value')
+        !!validateGraphQLParameters(value) &&
+        isDocumentNode((value as GraphQLParameters).query)
     )
 }
 
-export function isNil(value: any): value is null | undefined {
+export function isItem(value: unknown): value is Item {
+    return (
+        isObject(value) &&
+        hasOwnProperty(value, 'label') &&
+        isString((value as { label: unknown }).label) &&
+        hasOwnProperty(value, 'value')
+    )
+}
+
+export function isNil(value: unknown): value is null | undefined {
     return isNull(value) || isUndefined(value)
 }
 
-export function isNull(value: any): value is null {
+export function isNull(value: unknown): value is null {
     return value === null
 }
 
-export function isNumber(value: any): value is number {
-    return typeof value === 'number'
+export function isNumber(value: unknown): value is number {
+    return typeof value === 'number' && !isNaN(value)
 }
 
-export function isNumberSchema(value: any): value is NumberSchema {
+export function isNumberSchema(value: unknown): value is NumberSchema {
     return (
         isObject<Schema>(value) &&
         (value.type === 'integer' || value.type === 'number')
     )
 }
 
-export function isObject<T extends {}>(value: any): value is T {
+export function isObject<T extends unknown>(value: unknown): value is T {
     if (!isObjectLike(value) || objectToTag(value) !== '[object Object]') {
         return false
     }
 
-    const prototype = Object.getPrototypeOf(Object(value))
+    const prototype = Object.getPrototypeOf(Object(value)) as unknown
 
     if (isNull(prototype)) {
         return true
@@ -274,42 +319,8 @@ export function isObject<T extends {}>(value: any): value is T {
     )
 }
 
-export function isObjectLike(value: any): boolean {
+export function isObjectLike(value: unknown): boolean {
     return !isNull(value) && typeof value === 'object'
-}
-
-// TODO any more validation necessary?
-const validateDocument = ajv.compile({
-    type: 'object',
-    properties: {
-        kind: {
-            type: 'string',
-            pattern: '^Document$',
-        },
-        definitions: {
-            type: 'array',
-            minItems: 1,
-        },
-        loc: {
-            type: 'object',
-            properties: {
-                start: {
-                    type: 'integer',
-                },
-                end: {
-                    type: 'integer',
-                },
-            },
-            required: ['start', 'end'],
-        },
-    },
-    required: ['kind', 'definitions', 'loc'],
-})
-
-export function isQuery(
-    value: any,
-): value is DocumentNode | PackedDocumentNode {
-    return !!validateDocument(value)
 }
 
 // TODO any more validation necessary?
@@ -326,34 +337,36 @@ const validateRestfulParameters = ajv.compile({
     required: ['query'],
 })
 
-export function isRestfulParameters(value: any): value is RestfulParameters {
+export function isRestfulParameters(
+    value: unknown,
+): value is RestfulParameters {
     return !!validateRestfulParameters(value)
 }
 
-export function isSelectSchema(value: any): value is SelectSchema {
+export function isSelectSchema(value: unknown): value is SelectSchema {
     return (
         isObject<Schema>(value) && isArray(value.enum) && value.enum.length > 1
     )
 }
 
-export function isString(value: any): value is string {
+export function isString(value: unknown): value is string {
     return typeof value === 'string'
 }
 
-export function isStringSchema(value: any): value is StringSchema {
+export function isStringSchema(value: unknown): value is StringSchema {
     return isObject<Schema>(value) && value.type === 'string'
 }
 
-export function isUndefined(value: any): value is undefined {
+export function isUndefined(value: unknown): value is undefined {
     return value === undefined
 }
 
-export function noopTransform(value: any): any {
+export function noopTransform<T = unknown>(value: T): T {
     return value
 }
 
-export function objectToTag(obj: object): string {
-    return Object.prototype.toString.call(obj)
+export function objectToTag(value: unknown): string {
+    return Object.prototype.toString.call(value)
 }
 
 /*
@@ -372,29 +385,16 @@ export function pack({
         definitions: definitions.map((definition) =>
             JSON.stringify(definition),
         ),
-        loc: !isUndefined(loc)
-            ? {
-                  ...loc,
-                  source: Object.getOwnPropertyNames(loc.source).reduce(
-                      (obj, key) => ({
-                          ...obj,
-                          [key]: (loc.source as Dictionary)[key],
-                      }),
-                      {} as Source,
-                  ),
-              }
-            : loc,
+        source: loc?.source.body,
     }
 }
 
 export function unpack({
     kind,
     definitions,
-    loc,
 }: PackedDocumentNode): DocumentNode {
     return {
         kind,
         definitions: definitions.map((definition) => JSON.parse(definition)),
-        loc,
     }
 }

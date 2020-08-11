@@ -11,6 +11,7 @@
 .env*
 
 # Generated
+/coverage/
 /dist/
 /docs/
 package-lock.json

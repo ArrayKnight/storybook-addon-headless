@@ -1,29 +1,29 @@
 import { Form, Icons } from '@storybook/components'
-import Ajv from 'ajv'
-import defineKeywords from 'ajv-keywords'
 import React, { memo, useEffect, useState } from 'react'
 
 import {
     ApiParameters,
-    Dictionary,
     FetchStatus,
+    SelectSchema,
     VariableState,
     VariableType,
 } from '../../types'
-import { getVariableType, isItem, isNull, noopTransform } from '../../utilities'
+import {
+    ajv,
+    getVariableType,
+    hasOwnProperty,
+    isItem,
+    isNull,
+    noopTransform,
+} from '../../utilities'
 import { Variable } from '../Variable'
 import { Fieldset } from './styled'
-
-const { Button } = Form
-const ajv = new Ajv()
-
-defineKeywords(ajv)
 
 export interface Props {
     hasData: boolean
     hasError: boolean
     parameters: ApiParameters
-    onFetch: (variables: Dictionary) => Promise<any>
+    onFetch: (variables: Record<string, unknown>) => Promise<unknown>
 }
 
 export const Variables = memo(
@@ -34,16 +34,19 @@ export const Variables = memo(
             variables = {},
             transforms = {},
         } = parameters
-        const [states, setStates] = useState<Dictionary<VariableState>>(
+        const [states, setStates] = useState<Record<string, VariableState>>(
             Object.entries(variables).reduce(
-                (obj: Dictionary<VariableState>, [name, schema]) => {
+                (obj: Record<string, VariableState>, [name, schema]) => {
                     const type = getVariableType(schema)
                     const validator = ajv.compile(
                         type === VariableType.Select
                             ? {
                                   ...schema,
-                                  enum: schema.enum.map((option: any) =>
-                                      isItem(option) ? option.value : option,
+                                  enum: (schema as SelectSchema).enum.map(
+                                      (option: unknown) =>
+                                          isItem(option)
+                                              ? option.value
+                                              : option,
                                   ),
                               }
                             : schema,
@@ -53,7 +56,7 @@ export const Variables = memo(
                         (type === VariableType.Boolean ? false : undefined)
                     const isInitialValueValid = validator(value)
                     const dirty =
-                        defaults.hasOwnProperty(name) && !isInitialValueValid
+                        hasOwnProperty(defaults, name) && !isInitialValueValid
                     const [error] = validator.errors || []
                     const message = error?.message || null
 
@@ -78,16 +81,16 @@ export const Variables = memo(
         const isLoading = status === FetchStatus.Loading
         const isRejected = status === FetchStatus.Rejected
 
-        function areValid(obj: Dictionary<VariableState>): boolean {
+        function areValid(obj: Record<string, VariableState>): boolean {
             return Object.values(obj).every(({ error }) => isNull(error))
         }
 
-        function onChange(name: string): (value: any) => void {
+        function onChange(name: string): (value: unknown) => void {
             return (value) => {
                 const { [name]: state } = states
                 const { validator } = state
 
-                validator(value)
+                void validator(value)
 
                 const [error] = validator.errors || []
                 const message = error?.message || null
@@ -157,7 +160,7 @@ export const Variables = memo(
                         ),
                     )}
                 </Fieldset>
-                <Button disabled={!isValid || isLoading} onClick={fetch}>
+                <Form.Button disabled={!isValid || isLoading} onClick={fetch}>
                     {!isInactive && (
                         <Icons
                             icon={
@@ -170,7 +173,7 @@ export const Variables = memo(
                         />
                     )}
                     Fetch{isInactive ? null : isLoading ? 'ing' : 'ed'}
-                </Button>
+                </Form.Button>
             </>
         )
     },

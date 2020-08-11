@@ -1,14 +1,14 @@
 import { ValidateFunction } from 'ajv'
 
-import { Dictionary, Required, VariableType } from './generic'
+import { VariableType } from './generic'
 import { HeadlessOptions } from './options'
 import { Schema } from './schemas'
 
 export interface HeadlessState {
     storyId: string
     options: Required<HeadlessOptions>
-    data: Dictionary
-    errors: Dictionary
+    data: Record<string, unknown>
+    errors: Record<string, unknown>
 }
 
 export interface VariableState {
@@ -17,5 +17,5 @@ export interface VariableState {
     validator: ValidateFunction
     dirty: boolean
     error: string | null
-    value: any
+    value: unknown
 }

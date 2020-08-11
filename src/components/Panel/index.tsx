@@ -1,13 +1,12 @@
 import { useChannel, useParameter, useStorybookApi } from '@storybook/api'
 import { TabsState } from '@storybook/components'
 import { Theme, ThemeProvider, useTheme } from '@storybook/theming'
-import React, { memo, ReactNode, useState } from 'react'
+import React, { memo, ReactElement, useState } from 'react'
 import Json, { InteractionProps } from 'react-json-view'
 
 import { EVENT_DATA_UPDATED, EVENT_INITIALIZED, PARAM_KEY } from '../../config'
 import {
     ApiParameters,
-    Dictionary,
     HeadlessOptions,
     HeadlessParameter,
     HeadlessParameters,
@@ -20,7 +19,7 @@ import {
     getGraphQLUri,
     getRestfulUrl,
     isGraphQLParameters,
-    isQuery,
+    isDocumentNode,
     isRestfulParameters,
     isString,
 } from '../../utilities'
@@ -41,7 +40,7 @@ const initialState: HeadlessState = {
 }
 
 interface Props {
-    active: boolean
+    active?: boolean
 }
 
 export const Panel = memo(({ active }: Props) => {
@@ -130,7 +129,7 @@ export const Panel = memo(({ active }: Props) => {
     function fetch(
         name: string,
         params: ApiParameters,
-    ): (variables: Dictionary) => Promise<any> {
+    ): (variables: Record<string, unknown>) => Promise<unknown> {
         const setDataTo = setData(name)
         const setErrorTo = setError(name)
 
@@ -149,7 +148,7 @@ export const Panel = memo(({ active }: Props) => {
                       )
 
                 promise.then(
-                    (response) => {
+                    (response: Record<string, unknown>) => {
                         setDataTo(response)
 
                         resolve(response)
@@ -167,12 +166,16 @@ export const Panel = memo(({ active }: Props) => {
     function updateData(name: string): (props: InteractionProps) => void {
         const setDataTo = setData(name)
 
-        return ({ updated_src }) => setDataTo(updated_src)
+        return ({ updated_src }) =>
+            setDataTo(updated_src as Record<string, unknown>)
     }
 
-    function renderTab(name: string, parameter: HeadlessParameter): ReactNode {
+    function renderTab(
+        name: string,
+        parameter: HeadlessParameter,
+    ): ReactElement {
         const params: ApiParameters =
-            isString(parameter) || isQuery(parameter)
+            isString(parameter) || isDocumentNode(parameter)
                 ? ({
                       query: parameter,
                   } as ApiParameters)
@@ -183,7 +186,7 @@ export const Panel = memo(({ active }: Props) => {
         return (
             <div key={name} id={name} title={name}>
                 <TabContent>
-                    <Message collapisble={isGraphQLParameters(params)}>
+                    <Message collapsible={isGraphQLParameters(params)}>
                         {isGraphQLParameters(params)
                             ? getGraphQLUri(graphql, params)
                             : getRestfulUrl(restful, params, {})}
@@ -198,7 +201,14 @@ export const Panel = memo(({ active }: Props) => {
                         <>
                             <Separator />
                             <Json
-                                src={state.data[name] || state.errors[name]}
+                                src={
+                                    (state.data[name] as
+                                        | Record<string, unknown>
+                                        | undefined) ||
+                                    (state.errors[name] as
+                                        | Record<string, unknown>
+                                        | undefined)
+                                }
                                 name={null}
                                 iconStyle="square"
                                 theme={
