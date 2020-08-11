@@ -1,10 +1,15 @@
-import { StoryContext } from '@storybook/addons'
-import { gql } from 'apollo-boost'
-import React from 'react'
+import { gql } from '@apollo/client'
+import { Args, StoryContext } from '@storybook/addons'
+import React, { ReactElement } from 'react'
 
 import { pack, withHeadless } from '../../dist'
 
-import { Artwork as ArtworkCard, Show as ShowCard } from '.'
+import {
+    Artwork as ArtworkCard,
+    ArtworkProps,
+    Show as ShowCard,
+    ShowProps,
+} from '.'
 
 export default {
     title: 'Examples/GraphQL',
@@ -75,13 +80,24 @@ export default {
     },
 }
 
-export const Artworks = ({ data }: StoryContext) => {
-    if (data.Artworks && Array.isArray(data.Artworks.artworks)) {
+interface Artworks {
+    artworks?: ArtworkProps[]
+}
+
+export const Artworks = (
+    args: Args,
+    { data }: StoryContext,
+): ReactElement | null => {
+    const payload = data as { Artworks?: Artworks } | undefined
+
+    if (payload?.Artworks && Array.isArray(payload?.Artworks?.artworks)) {
         return (
             <>
-                {data.Artworks.artworks.map((artwork: any, index: number) => (
-                    <ArtworkCard key={index} {...artwork} />
-                ))}
+                {payload?.Artworks?.artworks.map(
+                    (artwork: ArtworkProps, index: number) => (
+                        <ArtworkCard key={index} {...artwork} />
+                    ),
+                )}
             </>
         )
     }
@@ -89,16 +105,27 @@ export const Artworks = ({ data }: StoryContext) => {
     return null
 }
 
-export const Shows = ({ data }: StoryContext) => {
-    if (data.Shows && Array.isArray(data.Shows.partner_shows)) {
+interface Shows {
+    partner_shows?: ShowProps[]
+}
+
+export const Shows = (
+    args: Args,
+    { data }: StoryContext,
+): ReactElement | null => {
+    const payload = data as { Shows?: Shows } | undefined
+
+    if (payload?.Shows && Array.isArray(payload?.Shows?.partner_shows)) {
         return (
             <>
-                {data.Shows.partner_shows.map((show: any, index: number) => (
-                    <ShowCard key={index} {...show} />
-                ))}
+                {payload?.Shows?.partner_shows.map(
+                    (show: ShowProps, index: number) => (
+                        <ShowCard key={index} {...show} />
+                    ),
+                )}
             </>
         )
     }
 
-    return <></>
+    return null
 }

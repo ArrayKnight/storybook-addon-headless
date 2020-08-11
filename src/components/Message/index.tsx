@@ -1,49 +1,67 @@
 import { Icons } from '@storybook/components'
 import { ThemeProvider } from '@storybook/theming'
-import React, { memo, useState } from 'react'
+import React, {
+    memo,
+    ReactElement,
+    ReactNode,
+    useCallback,
+    useState,
+} from 'react'
 
 import { Button, Pre, Root } from './styled'
 
-interface Props {
-    children: string
-    collapisble?: boolean
+export interface Props {
+    children: ReactNode
+    collapsible?: boolean
     collapsed?: boolean
 }
 
-export const Message = memo(
-    ({ children, collapisble = false, collapsed = true }: Props) => {
-        const [isCollapsed, setIsCollapsed] = useState(collapsed)
+export const TEST_IDS = Object.freeze({
+    root: 'MessageRoot',
+    content: 'MessageContent',
+    toggle: 'MessageToggle',
+    icon: 'MessageIcon',
+})
 
-        function toggle(): void {
+export const Message = memo(
+    ({
+        children,
+        collapsible = false,
+        collapsed = true,
+    }: Props): ReactElement | null => {
+        const [isCollapsed, setIsCollapsed] = useState(collapsed)
+        const toggle = useCallback(() => {
             setIsCollapsed(!isCollapsed)
+        }, [isCollapsed])
+
+        if (children) {
+            return (
+                <ThemeProvider
+                    theme={{
+                        collapsible,
+                        isCollapsed: collapsible && isCollapsed,
+                    }}
+                >
+                    <Root onClick={toggle} data-testid={TEST_IDS.root}>
+                        <Pre data-testid={TEST_IDS.content}>{children}</Pre>
+                        {collapsible && (
+                            <Button
+                                data-testid={TEST_IDS.toggle}
+                                aria-expanded={!isCollapsed}
+                            >
+                                <Icons
+                                    icon={
+                                        isCollapsed ? 'arrowleft' : 'arrowdown'
+                                    }
+                                    data-testid={TEST_IDS.icon}
+                                />
+                            </Button>
+                        )}
+                    </Root>
+                </ThemeProvider>
+            )
         }
 
-        return (
-            <>
-                {!!children && (
-                    <ThemeProvider
-                        theme={{
-                            collapisble,
-                            isCollapsed: collapisble && isCollapsed,
-                        }}
-                    >
-                        <Root onClick={toggle}>
-                            <Pre>{children}</Pre>
-                            {collapisble && (
-                                <Button>
-                                    <Icons
-                                        icon={
-                                            isCollapsed
-                                                ? 'arrowleft'
-                                                : 'arrowdown'
-                                        }
-                                    />
-                                </Button>
-                            )}
-                        </Root>
-                    </ThemeProvider>
-                )}
-            </>
-        )
+        return null
     },
 )

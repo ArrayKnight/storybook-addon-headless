@@ -1,7 +1,7 @@
 const createCompiler = require('@storybook/addon-docs/mdx-compiler-plugin')
 
 module.exports = {
-    addons: ['@storybook/addon-knobs/register', './dist/register'],
+    addons: ['@storybook/addon-knobs/register', '../dist/register'],
     stories: ['../src/examples/*.stories.mdx', '../src/examples/*.stories.tsx'],
     webpackFinal: async (config) => {
         config.module.rules.push(
