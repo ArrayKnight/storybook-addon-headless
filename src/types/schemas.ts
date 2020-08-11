@@ -1,6 +1,6 @@
 export interface Schema extends Object {
     type: string | string[]
-    [key: string]: unknown
+    [key: string]: any
 }
 
 export interface BooleanSchema extends Schema {
@@ -17,7 +17,7 @@ export interface NumberSchema extends Schema {
 }
 
 export interface SelectSchema extends Schema {
-    enum: unknown[]
+    enum: any[]
 }
 
 export interface StringSchema extends Schema {

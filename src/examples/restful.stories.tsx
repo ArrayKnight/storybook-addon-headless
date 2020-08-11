@@ -1,9 +1,9 @@
-import { Args, StoryContext } from '@storybook/addons'
-import React, { ReactElement } from 'react'
+import { StoryContext } from '@storybook/addons'
+import React from 'react'
 
 import { withHeadless } from '../../dist'
 
-import { User as UserCard, UserProps } from '.'
+import { User as UserCard } from '.'
 
 export default {
     title: 'Examples/Restful',
@@ -33,16 +33,11 @@ export default {
     },
 }
 
-export const Users = (
-    args: Args,
-    { data }: StoryContext,
-): ReactElement | null => {
-    const payload = data as { Users?: UserProps[] } | undefined
-
-    if (Array.isArray(payload?.Users)) {
+export const Users = ({ data }: StoryContext) => {
+    if (data.Users) {
         return (
             <>
-                {payload.Users.map((user: UserProps) => (
+                {data.Users.map((user: any) => (
                     <UserCard key={user.id} {...user} />
                 ))}
             </>
@@ -52,19 +47,9 @@ export const Users = (
     return null
 }
 
-export const User = (
-    args: Args,
-    { data }: StoryContext,
-): ReactElement | null => {
-    const payload = data as
-        | { Users?: UserProps[]; User?: UserProps }
-        | undefined
-
-    if (
-        payload?.User ||
-        (Array.isArray(payload?.Users) && payload?.Users?.length)
-    ) {
-        return <UserCard {...(payload.User || payload.Users[0])} />
+export const User = ({ data }: StoryContext) => {
+    if (data.User || data.Users) {
+        return <UserCard {...(data.User || data.Users[0])} />
     }
 
     return null

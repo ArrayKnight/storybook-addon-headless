@@ -7,10 +7,10 @@ export const Root = styled.div(
         background: ${theme.background.app};
         position: absolute;
         ${!theme.active &&
-        css`
-            display: none;
-            pointer-events: none;
-        `}
+            css`
+                display: none;
+                pointer-events: none;
+            `}
 
         *:focus {
             outline: none;

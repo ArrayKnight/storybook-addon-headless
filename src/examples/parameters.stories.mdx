@@ -3,7 +3,6 @@ import { DocsContainer, DocsPage, Meta } from '@storybook/addon-docs/blocks'
 <Meta
     title="Parameters"
     parameters={{
-        viewMode: 'story',
         docs: {
             container: DocsContainer,
             page: DocsPage,
@@ -18,7 +17,7 @@ For each endpoint you need to establish add an entry to the parameters object. I
 Example:
 
 ```js
-import { gql } from '@apollo/client'
+import { gql } from 'apollo-boost'
 import { pack } from 'storybook-addon-headless'
 
 {
@@ -52,7 +51,7 @@ For GraphQL requests the query must be a `pack`ed GraphQL Tag DocumentNode.
 Example:
 
 ```js
-import { gql } from '@apollo/client'
+import { gql } from 'apollo-boost'
 import { pack } from 'storybook-addon-headless'
 
 pack(gql`

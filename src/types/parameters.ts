@@ -1,12 +1,11 @@
-import { DocumentNode } from '@apollo/client'
+import { DocumentNode } from 'apollo-boost'
 
-import { Transform } from './generic'
+import { Dictionary, Transform } from './generic'
 import { GraphQLOptions, RestfulOptions } from './options'
 import { KnownSchema } from './schemas'
 
-export type PackedDocumentNode = Omit<DocumentNode, 'definitions' | 'loc'> & {
+export type PackedDocumentNode = Omit<DocumentNode, 'definitions'> & {
     definitions: string[]
-    source?: string
 }
 
 export type HeadlessParameter = string | PackedDocumentNode | ApiParameters
@@ -22,8 +21,8 @@ export interface VariableParameters {
 export interface BaseParameters {
     base?: string
     variables?: VariableParameters
-    defaults?: Record<string, unknown>
-    transforms?: Record<string, Transform>
+    defaults?: Dictionary
+    transforms?: Dictionary<Transform>
     autoFetchOnInit?: boolean
 }
 

@@ -14,8 +14,6 @@ jobs:
                   node-version: 12
 
             - run: npm install
-            - run: npm run lint
-            - run: npm run test
             - run: npm run build:dist
 
             - uses: codfish/semantic-release-action@master

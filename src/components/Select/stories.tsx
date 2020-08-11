@@ -1,6 +1,6 @@
 import { action } from '@storybook/addon-actions'
 import { array, boolean, withKnobs } from '@storybook/addon-knobs'
-import React, { ReactElement, useState } from 'react'
+import React, { useState } from 'react'
 
 import { Select } from '.'
 import { convertToItem, isArray, isNull } from '../../utilities'
@@ -12,7 +12,7 @@ export default {
     decorators: [withKnobs],
 }
 
-export const SelectStory = (): ReactElement => {
+export const SelectStory = () => {
     const items = array('items', [
         'Foo',
         'Bar',
@@ -20,7 +20,7 @@ export const SelectStory = (): ReactElement => {
         'Wux',
         'Lorem Ipsum Dolor',
     ])
-    const [value, setValue] = useState<unknown[]>([])
+    const [value, setValue] = useState<any[]>([])
     const isMulti = boolean('isMulti', false)
 
     function onChange(val: Item | Item[] | null): void {

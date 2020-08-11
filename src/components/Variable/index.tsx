@@ -15,14 +15,12 @@ export interface Props {
     name: string
     schema: Schema
     type: VariableType
-    value: unknown
+    value: any
     error: string | null
-    onChange: (value: unknown) => void
+    onChange: (value: any) => void
 }
 
-interface VariableProps extends Omit<Props, 'name'> {
-    isValid: boolean
-}
+type ComponentProps = Omit<Props, 'name' | 'type'> & { isValid: boolean }
 
 export const Variable = memo(
     ({ name, schema, type, value, error, onChange }: Props) => {
@@ -34,34 +32,27 @@ export const Variable = memo(
             [VariableType.Number]: NumberInput,
             [VariableType.Select]: SelectInput,
             [VariableType.String]: StringInput,
-            [VariableType.Unknown]: memo(
-                (props: VariableProps): JSX.Element => {
-                    console.warn(`Unknown variable type. Props received: `, {
-                        schema: props.schema,
-                        value: props.value,
-                    })
-
-                    return (
-                        <Row>
-                            <span>Unknown variable type</span>
-                        </Row>
-                    )
-                },
+            [VariableType.Unknown]: ({}: ComponentProps) => (
+                <Row>
+                    <span>Unknown variable type</span>
+                </Row>
             ),
         }[type]
 
-        /* eslint-disable */
         return (
             <Form.Field label={label}>
-                <Component // @ts-ignore
-                    schema={schema} // @ts-ignore
-                    value={value} // @ts-ignore
-                    error={error} // @ts-ignore
-                    isValid={isValid} // @ts-ignore
-                    onChange={onChange} // @ts-ignore
+                <Component
+                    schema={schema as any}
+                    value={value as never}
+                    error={error}
+                    isValid={isValid}
+                    onChange={onChange}
                 />
             </Form.Field>
         )
-        /* eslint-enable */
+
+        // TODO support more schemas:
+        // (array of strings, numbers, mixed) => rows of inputs
+        // (array of objects) => select
     },
 )

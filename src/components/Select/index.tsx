@@ -4,8 +4,8 @@ import { useCombobox } from 'downshift'
 import React, { memo, useState } from 'react'
 
 import { Item } from '../../types'
-import { isArray, isUndefined } from '../../utilities'
 import { Chip, Container, Menu, MenuItem, Remove, Root, Toggle } from './styled'
+import { isArray, isUndefined } from '../../utilities'
 
 export type Props = {
     items: Item[]
@@ -50,6 +50,8 @@ export const Select = memo((props: Props) => {
             )
         },
         onSelectedItemChange: ({ selectedItem }) => {
+            console.log('onSelectedItemChange', { selectedItem })
+
             if (selectedItem) {
                 update(
                     isMulti
@@ -72,7 +74,9 @@ export const Select = memo((props: Props) => {
 
             case false:
             case undefined:
-                return props.onChange(updated[0] || null)
+                const [item] = updated
+
+                return props.onChange(item || null)
         }
     }
 

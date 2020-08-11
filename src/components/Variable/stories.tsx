@@ -1,6 +1,6 @@
 import { action } from '@storybook/addon-actions'
 import { text, withKnobs } from '@storybook/addon-knobs'
-import React, { ReactElement, useState } from 'react'
+import React, { useState } from 'react'
 
 import { VariableType } from '../../types'
 import { Variable } from '.'
@@ -11,7 +11,7 @@ export default {
     decorators: [withKnobs],
 }
 
-export const BooleanStory = (): ReactElement => {
+export const BooleanStory = () => {
     const name = text('name', 'Boolean')
     const error = text('error', '') || null
     const [value, setValue] = useState(false)
@@ -38,7 +38,7 @@ BooleanStory.story = {
     name: 'Boolean',
 }
 
-export const DateStory = (): ReactElement => {
+export const DateStory = () => {
     const name = text('name', 'Date')
     const error = text('error', '') || null
     const [value, setValue] = useState('')
@@ -65,7 +65,7 @@ DateStory.story = {
     name: 'Date',
 }
 
-export const DateTimeStory = (): ReactElement => {
+export const DateTimeStory = () => {
     const name = text('name', 'DateTime')
     const error = text('error', '') || null
     const [value, setValue] = useState('')
@@ -92,7 +92,7 @@ DateTimeStory.story = {
     name: 'DateTime',
 }
 
-export const TimeStory = (): ReactElement => {
+export const TimeStory = () => {
     const name = text('name', 'Time')
     const error = text('error', '') || null
     const [value, setValue] = useState('')
@@ -119,7 +119,7 @@ TimeStory.story = {
     name: 'Time',
 }
 
-export const FloatStory = (): ReactElement => {
+export const FloatStory = () => {
     const name = text('name', 'Float')
     const error = text('error', '') || null
     const [value, setValue] = useState('')
@@ -146,7 +146,7 @@ FloatStory.story = {
     name: 'Float',
 }
 
-export const IntegerStory = (): ReactElement => {
+export const IntegerStory = () => {
     const name = text('name', 'Integer')
     const error = text('error', '') || null
     const [value, setValue] = useState('')
@@ -173,7 +173,7 @@ IntegerStory.story = {
     name: 'Integer',
 }
 
-export const SelectStory = (): ReactElement => {
+export const SelectStory = () => {
     const name = text('name', 'Select')
     const error = text('error', '') || null
     const [value, setValue] = useState<
@@ -219,7 +219,7 @@ SelectStory.story = {
     name: 'Select',
 }
 
-export const StringStory = (): ReactElement => {
+export const StringStory = () => {
     const name = text('name', 'String')
     const error = text('error', '') || null
     const [value, setValue] = useState('')
