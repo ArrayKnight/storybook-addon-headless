@@ -4,6 +4,7 @@
     "description": "Storybook addon to preview content from a headless CMS in components",
     "version": "0.0.0-development",
     "license": "MIT",
+    "force": true,
     "scripts": {
         "preinstall": "rm -rf node_modules && rm -f package-lock.json && rm -f yarn.lock",
         "prebuild": "npm run clean",
