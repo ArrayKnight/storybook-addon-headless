@@ -11,7 +11,7 @@
         "build:dist": "npm run rollup",
         "build:docs": "npm run storybook:build",
         "clean": "rm -rf dist && rm -rf docs",
-        "commit": "npm run lint && git add -i && npx git-cz",
+        "commit": "npm run lint && git add -i && npx git-cz@4.1.0",
         "lint": "eslint \"src/**/*.[j|t]s?(x)\"",
         "rollup": "rollup -c",
         "rollup:watch": "rollup -c -w",
