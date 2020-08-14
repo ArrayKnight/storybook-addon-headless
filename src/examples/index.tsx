@@ -6,7 +6,7 @@ import {
     Typography,
 } from '@material-ui/core'
 import { styled } from '@storybook/theming'
-import React, { ReactNode } from 'react'
+import React, { ReactElement, ReactNode } from 'react'
 
 const StyledCard = styled(CardBase)`
     width: 240px;
@@ -26,15 +26,18 @@ export interface CardProps {
     children: ReactNode
 }
 
-export const Card = ({ title, subhead, image, children }: CardProps) => {
-    return (
-        <StyledCard>
-            <CardHeader title={title} subheader={subhead} />
-            {image && <StyledMedia image={image} />}
-            <CardContent>{children}</CardContent>
-        </StyledCard>
-    )
-}
+export const Card = ({
+    title,
+    subhead,
+    image,
+    children,
+}: CardProps): ReactElement => (
+    <StyledCard>
+        <CardHeader title={title} subheader={subhead} />
+        {image && <StyledMedia image={image} />}
+        <CardContent>{children}</CardContent>
+    </StyledCard>
+)
 
 export interface ArtworkProps {
     title: string
@@ -45,14 +48,16 @@ export interface ArtworkProps {
     }
 }
 
-export const Artwork = ({ title, imageUrl, artist }: ArtworkProps) => {
-    return (
-        <Card title={title} image={imageUrl}>
-            <Typography variant="subtitle1">{artist.name}</Typography>
-            <Typography variant="body2">{artist.location}</Typography>
-        </Card>
-    )
-}
+export const Artwork = ({
+    title,
+    imageUrl,
+    artist,
+}: ArtworkProps): ReactElement => (
+    <Card title={title} image={imageUrl}>
+        <Typography variant="subtitle1">{artist.name}</Typography>
+        <Typography variant="body2">{artist.location}</Typography>
+    </Card>
+)
 
 export interface ShowProps {
     name: string
@@ -67,16 +72,11 @@ export const Show = ({
     name,
     description,
     cover_image: { image_versions, image_url },
-}: ShowProps) => {
-    return (
-        <Card
-            title={name}
-            image={image_url.replace(/:version/, image_versions[0])}
-        >
-            <Typography variant="subtitle1">{description}</Typography>
-        </Card>
-    )
-}
+}: ShowProps): ReactElement => (
+    <Card title={name} image={image_url.replace(/:version/, image_versions[0])}>
+        <Typography variant="subtitle1">{description}</Typography>
+    </Card>
+)
 
 export interface UserProps {
     id: number
@@ -88,7 +88,13 @@ export interface UserProps {
     }
 }
 
-export const User = ({ id, name, email, website, company }: UserProps) => (
+export const User = ({
+    id,
+    name,
+    email,
+    website,
+    company,
+}: UserProps): ReactElement => (
     <Card
         title={name}
         subhead={company.name}
