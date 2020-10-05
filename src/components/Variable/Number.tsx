@@ -1,7 +1,7 @@
 import { Form } from '@storybook/components'
-import React, { ChangeEvent, memo } from 'react'
+import React, { ChangeEvent, memo, useCallback } from 'react'
 
-import { NumberSchema } from '../../types'
+import type { NumberSchema } from '../../types'
 import { isUndefined } from '../../utilities'
 import { Error, Row } from './styled'
 
@@ -15,9 +15,12 @@ export interface Props {
 
 export const NumberInput = memo(
     ({ value, error, isValid, onChange }: Props) => {
-        function update(event: ChangeEvent<HTMLInputElement>): void {
-            onChange(parseFloat(event.target.value))
-        }
+        const update = useCallback(
+            (event: ChangeEvent<HTMLInputElement>) => {
+                onChange(parseFloat(event.target.value))
+            },
+            [onChange],
+        )
 
         return (
             <Row>
@@ -32,3 +35,5 @@ export const NumberInput = memo(
         )
     },
 )
+
+NumberInput.displayName = 'Number'

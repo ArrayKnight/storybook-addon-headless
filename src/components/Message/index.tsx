@@ -5,6 +5,7 @@ import React, {
     ReactElement,
     ReactNode,
     useCallback,
+    useEffect,
     useState,
 } from 'react'
 
@@ -33,6 +34,12 @@ export const Message = memo(
         const toggle = useCallback(() => {
             setIsCollapsed(!isCollapsed)
         }, [isCollapsed])
+
+        useEffect(() => {
+            if (collapsed !== isCollapsed) {
+                setIsCollapsed(collapsed)
+            }
+        }, [collapsed])
 
         if (children) {
             return (
@@ -65,3 +72,5 @@ export const Message = memo(
         return null
     },
 )
+
+Message.displayName = 'Message'

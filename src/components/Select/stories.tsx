@@ -2,9 +2,9 @@ import { action } from '@storybook/addon-actions'
 import { array, boolean, withKnobs } from '@storybook/addon-knobs'
 import React, { ReactElement, useState } from 'react'
 
-import { Select } from '.'
+import type { Item } from '../../types'
 import { convertToItem, isArray, isNull } from '../../utilities'
-import { Item } from '../../types'
+import { Select } from '.'
 
 export default {
     title: 'Select',

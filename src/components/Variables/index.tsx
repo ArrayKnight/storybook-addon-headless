@@ -1,5 +1,5 @@
 import { Form, Icons } from '@storybook/components'
-import React, { memo, useEffect, useState } from 'react'
+import React, { memo, useCallback, useEffect, useState } from 'react'
 
 import {
     ApiParameters,
@@ -26,6 +26,52 @@ export interface Props {
     onFetch: (variables: Record<string, unknown>) => Promise<unknown>
 }
 
+export function areValid(obj: Record<string, VariableState>): boolean {
+    return Object.values(obj).every(({ error }) => isNull(error))
+}
+
+export function createState(
+    defaults: ApiParameters['defaults'],
+    variables: ApiParameters['variables'],
+): Record<string, VariableState> {
+    return Object.entries(variables).reduce(
+        (obj: Record<string, VariableState>, [name, schema]) => {
+            const type = getVariableType(schema)
+            const validator = ajv.compile(
+                type === VariableType.Select
+                    ? {
+                          ...schema,
+                          enum: (schema as SelectSchema).enum.map(
+                              (option: unknown) =>
+                                  isItem(option) ? option.value : option,
+                          ),
+                      }
+                    : schema,
+            )
+            const value =
+                defaults[name] ??
+                (type === VariableType.Boolean ? false : undefined)
+            const isValid = validator(value)
+            const dirty = hasOwnProperty(defaults, name) && !isValid
+            const [error] = validator.errors || []
+            const message = error?.message || null
+
+            return {
+                ...obj,
+                [name]: {
+                    schema,
+                    type,
+                    validator,
+                    dirty,
+                    error: message,
+                    value,
+                },
+            }
+        },
+        {},
+    )
+}
+
 export const Variables = memo(
     ({ hasData, hasError, parameters, onFetch }: Props) => {
         const {
@@ -34,63 +80,15 @@ export const Variables = memo(
             variables = {},
             transforms = {},
         } = parameters
-        const [states, setStates] = useState<Record<string, VariableState>>(
-            Object.entries(variables).reduce(
-                (obj: Record<string, VariableState>, [name, schema]) => {
-                    const type = getVariableType(schema)
-                    const validator = ajv.compile(
-                        type === VariableType.Select
-                            ? {
-                                  ...schema,
-                                  enum: (schema as SelectSchema).enum.map(
-                                      (option: unknown) =>
-                                          isItem(option)
-                                              ? option.value
-                                              : option,
-                                  ),
-                              }
-                            : schema,
-                    )
-                    const value =
-                        defaults[name] ??
-                        (type === VariableType.Boolean ? false : undefined)
-                    const isInitialValueValid = validator(value)
-                    const dirty =
-                        hasOwnProperty(defaults, name) && !isInitialValueValid
-                    const [error] = validator.errors || []
-                    const message = error?.message || null
-
-                    return {
-                        ...obj,
-                        [name]: {
-                            schema,
-                            type,
-                            validator,
-                            dirty,
-                            error: message,
-                            value,
-                        },
-                    }
-                },
-                {},
-            ),
-        )
-        const [isValid, setIsValid] = useState(areValid(states))
+        const [states, setStates] = useState(createState(defaults, variables))
         const [status, setStatus] = useState(FetchStatus.Inactive)
-        const isInactive = status === FetchStatus.Inactive
-        const isLoading = status === FetchStatus.Loading
-        const isRejected = status === FetchStatus.Rejected
-
-        function areValid(obj: Record<string, VariableState>): boolean {
-            return Object.values(obj).every(({ error }) => isNull(error))
-        }
-
-        function onChange(name: string): (value: unknown) => void {
-            return (value) => {
+        const [isValid, setIsValid] = useState(areValid(states))
+        const change = useCallback(
+            async (name: string, value: unknown): Promise<void> => {
                 const { [name]: state } = states
                 const { validator } = state
 
-                void validator(value)
+                await validator(value)
 
                 const [error] = validator.errors || []
                 const message = error?.message || null
@@ -109,29 +107,35 @@ export const Variables = memo(
                 setStates(updated)
 
                 setIsValid(areValid(updated))
-            }
-        }
-
-        function fetch(): void {
+            },
+            [states],
+        )
+        const fetch = useCallback(async (): Promise<void> => {
             setStatus(FetchStatus.Loading)
 
-            onFetch(
-                Object.entries(states).reduce(
-                    (obj, [name, { value }]) => ({
-                        ...obj,
-                        [name]: (transforms[name] || noopTransform)(value),
-                    }),
-                    {},
-                ),
-            ).then(
-                () => setStatus(FetchStatus.Resolved),
-                () => setStatus(FetchStatus.Rejected),
-            )
-        }
+            try {
+                await onFetch(
+                    Object.entries(states).reduce(
+                        (obj, [name, { value }]) => ({
+                            ...obj,
+                            [name]: (transforms[name] || noopTransform)(value),
+                        }),
+                        {},
+                    ),
+                )
+
+                setStatus(FetchStatus.Resolved)
+            } catch {
+                setStatus(FetchStatus.Rejected)
+            }
+        }, [])
+        const isInactive = status === FetchStatus.Inactive
+        const isLoading = status === FetchStatus.Loading
+        const isRejected = status === FetchStatus.Rejected
 
         useEffect(() => {
             if (autoFetchOnInit && isValid && !hasData && !hasError) {
-                fetch()
+                void fetch()
             }
 
             if (hasData) {
@@ -155,7 +159,7 @@ export const Variables = memo(
                                 type={type}
                                 value={value}
                                 error={dirty ? error : null}
-                                onChange={onChange(name)}
+                                onChange={change}
                             />
                         ),
                     )}
@@ -178,3 +182,5 @@ export const Variables = memo(
         )
     },
 )
+
+Variables.displayName = 'Variables'

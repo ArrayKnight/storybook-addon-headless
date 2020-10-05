@@ -1,6 +1,6 @@
-import React, { ChangeEvent, memo } from 'react'
+import React, { ChangeEvent, memo, useCallback } from 'react'
 
-import { BooleanSchema } from '../../types'
+import type { BooleanSchema } from '../../types'
 import { Error, Row } from './styled'
 
 export interface Props {
@@ -13,9 +13,12 @@ export interface Props {
 
 export const BooleanInput = memo(
     ({ value, error, isValid, onChange }: Props) => {
-        function update(event: ChangeEvent<HTMLInputElement>): void {
-            onChange(event.target.checked)
-        }
+        const update = useCallback(
+            (event: ChangeEvent<HTMLInputElement>) => {
+                onChange(event.target.checked)
+            },
+            [onChange],
+        )
 
         return (
             <Row>
@@ -25,3 +28,5 @@ export const BooleanInput = memo(
         )
     },
 )
+
+BooleanInput.displayName = 'Boolean'

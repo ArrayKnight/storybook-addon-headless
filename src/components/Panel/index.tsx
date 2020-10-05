@@ -1,33 +1,27 @@
 import { useChannel, useParameter, useStorybookApi } from '@storybook/api'
 import { TabsState } from '@storybook/components'
-import { Theme, ThemeProvider, useTheme } from '@storybook/theming'
-import React, { memo, ReactElement, useState } from 'react'
-import Json, { InteractionProps } from 'react-json-view'
+import { ThemeProvider } from '@storybook/theming'
+import React, { memo, useCallback, useState } from 'react'
+import type { InteractionProps } from 'react-json-view'
 
 import { EVENT_DATA_UPDATED, EVENT_INITIALIZED, PARAM_KEY } from '../../config'
-import {
+import type {
     ApiParameters,
     HeadlessOptions,
-    HeadlessParameter,
     HeadlessParameters,
     HeadlessState,
 } from '../../types'
 import {
-    createGraphQLPromise,
-    createRestfulPromise,
+    fetchViaGraphQL,
+    fetchViaRestful,
     errorToJSON,
-    getGraphQLUri,
-    getRestfulUrl,
     isGraphQLParameters,
-    isDocumentNode,
     isRestfulParameters,
-    isString,
 } from '../../utilities'
-import { Message } from '../Message'
-import { Variables } from '../Variables'
-import { Content, Root, Separator, TabContent } from './styled'
+import { Tab } from './Tab'
+import { Content, Root } from './styled'
 
-const initialState: HeadlessState = {
+export const initialState: HeadlessState = {
     storyId: '',
     options: {
         graphql: {},
@@ -45,14 +39,10 @@ interface Props {
 
 export const Panel = memo(({ active }: Props) => {
     const api = useStorybookApi()
-    const theme = useTheme<Theme>()
-    const parameters = useParameter<HeadlessParameters>(PARAM_KEY, {})
+    const headlessParameters = useParameter<HeadlessParameters>(PARAM_KEY, {})
     const [state, setState] = useState<HeadlessState>(initialState)
-
     const { storyId, data, errors, options } = state
-    const { graphql, restful, jsonDark, jsonLight } = options
-    const isReady = storyId === api.getCurrentStoryData()?.id
-
+    const { graphql, restful } = options
     const emit = useChannel({
         [EVENT_INITIALIZED]: (opts: HeadlessOptions, id: string) => {
             setState({
@@ -69,28 +59,29 @@ export const Panel = memo(({ active }: Props) => {
             })
         },
     })
+    const resetData = useCallback(
+        (name: string) => {
+            setState({
+                ...state,
+                data: {
+                    ...data,
+                    [name]: null,
+                },
+                errors: {
+                    ...errors,
+                    [name]: null,
+                },
+            })
 
-    function resetData(name: string): void {
-        setState({
-            ...state,
-            data: {
+            emit(EVENT_DATA_UPDATED, {
                 ...data,
                 [name]: null,
-            },
-            errors: {
-                ...errors,
-                [name]: null,
-            },
-        })
-
-        emit(EVENT_DATA_UPDATED, {
-            ...data,
-            [name]: null,
-        })
-    }
-
-    function setData(name: string): (data: HeadlessState['data']) => void {
-        return (updated) => {
+            })
+        },
+        [state],
+    )
+    const setData = useCallback(
+        (name: string, updated: unknown) => {
             setState({
                 ...state,
                 data: {
@@ -107,11 +98,11 @@ export const Panel = memo(({ active }: Props) => {
                 ...data,
                 [name]: updated,
             })
-        }
-    }
-
-    function setError(name: string): (error: Error) => void {
-        return (error) => {
+        },
+        [state],
+    )
+    const setError = useCallback(
+        (name: string, error: Error) => {
             setState({
                 ...state,
                 data: {
@@ -123,124 +114,70 @@ export const Panel = memo(({ active }: Props) => {
                     [name]: errorToJSON(error),
                 },
             })
-        }
-    }
-
-    function fetch(
-        name: string,
-        params: ApiParameters,
-    ): (variables: Record<string, unknown>) => Promise<unknown> {
-        const setDataTo = setData(name)
-        const setErrorTo = setError(name)
-
-        return (variables) => {
-            if (isGraphQLParameters(params) || isRestfulParameters(params)) {
+        },
+        [state],
+    )
+    const fetch = useCallback(
+        async (
+            name: string,
+            apiParameters: ApiParameters,
+            variables: Record<string, unknown>,
+        ): Promise<unknown> => {
+            if (
+                isGraphQLParameters(apiParameters) ||
+                isRestfulParameters(apiParameters)
+            ) {
                 resetData(name)
             }
 
-            return new Promise((resolve, reject) => {
-                const promise = isGraphQLParameters(params)
-                    ? createGraphQLPromise(graphql, params, variables)
-                    : isRestfulParameters(params)
-                    ? createRestfulPromise(restful, params, variables)
+            try {
+                const response = await (isGraphQLParameters(apiParameters)
+                    ? fetchViaGraphQL(graphql, apiParameters, variables)
+                    : isRestfulParameters(apiParameters)
+                    ? fetchViaRestful(restful, apiParameters, variables)
                     : Promise.reject(
                           new Error('Invalid config, skipping fetch'),
-                      )
+                      ))
 
-                promise.then(
-                    (response: Record<string, unknown>) => {
-                        setDataTo(response)
+                setData(name, response)
 
-                        resolve(response)
-                    },
-                    (error) => {
-                        setErrorTo(error)
+                return response
+            } catch (error) {
+                setError(name, error)
 
-                        reject(error)
-                    },
-                )
-            })
-        }
-    }
+                return error
+            }
+        },
+        [graphql, restful, resetData, setData, setError],
+    )
+    const update = useCallback(
+        (name: string, { updated_src }: InteractionProps) => {
+            setData(name, updated_src)
+        },
+        [setData],
+    )
 
-    function updateData(name: string): (props: InteractionProps) => void {
-        const setDataTo = setData(name)
-
-        return ({ updated_src }) =>
-            setDataTo(updated_src as Record<string, unknown>)
-    }
-
-    function renderTab(
-        name: string,
-        parameter: HeadlessParameter,
-    ): ReactElement {
-        const params: ApiParameters =
-            isString(parameter) || isDocumentNode(parameter)
-                ? ({
-                      query: parameter,
-                  } as ApiParameters)
-                : parameter
-        const hasData = !!state.data[name]
-        const hasError = !!state.errors[name]
-
-        return (
-            <div key={name} id={name} title={name}>
-                <TabContent>
-                    <Message collapsible={isGraphQLParameters(params)}>
-                        {isGraphQLParameters(params)
-                            ? getGraphQLUri(graphql, params)
-                            : getRestfulUrl(restful, params, {})}
-                    </Message>
-                    <Variables
-                        hasData={hasData}
-                        hasError={hasError}
-                        parameters={params}
-                        onFetch={fetch(name, params)}
-                    />
-                    {(hasData || hasError) && (
-                        <>
-                            <Separator />
-                            <Json
-                                src={
-                                    (state.data[name] as
-                                        | Record<string, unknown>
-                                        | undefined) ||
-                                    (state.errors[name] as
-                                        | Record<string, unknown>
-                                        | undefined)
-                                }
-                                name={null}
-                                iconStyle="square"
-                                theme={
-                                    theme.base === 'light'
-                                        ? jsonLight
-                                        : jsonDark
-                                }
-                                collapsed={hasError ? 1 : false}
-                                displayObjectSize={false}
-                                displayDataTypes={false}
-                                enableClipboard={hasData}
-                                onAdd={updateData(name)}
-                                onDelete={updateData(name)}
-                                onEdit={updateData(name)}
-                            />
-                        </>
-                    )}
-                </TabContent>
-            </div>
-        )
-    }
-
-    if (isReady) {
+    if (storyId === api.getCurrentStoryData()?.id) {
         return (
             <ThemeProvider theme={{ active }}>
                 <Root>
                     <Content>
                         <TabsState>
-                            {Object.entries(
-                                parameters,
-                            ).map(([name, parameter]) =>
-                                renderTab(name, parameter),
+                            {Object.entries(headlessParameters).map(
+                                ([name, parameter]) => (
+                                    // Must exist here (not inside of Tab) with these attributes for TabsState to function
+                                    <div id={name} key={name} title={name}>
+                                        <Tab
+                                            name={name}
+                                            data={data[name]}
+                                            error={errors[name]}
+                                            options={options}
+                                            parameter={parameter}
+                                            onFetch={fetch}
+                                            onUpdate={update}
+                                        />
+                                    </div>
+                                ),
                             )}
                         </TabsState>
                     </Content>
@@ -251,3 +188,5 @@ export const Panel = memo(({ active }: Props) => {
 
     return null
 })
+
+Panel.displayName = 'Panel'

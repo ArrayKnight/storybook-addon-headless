@@ -4,6 +4,8 @@ import {
     makeDecorator,
     OptionsParameter,
     StoryContext,
+    StoryGetter,
+    WrapperSettings,
 } from '@storybook/addons'
 import { Channel } from '@storybook/channels'
 import React, { memo, ReactElement, useEffect, useState } from 'react'
@@ -14,7 +16,11 @@ import {
     EVENT_INITIALIZED,
     PARAM_KEY,
 } from './config'
-import { HeadlessOptions, HeadlessParameters, HeadlessState } from './types'
+import type {
+    HeadlessOptions,
+    HeadlessParameters,
+    HeadlessState,
+} from './types'
 
 interface Props {
     channel: Channel
@@ -59,25 +65,33 @@ export const Decorator = memo(
     },
 )
 
+Decorator.displayName = 'Decorator'
+
+export function wrapper(
+    storyFn: StoryGetter,
+    context: StoryContext,
+    { options, parameters }: WrapperSettings,
+): ReactElement {
+    const channel = addons.getChannel()
+
+    channel.emit(EVENT_INITIALIZED, options, context.id)
+
+    return (
+        <Decorator
+            channel={channel}
+            context={context}
+            options={options}
+            parameters={parameters}
+            storyFn={storyFn}
+        />
+    )
+}
+
 export const withHeadless: (
     options: HeadlessOptions,
 ) => DecoratorFunction<ReactElement<unknown>> = makeDecorator({
     name: DECORATOR_NAME,
     parameterName: PARAM_KEY,
     skipIfNoParametersOrOptions: true,
-    wrapper: (storyFn, context, { options, parameters }) => {
-        const channel = addons.getChannel()
-
-        channel.emit(EVENT_INITIALIZED, options, context.id)
-
-        return (
-            <Decorator
-                channel={channel}
-                context={context}
-                options={options}
-                parameters={parameters}
-                storyFn={storyFn}
-            />
-        )
-    },
+    wrapper,
 })
