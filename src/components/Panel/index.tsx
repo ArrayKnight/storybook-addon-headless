@@ -13,8 +13,8 @@ import {
     HeadlessState,
 } from '../../types'
 import {
-    createGraphQLPromise,
-    createRestfulPromise,
+    fetchViaGraphQL,
+    fetchViaRestful,
     errorToJSON,
     getGraphQLUri,
     getRestfulUrl,
@@ -89,7 +89,7 @@ export const Panel = memo(({ active }: Props) => {
         })
     }
 
-    function setData(name: string): (data: HeadlessState['data']) => void {
+    function setData(name: string): (updated: unknown) => void {
         return (updated) => {
             setState({
                 ...state,
@@ -133,33 +133,28 @@ export const Panel = memo(({ active }: Props) => {
         const setDataTo = setData(name)
         const setErrorTo = setError(name)
 
-        return (variables) => {
+        return async (variables) => {
             if (isGraphQLParameters(params) || isRestfulParameters(params)) {
                 resetData(name)
             }
 
-            return new Promise((resolve, reject) => {
-                const promise = isGraphQLParameters(params)
-                    ? createGraphQLPromise(graphql, params, variables)
+            try {
+                const response = await (isGraphQLParameters(params)
+                    ? fetchViaGraphQL(graphql, params, variables)
                     : isRestfulParameters(params)
-                    ? createRestfulPromise(restful, params, variables)
+                    ? fetchViaRestful(restful, params, variables)
                     : Promise.reject(
                           new Error('Invalid config, skipping fetch'),
-                      )
+                      ))
 
-                promise.then(
-                    (response: Record<string, unknown>) => {
-                        setDataTo(response)
+                setDataTo(response)
 
-                        resolve(response)
-                    },
-                    (error) => {
-                        setErrorTo(error)
+                return response
+            } catch (error) {
+                setErrorTo(error)
 
-                        reject(error)
-                    },
-                )
-            })
+                return error
+            }
         }
     }
 

@@ -26,6 +26,10 @@ export interface Props {
     onFetch: (variables: Record<string, unknown>) => Promise<unknown>
 }
 
+function areValid(obj: Record<string, VariableState>): boolean {
+    return Object.values(obj).every(({ error }) => isNull(error))
+}
+
 export const Variables = memo(
     ({ hasData, hasError, parameters, onFetch }: Props) => {
         const {
@@ -81,16 +85,12 @@ export const Variables = memo(
         const isLoading = status === FetchStatus.Loading
         const isRejected = status === FetchStatus.Rejected
 
-        function areValid(obj: Record<string, VariableState>): boolean {
-            return Object.values(obj).every(({ error }) => isNull(error))
-        }
-
-        function onChange(name: string): (value: unknown) => void {
-            return (value) => {
+        function onChange(name: string): (value: unknown) => Promise<void> {
+            return async (value) => {
                 const { [name]: state } = states
                 const { validator } = state
 
-                void validator(value)
+                await validator(value)
 
                 const [error] = validator.errors || []
                 const message = error?.message || null
@@ -112,26 +112,29 @@ export const Variables = memo(
             }
         }
 
-        function fetch(): void {
+        async function fetch(): Promise<void> {
             setStatus(FetchStatus.Loading)
 
-            onFetch(
-                Object.entries(states).reduce(
-                    (obj, [name, { value }]) => ({
-                        ...obj,
-                        [name]: (transforms[name] || noopTransform)(value),
-                    }),
-                    {},
-                ),
-            ).then(
-                () => setStatus(FetchStatus.Resolved),
-                () => setStatus(FetchStatus.Rejected),
-            )
+            try {
+                await onFetch(
+                    Object.entries(states).reduce(
+                        (obj, [name, { value }]) => ({
+                            ...obj,
+                            [name]: (transforms[name] || noopTransform)(value),
+                        }),
+                        {},
+                    ),
+                )
+
+                setStatus(FetchStatus.Resolved)
+            } catch {
+                setStatus(FetchStatus.Rejected)
+            }
         }
 
         useEffect(() => {
             if (autoFetchOnInit && isValid && !hasData && !hasError) {
-                fetch()
+                void fetch()
             }
 
             if (hasData) {

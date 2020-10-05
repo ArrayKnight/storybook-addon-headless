@@ -1,7 +1,7 @@
 import { ApolloClient, DocumentNode, InMemoryCache } from '@apollo/client'
 import Ajv from 'ajv'
 import defineKeywords from 'ajv-keywords'
-import axios from 'axios'
+import axios, { AxiosPromise } from 'axios'
 import { sentenceCase } from 'change-case'
 
 import {
@@ -50,7 +50,17 @@ export function convertToItem(value: unknown): Item {
     }
 }
 
-export function createGraphQLPromise(
+export function errorToJSON(error: Error): Record<string, unknown> {
+    return Object.getOwnPropertyNames(error).reduce(
+        (obj, key) => ({
+            ...obj,
+            [key]: error[key as keyof Error],
+        }),
+        {},
+    )
+}
+
+export async function fetchViaGraphQL(
     options: GraphQLOptionsTypes,
     parameters: GraphQLParameters,
     variables: Record<string, unknown>,
@@ -63,57 +73,51 @@ export function createGraphQLPromise(
         cache: new InMemoryCache(),
     })
 
-    return new Promise((resolve, reject) => {
-        instance
-            .query({
-                query: unpack(query),
-                variables,
-                fetchPolicy: 'network-only',
-            })
-            .then(({ data, errors }) => {
-                if (errors) {
-                    reject(errors)
-                } else {
-                    resolve(data)
-                }
-            }, reject)
-    })
+    try {
+        const { data, errors } = await instance.query<unknown>({
+            query: unpack(query),
+            variables,
+            fetchPolicy: 'network-only',
+        })
+
+        return errors || data
+    } catch (error) {
+        return error
+    }
 }
 
-export function createRestfulPromise(
+export async function fetchViaRestful(
     options: RestfulOptionsTypes,
     parameters: RestfulParameters,
     variables: Record<string, unknown>,
 ): Promise<unknown> {
     const { config = {}, convertToFormData } = parameters
     const opts = getBaseOptions(options, parameters)
-    const data = new FormData()
+    const formData = new FormData()
 
     if (convertToFormData) {
         Object.entries(variables).forEach(([key, value]) => {
-            data.append(
+            formData.append(
                 key,
-                value instanceof Blob ? value : JSON.stringify(value),
+                isString(value) || value instanceof Blob
+                    ? value
+                    : JSON.stringify(value),
             )
         })
     }
 
-    return axios({
-        url: getRestfulUrl(opts, parameters, variables),
-        ...opts,
-        ...config,
-        data: convertToFormData ? data : variables,
-    }).then(({ data }) => data) as Promise<unknown>
-}
+    try {
+        const { data } = await (axios({
+            url: getRestfulUrl(opts, parameters, variables),
+            ...opts,
+            ...config,
+            data: convertToFormData ? formData : variables,
+        }) as AxiosPromise<unknown>)
 
-export function errorToJSON(error: Error): Record<string, unknown> {
-    return Object.getOwnPropertyNames(error).reduce(
-        (obj, key) => ({
-            ...obj,
-            [key]: error[key as keyof Error],
-        }),
-        {},
-    )
+        return data
+    } catch (error) {
+        return error
+    }
 }
 
 export function functionToTag(func: (...args: unknown[]) => unknown): string {
