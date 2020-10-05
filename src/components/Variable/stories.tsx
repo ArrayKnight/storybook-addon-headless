@@ -16,7 +16,7 @@ export const BooleanStory = (): ReactElement => {
     const error = text('error', '') || null
     const [value, setValue] = useState(false)
 
-    function onChange(val: boolean): void {
+    function onChange(_: string, val: boolean): void {
         action('onChange')(val)
 
         setValue(val)
@@ -43,7 +43,7 @@ export const DateStory = (): ReactElement => {
     const error = text('error', '') || null
     const [value, setValue] = useState('')
 
-    function onChange(val: string): void {
+    function onChange(_: string, val: string): void {
         action('onChange')(val)
 
         setValue(val)
@@ -70,7 +70,7 @@ export const DateTimeStory = (): ReactElement => {
     const error = text('error', '') || null
     const [value, setValue] = useState('')
 
-    function onChange(val: string): void {
+    function onChange(_: string, val: string): void {
         action('onChange')(val)
 
         setValue(val)
@@ -97,7 +97,7 @@ export const TimeStory = (): ReactElement => {
     const error = text('error', '') || null
     const [value, setValue] = useState('')
 
-    function onChange(val: string): void {
+    function onChange(_: string, val: string): void {
         action('onChange')(val)
 
         setValue(val)
@@ -124,7 +124,7 @@ export const FloatStory = (): ReactElement => {
     const error = text('error', '') || null
     const [value, setValue] = useState('')
 
-    function onChange(val: number): void {
+    function onChange(_: string, val: number): void {
         action('onChange')(val)
 
         setValue(`${val}`)
@@ -151,7 +151,7 @@ export const IntegerStory = (): ReactElement => {
     const error = text('error', '') || null
     const [value, setValue] = useState('')
 
-    function onChange(val: number): void {
+    function onChange(_: string, val: number): void {
         action('onChange')(val)
 
         setValue(`${val}`)
@@ -180,7 +180,7 @@ export const SelectStory = (): ReactElement => {
         boolean | null | number | string | undefined
     >(undefined)
 
-    function onChange(val: boolean | null | number | string): void {
+    function onChange(_: string, val: boolean | null | number | string): void {
         action('onChange')(val)
 
         setValue(val)
@@ -224,7 +224,7 @@ export const StringStory = (): ReactElement => {
     const error = text('error', '') || null
     const [value, setValue] = useState('')
 
-    function onChange(val: string): void {
+    function onChange(_: string, val: string): void {
         action('onChange')(val)
 
         setValue(val)
