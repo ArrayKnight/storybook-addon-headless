@@ -1,5 +1,5 @@
 import { Form, Icons } from '@storybook/components'
-import React, { memo, useEffect, useState } from 'react'
+import React, { memo, useCallback, useEffect, useState } from 'react'
 
 import {
     ApiParameters,
@@ -26,8 +26,50 @@ export interface Props {
     onFetch: (variables: Record<string, unknown>) => Promise<unknown>
 }
 
-function areValid(obj: Record<string, VariableState>): boolean {
+export function areValid(obj: Record<string, VariableState>): boolean {
     return Object.values(obj).every(({ error }) => isNull(error))
+}
+
+export function createState(
+    defaults: ApiParameters['defaults'],
+    variables: ApiParameters['variables'],
+): Record<string, VariableState> {
+    return Object.entries(variables).reduce(
+        (obj: Record<string, VariableState>, [name, schema]) => {
+            const type = getVariableType(schema)
+            const validator = ajv.compile(
+                type === VariableType.Select
+                    ? {
+                          ...schema,
+                          enum: (schema as SelectSchema).enum.map(
+                              (option: unknown) =>
+                                  isItem(option) ? option.value : option,
+                          ),
+                      }
+                    : schema,
+            )
+            const value =
+                defaults[name] ??
+                (type === VariableType.Boolean ? false : undefined)
+            const isValid = validator(value)
+            const dirty = hasOwnProperty(defaults, name) && !isValid
+            const [error] = validator.errors || []
+            const message = error?.message || null
+
+            return {
+                ...obj,
+                [name]: {
+                    schema,
+                    type,
+                    validator,
+                    dirty,
+                    error: message,
+                    value,
+                },
+            }
+        },
+        {},
+    )
 }
 
 export const Variables = memo(
@@ -38,55 +80,11 @@ export const Variables = memo(
             variables = {},
             transforms = {},
         } = parameters
-        const [states, setStates] = useState<Record<string, VariableState>>(
-            Object.entries(variables).reduce(
-                (obj: Record<string, VariableState>, [name, schema]) => {
-                    const type = getVariableType(schema)
-                    const validator = ajv.compile(
-                        type === VariableType.Select
-                            ? {
-                                  ...schema,
-                                  enum: (schema as SelectSchema).enum.map(
-                                      (option: unknown) =>
-                                          isItem(option)
-                                              ? option.value
-                                              : option,
-                                  ),
-                              }
-                            : schema,
-                    )
-                    const value =
-                        defaults[name] ??
-                        (type === VariableType.Boolean ? false : undefined)
-                    const isInitialValueValid = validator(value)
-                    const dirty =
-                        hasOwnProperty(defaults, name) && !isInitialValueValid
-                    const [error] = validator.errors || []
-                    const message = error?.message || null
-
-                    return {
-                        ...obj,
-                        [name]: {
-                            schema,
-                            type,
-                            validator,
-                            dirty,
-                            error: message,
-                            value,
-                        },
-                    }
-                },
-                {},
-            ),
-        )
-        const [isValid, setIsValid] = useState(areValid(states))
+        const [states, setStates] = useState(createState(defaults, variables))
         const [status, setStatus] = useState(FetchStatus.Inactive)
-        const isInactive = status === FetchStatus.Inactive
-        const isLoading = status === FetchStatus.Loading
-        const isRejected = status === FetchStatus.Rejected
-
-        function onChange(name: string): (value: unknown) => Promise<void> {
-            return async (value) => {
+        const [isValid, setIsValid] = useState(areValid(states))
+        const change = useCallback(
+            async (name: string, value: unknown): Promise<void> => {
                 const { [name]: state } = states
                 const { validator } = state
 
@@ -109,10 +107,10 @@ export const Variables = memo(
                 setStates(updated)
 
                 setIsValid(areValid(updated))
-            }
-        }
-
-        async function fetch(): Promise<void> {
+            },
+            [states],
+        )
+        const fetch = useCallback(async (): Promise<void> => {
             setStatus(FetchStatus.Loading)
 
             try {
@@ -130,7 +128,10 @@ export const Variables = memo(
             } catch {
                 setStatus(FetchStatus.Rejected)
             }
-        }
+        }, [])
+        const isInactive = status === FetchStatus.Inactive
+        const isLoading = status === FetchStatus.Loading
+        const isRejected = status === FetchStatus.Rejected
 
         useEffect(() => {
             if (autoFetchOnInit && isValid && !hasData && !hasError) {
@@ -158,7 +159,7 @@ export const Variables = memo(
                                 type={type}
                                 value={value}
                                 error={dirty ? error : null}
-                                onChange={onChange(name)}
+                                onChange={change}
                             />
                         ),
                     )}
@@ -181,3 +182,5 @@ export const Variables = memo(
         )
     },
 )
+
+Variables.displayName = 'Variables'

@@ -65,3 +65,5 @@ export const Message = memo(
         return null
     },
 )
+
+Message.displayName = 'Message'

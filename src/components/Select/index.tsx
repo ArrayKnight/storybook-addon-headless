@@ -1,9 +1,9 @@
 import { Form, Icons } from '@storybook/components'
 import { ThemeProvider } from '@storybook/theming'
 import { useCombobox } from 'downshift'
-import React, { memo, useState } from 'react'
+import React, { memo, useCallback, useState } from 'react'
 
-import { Item } from '../../types'
+import type { Item } from '../../types'
 import { isArray, isUndefined } from '../../utilities'
 import { Chip, Container, Menu, MenuItem, Remove, Root, Toggle } from './styled'
 
@@ -31,6 +31,19 @@ export const Select = memo((props: Props) => {
         ? selected
         : [selected]
     const [filteredItems, setFilteredItems] = useState(items)
+    const update = useCallback(
+        (updated: Item[]) => {
+            switch (props.isMulti) {
+                case true:
+                    return props.onChange(updated)
+
+                case false:
+                case undefined:
+                    return props.onChange(updated[0] || null)
+            }
+        },
+        [props],
+    )
     const {
         getComboboxProps,
         getInputProps,
@@ -64,17 +77,6 @@ export const Select = memo((props: Props) => {
             }
         },
     })
-
-    function update(updated: Item[]): void {
-        switch (props.isMulti) {
-            case true:
-                return props.onChange(updated)
-
-            case false:
-            case undefined:
-                return props.onChange(updated[0] || null)
-        }
-    }
 
     function remove(item: Item): () => void {
         return () => {
@@ -130,3 +132,5 @@ export const Select = memo((props: Props) => {
         </ThemeProvider>
     )
 })
+
+Select.displayName = 'Select'

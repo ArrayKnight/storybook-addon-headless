@@ -2,7 +2,7 @@ import { Form } from '@storybook/components'
 import { formatISO, parseISO } from 'date-fns'
 import React, { ChangeEvent, memo } from 'react'
 
-import { DateTimeSchema } from '../../types'
+import type { DateTimeSchema } from '../../types'
 import { Error, Row } from './styled'
 
 export interface Props {
@@ -92,3 +92,5 @@ export const DateTimeInput = memo(
         )
     },
 )
+
+DateTimeInput.displayName = 'DateTime'

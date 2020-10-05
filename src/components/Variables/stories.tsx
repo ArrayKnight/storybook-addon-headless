@@ -2,7 +2,7 @@ import { action } from '@storybook/addon-actions'
 import { object, withKnobs } from '@storybook/addon-knobs'
 import React, { ReactElement } from 'react'
 
-import { ApiParameters } from '../../types'
+import type { ApiParameters } from '../../types'
 import { Variables } from '.'
 
 export default {

@@ -1,6 +1,6 @@
-import React, { memo } from 'react'
+import React, { memo, useCallback } from 'react'
 
-import { Item, SelectSchema } from '../../types'
+import type { Item, SelectSchema } from '../../types'
 import { convertToItem, isNull, isUndefined } from '../../utilities'
 import { Select } from '../Select'
 import { Error, Row } from './styled'
@@ -19,10 +19,12 @@ export const SelectInput = memo(
         const selected = isUndefined(value)
             ? value
             : items.find((item) => item.value === value)
-
-        function update(item: Item | null): void {
-            onChange(isNull(item) ? undefined : item.value)
-        }
+        const update = useCallback(
+            (item: Item | null) => {
+                onChange(isNull(item) ? undefined : item.value)
+            },
+            [onChange],
+        )
 
         return (
             <Row>
@@ -37,3 +39,5 @@ export const SelectInput = memo(
         )
     },
 )
+
+SelectInput.displayName = 'Select'

@@ -1,7 +1,7 @@
 import { Form } from '@storybook/components'
-import React, { ChangeEvent, memo } from 'react'
+import React, { ChangeEvent, memo, useCallback } from 'react'
 
-import { StringSchema } from '../../types'
+import type { StringSchema } from '../../types'
 import { Error, Row } from './styled'
 
 export interface Props {
@@ -14,9 +14,9 @@ export interface Props {
 
 export const StringInput = memo(
     ({ value, error, isValid, onChange }: Props) => {
-        function update(event: ChangeEvent<HTMLInputElement>): void {
+        const update = useCallback((event: ChangeEvent<HTMLInputElement>) => {
             onChange(event.target.value)
-        }
+        }, [])
 
         return (
             <Row>
@@ -31,3 +31,5 @@ export const StringInput = memo(
         )
     },
 )
+
+StringInput.displayName = 'String'

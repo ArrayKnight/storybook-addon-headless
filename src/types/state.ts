@@ -8,7 +8,7 @@ export interface HeadlessState {
     storyId: string
     options: Required<HeadlessOptions>
     data: Record<string, unknown>
-    errors: Record<string, unknown>
+    errors: Record<string, Record<string, unknown>>
 }
 
 export interface VariableState {

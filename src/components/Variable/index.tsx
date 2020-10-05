@@ -1,6 +1,6 @@
 import { Form } from '@storybook/components'
 import { noCase } from 'change-case'
-import React, { memo } from 'react'
+import React, { memo, useCallback } from 'react'
 
 import { Schema, VariableType } from '../../types'
 import { isNull, noopTransform } from '../../utilities'
@@ -9,7 +9,7 @@ import { DateTimeInput } from './Date'
 import { NumberInput } from './Number'
 import { SelectInput } from './Select'
 import { StringInput } from './String'
-import { Row } from './styled'
+import { UnknownInput } from './Unknown'
 
 export interface Props {
     name: string
@@ -17,11 +17,7 @@ export interface Props {
     type: VariableType
     value: unknown
     error: string | null
-    onChange: (value: unknown) => void
-}
-
-interface VariableProps extends Omit<Props, 'name'> {
-    isValid: boolean
+    onChange: (name: string, value: unknown) => void
 }
 
 export const Variable = memo(
@@ -34,21 +30,12 @@ export const Variable = memo(
             [VariableType.Number]: NumberInput,
             [VariableType.Select]: SelectInput,
             [VariableType.String]: StringInput,
-            [VariableType.Unknown]: memo(
-                (props: VariableProps): JSX.Element => {
-                    console.warn(`Unknown variable type. Props received: `, {
-                        schema: props.schema,
-                        value: props.value,
-                    })
-
-                    return (
-                        <Row>
-                            <span>Unknown variable type</span>
-                        </Row>
-                    )
-                },
-            ),
+            [VariableType.Unknown]: UnknownInput,
         }[type]
+        const change = useCallback((value: unknown) => onChange(name, value), [
+            name,
+            onChange,
+        ])
 
         /* eslint-disable */
         return (
@@ -58,10 +45,12 @@ export const Variable = memo(
                     value={value} // @ts-ignore
                     error={error} // @ts-ignore
                     isValid={isValid} // @ts-ignore
-                    onChange={onChange} // @ts-ignore
+                    onChange={change} // @ts-ignore
                 />
             </Form.Field>
         )
         /* eslint-enable */
     },
 )
+
+Variable.displayName = 'Variable'
