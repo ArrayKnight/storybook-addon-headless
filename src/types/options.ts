@@ -1,6 +1,6 @@
-import { ApolloClientOptions } from '@apollo/client'
-import { AxiosRequestConfig as AxiosClientConfig } from 'axios'
-import { ThemeKeys } from 'react-json-view'
+import type { ApolloClientOptions } from '@apollo/client'
+import type { AxiosRequestConfig as AxiosClientConfig } from 'axios'
+import type { ThemeKeys } from 'react-json-view'
 
 import { OneOrMore } from './generic'
 

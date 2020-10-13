@@ -5,11 +5,13 @@ import React, { memo, useCallback, useState } from 'react'
 import type { InteractionProps } from 'react-json-view'
 
 import { EVENT_DATA_UPDATED, EVENT_INITIALIZED, PARAM_KEY } from '../../config'
-import type {
+import {
     ApiParameters,
-    HeadlessOptions,
+    FetchStatus,
     HeadlessParameters,
     HeadlessState,
+    InitializeMessage,
+    UpdateMessage,
 } from '../../types'
 import {
     fetchViaGraphQL,
@@ -29,6 +31,7 @@ export const initialState: HeadlessState = {
         jsonDark: 'colors',
         jsonLight: 'rjv-default',
     },
+    status: {},
     data: {},
     errors: {},
 }
@@ -41,81 +44,81 @@ export const Panel = memo(({ active }: Props) => {
     const api = useStorybookApi()
     const headlessParameters = useParameter<HeadlessParameters>(PARAM_KEY, {})
     const [state, setState] = useState<HeadlessState>(initialState)
-    const { storyId, data, errors, options } = state
+    const { storyId, status, data, errors, options } = state
     const { graphql, restful } = options
     const emit = useChannel({
-        [EVENT_INITIALIZED]: (opts: HeadlessOptions, id: string) => {
+        [EVENT_INITIALIZED]: (message: InitializeMessage) => {
             setState({
                 ...state,
-                storyId: id,
+                ...message,
                 options: {
                     ...options,
-                    ...opts,
+                    ...message.options,
                 },
             })
 
-            emit(EVENT_DATA_UPDATED, {
-                ...data,
+            // eslint-disable-next-line @typescript-eslint/no-use-before-define
+            sendUpdateMessage({
+                status,
+                data,
+                errors,
             })
         },
     })
-    const resetData = useCallback(
-        (name: string) => {
-            setState({
-                ...state,
+    const sendUpdateMessage = useCallback(
+        (message: UpdateMessage) => emit(EVENT_DATA_UPDATED, message),
+        [emit],
+    )
+    const updateAndNotify = useCallback(
+        (
+            name: string,
+            statusUpdate: FetchStatus,
+            dataUpdate: unknown,
+            errorUpdate: Record<string, unknown> | null,
+        ) => {
+            const updates: UpdateMessage = {
+                status: {
+                    ...status,
+                    [name]: statusUpdate,
+                },
                 data: {
                     ...data,
-                    [name]: null,
+                    [name]: dataUpdate,
                 },
                 errors: {
                     ...errors,
-                    [name]: null,
+                    [name]: errorUpdate,
                 },
+            }
+
+            setState({
+                ...state,
+                ...updates,
             })
 
-            emit(EVENT_DATA_UPDATED, {
-                ...data,
-                [name]: null,
-            })
+            sendUpdateMessage(updates)
         },
-        [state],
+        [state, sendUpdateMessage],
+    )
+    const resetData = useCallback(
+        (name: string) =>
+            updateAndNotify(name, FetchStatus.Loading, null, null),
+        [updateAndNotify],
     )
     const setData = useCallback(
-        (name: string, updated: unknown) => {
-            setState({
-                ...state,
-                data: {
-                    ...data,
-                    [name]: updated,
-                },
-                errors: {
-                    ...errors,
-                    [name]: null,
-                },
-            })
-
-            emit(EVENT_DATA_UPDATED, {
-                ...data,
-                [name]: updated,
-            })
-        },
-        [state],
+        (name: string, updated: unknown) =>
+            updateAndNotify(name, FetchStatus.Resolved, updated, null),
+        [updateAndNotify],
     )
     const setError = useCallback(
-        (name: string, error: Error) => {
-            setState({
-                ...state,
-                data: {
-                    ...data,
-                    [name]: null,
-                },
-                errors: {
-                    ...errors,
-                    [name]: errorToJSON(error),
-                },
-            })
-        },
-        [state],
+        (name: string, error: Error) =>
+            updateAndNotify(
+                name,
+                FetchStatus.Resolved,
+                null,
+                errorToJSON(error),
+            ),
+        [updateAndNotify],
     )
     const fetch = useCallback(
         async (
@@ -151,9 +154,8 @@ export const Panel = memo(({ active }: Props) => {
         [graphql, restful, resetData, setData, setError],
     )
     const update = useCallback(
-        (name: string, { updated_src }: InteractionProps) => {
-            setData(name, updated_src)
-        },
+        (name: string, { updated_src }: InteractionProps) =>
+            setData(name, updated_src),
         [setData],
     )
 

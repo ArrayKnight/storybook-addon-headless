@@ -8,7 +8,13 @@ import {
     WrapperSettings,
 } from '@storybook/addons'
 import { Channel } from '@storybook/channels'
-import React, { memo, ReactElement, useEffect, useState } from 'react'
+import React, {
+    memo,
+    ReactElement,
+    useCallback,
+    useEffect,
+    useState,
+} from 'react'
 
 import {
     DECORATOR_NAME,
@@ -16,10 +22,13 @@ import {
     EVENT_INITIALIZED,
     PARAM_KEY,
 } from './config'
-import type {
+import {
+    FetchStatus,
     HeadlessOptions,
     HeadlessParameters,
-    HeadlessState,
+    HeadlessStoryContext,
+    InitializeMessage,
+    UpdateMessage,
 } from './types'
 
 interface Props {
@@ -32,36 +41,32 @@ interface Props {
 
 export const Decorator = memo(
     ({ channel, context, parameters, storyFn }: Props): ReactElement => {
-        const [state, setState] = useState({
-            data: Object.keys(parameters).reduce(
-                (obj, key) => ({ ...obj, [key]: null }),
+        const keys = Object.keys(parameters)
+        const [message, setMessage] = useState<UpdateMessage>({
+            status: keys.reduce(
+                (obj, key) => ({ ...obj, [key]: FetchStatus.Inactive }),
                 {},
             ),
-            received: false,
+            data: keys.reduce((obj, key) => ({ ...obj, [key]: null }), {}),
+            errors: keys.reduce((obj, key) => ({ ...obj, [key]: null }), {}),
         })
-
-        function setData(data: HeadlessState['data']): void {
-            setState({
-                data: {
-                    ...state.data,
-                    ...data,
-                },
-                received: true,
-            })
+        const [connected, setConnected] = useState(false)
+        const receiveMessage = useCallback((update: UpdateMessage) => {
+            setMessage(update)
+            setConnected(true)
+        }, [])
+        const ctx: HeadlessStoryContext = {
+            ...context,
+            ...message,
         }
 
         useEffect(() => {
-            channel.on(EVENT_DATA_UPDATED, setData)
+            channel.on(EVENT_DATA_UPDATED, receiveMessage)
 
-            return () => channel.off(EVENT_DATA_UPDATED, setData)
+            return () => channel.off(EVENT_DATA_UPDATED, receiveMessage)
         })
 
-        return state.received
-            ? storyFn({
-                  ...context,
-                  data: state.data,
-              })
-            : null
+        return connected ? storyFn(ctx) : null
     },
 )
 
@@ -73,8 +78,12 @@ export function wrapper(
     { options, parameters }: WrapperSettings,
 ): ReactElement {
     const channel = addons.getChannel()
+    const message: InitializeMessage = {
+        storyId: context.id,
+        options: options as HeadlessOptions & OptionsParameter,
+    }
 
-    channel.emit(EVENT_INITIALIZED, options, context.id)
+    channel.emit(EVENT_INITIALIZED, message)
 
     return (
         <Decorator

@@ -1,8 +1,8 @@
-import { DocumentNode } from '@apollo/client'
+import type { DocumentNode } from '@apollo/client'
 
-import { Transform } from './generic'
-import { GraphQLOptions, RestfulOptions } from './options'
-import { KnownSchema } from './schemas'
+import type { Transform } from './generic'
+import type { GraphQLOptions, RestfulOptions } from './options'
+import type { KnownSchema } from './schemas'
 
 export type PackedDocumentNode = Omit<DocumentNode, 'definitions' | 'loc'> & {
     definitions: string[]
