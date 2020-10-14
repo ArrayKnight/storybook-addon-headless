@@ -73,17 +73,17 @@ export async function fetchViaGraphQL(
         cache: new InMemoryCache(),
     })
 
-    try {
-        const { data, errors } = await instance.query<unknown>({
-            query: unpack(query),
-            variables,
-            fetchPolicy: 'network-only',
-        })
+    const { data, errors } = await instance.query<unknown>({
+        query: unpack(query),
+        variables,
+        fetchPolicy: 'network-only',
+    })
 
-        return errors || data
-    } catch (error) {
-        return error
+    if (errors) {
+        throw errors
     }
+
+    return data
 }
 
 export async function fetchViaRestful(
@@ -106,18 +106,14 @@ export async function fetchViaRestful(
         })
     }
 
-    try {
-        const { data } = await (axios({
-            url: getRestfulUrl(opts, parameters, variables),
-            ...opts,
-            ...config,
-            data: convertToFormData ? formData : variables,
-        }) as AxiosPromise<unknown>)
+    const { data } = await (axios({
+        url: getRestfulUrl(opts, parameters, variables),
+        ...opts,
+        ...config,
+        data: convertToFormData ? formData : variables,
+    }) as AxiosPromise<unknown>)
 
-        return data
-    } catch (error) {
-        return error
-    }
+    return data
 }
 
 export function functionToTag(func: (...args: unknown[]) => unknown): string {
