@@ -5,19 +5,19 @@ import type { HeadlessOptions } from './options'
 import type { Schema } from './schemas'
 
 export enum FetchStatus {
-    Inactive,
-    Loading,
-    Rejected,
-    Resolved,
+    Inactive = 'INACTIVE',
+    Loading = 'LOADING',
+    Rejected = 'REJECTED',
+    Resolved = 'RESOLVED',
 }
 
 export enum VariableType {
-    Unknown,
-    Boolean,
-    Date,
-    Number,
-    Select,
-    String,
+    Unknown = 'UNKNOWN',
+    Boolean = 'BOOLEAN',
+    Date = 'DATE',
+    Number = 'NUMBER',
+    Select = 'SELECT',
+    String = 'STRING',
 }
 
 export interface HeadlessState {

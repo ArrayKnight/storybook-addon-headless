@@ -1,5 +1,5 @@
 import { Theme, useTheme } from '@storybook/theming'
-import React, { memo, useCallback } from 'react'
+import React, { memo, useMemo } from 'react'
 import Json, { InteractionProps } from 'react-json-view'
 
 import type {
@@ -44,21 +44,25 @@ export const Tab = memo(
         onUpdate,
     }: Props) => {
         const theme = useTheme<Theme>()
+        const parameters = useMemo(
+            () =>
+                isString(parameter) || isDocumentNode(parameter)
+                    ? ({ query: parameter } as ApiParameters)
+                    : parameter,
+            [parameter],
+        )
         const hasData = !!data
         const hasError = !!error
-        const parameters =
-            isString(parameter) || isDocumentNode(parameter)
-                ? ({ query: parameter } as ApiParameters)
-                : parameter
-        const fetch = useCallback(
-            async (variables: Record<string, unknown>) =>
-                await onFetch(name, parameters, variables),
-            [name, parameters, onFetch],
-        )
-        const update = useCallback(
-            (props: InteractionProps) => onUpdate(name, props),
-            [name, onUpdate],
-        )
+
+        async function fetch(
+            variables: Record<string, unknown>,
+        ): Promise<void> {
+            await onFetch(name, parameters, variables)
+        }
+
+        function update(props: InteractionProps): void {
+            onUpdate(name, props)
+        }
 
         return (
             <TabContent>

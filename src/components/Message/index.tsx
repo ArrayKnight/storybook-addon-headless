@@ -39,7 +39,7 @@ export const Message = memo(
             if (collapsed !== isCollapsed) {
                 setIsCollapsed(collapsed)
             }
-        }, [collapsed])
+        }, [collapsed, isCollapsed])
 
         if (children) {
             return (

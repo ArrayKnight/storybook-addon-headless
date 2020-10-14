@@ -14,9 +14,12 @@ export interface Props {
 
 export const StringInput = memo(
     ({ value, error, isValid, onChange }: Props) => {
-        const update = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-            onChange(event.target.value)
-        }, [])
+        const update = useCallback(
+            (event: ChangeEvent<HTMLInputElement>) => {
+                onChange(event.target.value)
+            },
+            [onChange],
+        )
 
         return (
             <Row>

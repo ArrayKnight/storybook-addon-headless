@@ -1,10 +1,16 @@
 import { useChannel, useParameter, useStorybookApi } from '@storybook/api'
 import { TabsState } from '@storybook/components'
 import { ThemeProvider } from '@storybook/theming'
-import React, { memo, useCallback, useState } from 'react'
+import React, { memo } from 'react'
 import type { InteractionProps } from 'react-json-view'
+import { useStorageState } from 'react-storage-hooks'
 
-import { EVENT_DATA_UPDATED, EVENT_INITIALIZED, PARAM_KEY } from '../../config'
+import {
+    EVENT_DATA_UPDATED,
+    EVENT_INITIALIZED,
+    PARAM_KEY,
+    STORAGE_KEY,
+} from '../../config'
 import {
     ApiParameters,
     FetchStatus,
@@ -19,6 +25,7 @@ import {
     errorToJSON,
     isGraphQLParameters,
     isRestfulParameters,
+    isFunction,
 } from '../../utilities'
 import { Tab } from './Tab'
 import { Content, Root } from './styled'
@@ -43,123 +50,113 @@ interface Props {
 export const Panel = memo(({ active }: Props) => {
     const api = useStorybookApi()
     const headlessParameters = useParameter<HeadlessParameters>(PARAM_KEY, {})
-    const [state, setState] = useState<HeadlessState>(initialState)
-    const { storyId, status, data, errors, options } = state
-    const { graphql, restful } = options
+    const [state, setStorageState] = useStorageState<HeadlessState>(
+        sessionStorage,
+        STORAGE_KEY,
+        initialState,
+    )
     const emit = useChannel({
-        [EVENT_INITIALIZED]: (message: InitializeMessage) => {
-            setState({
-                ...state,
-                ...message,
+        [EVENT_INITIALIZED]: ({ storyId, options }: InitializeMessage) => {
+            setState((prev) => ({
+                storyId,
                 options: {
+                    ...prev.options,
                     ...options,
-                    ...message.options,
                 },
-            })
+            }))
+        },
+    })
 
-            // eslint-disable-next-line @typescript-eslint/no-use-before-define
-            sendUpdateMessage({
+    function setState(
+        update:
+            | Partial<HeadlessState>
+            | ((prev: HeadlessState) => Partial<HeadlessState>),
+    ): void {
+        setStorageState((prev) => {
+            const next: HeadlessState = {
+                ...prev,
+                ...(isFunction(update) ? update(prev) : update),
+            }
+            const { status, data, errors } = next
+
+            notify({
                 status,
                 data,
                 errors,
             })
-        },
-    })
-    const sendUpdateMessage = useCallback(
-        (message: UpdateMessage) => emit(EVENT_DATA_UPDATED, message),
-        [emit],
-    )
-    const updateAndNotify = useCallback(
-        (
-            name: string,
-            statusUpdate: FetchStatus,
-            dataUpdate: unknown,
-            errorUpdate: Record<string, unknown> | null,
-        ) => {
-            const updates: UpdateMessage = {
-                status: {
-                    ...status,
-                    [name]: statusUpdate,
-                },
-                data: {
-                    ...data,
-                    [name]: dataUpdate,
-                },
-                errors: {
-                    ...errors,
-                    [name]: errorUpdate,
-                },
-            }
 
-            setState({
-                ...state,
-                ...updates,
-            })
+            return next
+        })
+    }
 
-            sendUpdateMessage(updates)
-        },
-        [state, sendUpdateMessage],
-    )
-    const resetData = useCallback(
-        (name: string) =>
-            updateAndNotify(name, FetchStatus.Loading, null, null),
-        [updateAndNotify],
-    )
-    const setData = useCallback(
-        (name: string, updated: unknown) =>
-            updateAndNotify(name, FetchStatus.Resolved, updated, null),
-        [updateAndNotify],
-    )
-    const setError = useCallback(
-        (name: string, error: Error) =>
-            updateAndNotify(
-                name,
-                FetchStatus.Resolved,
-                null,
-                errorToJSON(error),
-            ),
-        [updateAndNotify],
-    )
-    const fetch = useCallback(
-        async (
-            name: string,
-            apiParameters: ApiParameters,
-            variables: Record<string, unknown>,
-        ): Promise<unknown> => {
-            if (
-                isGraphQLParameters(apiParameters) ||
-                isRestfulParameters(apiParameters)
-            ) {
-                resetData(name)
-            }
+    function notify(message: UpdateMessage): void {
+        emit(EVENT_DATA_UPDATED, message)
+    }
 
-            try {
-                const response = await (isGraphQLParameters(apiParameters)
-                    ? fetchViaGraphQL(graphql, apiParameters, variables)
-                    : isRestfulParameters(apiParameters)
-                    ? fetchViaRestful(restful, apiParameters, variables)
-                    : Promise.reject(
-                          new Error('Invalid config, skipping fetch'),
-                      ))
+    function update(
+        name: string,
+        status: FetchStatus,
+        data: unknown,
+        error: Record<string, unknown> | null,
+    ): void {
+        setState((prev) => ({
+            status: {
+                ...prev.status,
+                [name]: status,
+            },
+            data: {
+                ...prev.data,
+                [name]: data,
+            },
+            errors: {
+                ...prev.errors,
+                [name]: error,
+            },
+        }))
+    }
 
-                setData(name, response)
+    async function fetch(
+        name: string,
+        apiParameters: ApiParameters,
+        variables: Record<string, unknown>,
+    ): Promise<unknown> {
+        if (
+            isGraphQLParameters(apiParameters) ||
+            isRestfulParameters(apiParameters)
+        ) {
+            update(name, FetchStatus.Loading, null, null)
+        }
 
-                return response
-            } catch (error) {
-                setError(name, error)
+        try {
+            const response = await (isGraphQLParameters(apiParameters)
+                ? fetchViaGraphQL(
+                      state.options.graphql,
+                      apiParameters,
+                      variables,
+                  )
+                : isRestfulParameters(apiParameters)
+                ? fetchViaRestful(
+                      state.options.restful,
+                      apiParameters,
+                      variables,
+                  )
+                : Promise.reject(new Error('Invalid config, skipping fetch')))
 
-                return error
-            }
-        },
-        [graphql, restful, resetData, setData, setError],
-    )
-    const update = useCallback(
-        (name: string, { updated_src }: InteractionProps) =>
-            setData(name, updated_src),
-        [setData],
-    )
+            update(name, FetchStatus.Resolved, response, null)
 
-    if (storyId === api.getCurrentStoryData()?.id) {
+            return response
+        } catch (error) {
+            update(name, FetchStatus.Resolved, null, errorToJSON(error))
+
+            return error
+        }
+    }
+
+    function updateData(name: string, { updated_src }: InteractionProps): void {
+        update(name, FetchStatus.Resolved, updated_src, null)
+    }
+
+    if (state.storyId === api.getCurrentStoryData()?.id) {
         return (
             <ThemeProvider theme={{ active }}>
                 <Root>
@@ -171,12 +168,12 @@ export const Panel = memo(({ active }: Props) => {
                                     <div id={name} key={name} title={name}>
                                         <Tab
                                             name={name}
-                                            data={data[name]}
-                                            error={errors[name]}
-                                            options={options}
+                                            data={state.data[name]}
+                                            error={state.errors[name]}
+                                            options={state.options}
                                             parameter={parameter}
                                             onFetch={fetch}
-                                            onUpdate={update}
+                                            onUpdate={updateData}
                                         />
                                     </div>
                                 ),

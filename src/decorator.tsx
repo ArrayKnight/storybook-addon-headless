@@ -8,13 +8,7 @@ import {
     WrapperSettings,
 } from '@storybook/addons'
 import { Channel } from '@storybook/channels'
-import React, {
-    memo,
-    ReactElement,
-    useCallback,
-    useEffect,
-    useState,
-} from 'react'
+import React, { memo, ReactElement, useEffect, useState } from 'react'
 
 import {
     DECORATOR_NAME,
@@ -39,31 +33,46 @@ interface Props {
     storyFn: (context: StoryContext) => ReactElement
 }
 
+export function createFilteredRecord<T extends unknown>(
+    keys: string[],
+    values: Record<string, T>,
+    defaultValue: T,
+): Record<string, T> {
+    return keys.reduce(
+        (acc, key) => ({ ...acc, [key]: values[key] ?? defaultValue }),
+        {},
+    )
+}
+
 export const Decorator = memo(
     ({ channel, context, parameters, storyFn }: Props): ReactElement => {
         const keys = Object.keys(parameters)
-        const [message, setMessage] = useState<UpdateMessage>({
-            status: keys.reduce(
-                (obj, key) => ({ ...obj, [key]: FetchStatus.Inactive }),
-                {},
-            ),
-            data: keys.reduce((obj, key) => ({ ...obj, [key]: null }), {}),
-            errors: keys.reduce((obj, key) => ({ ...obj, [key]: null }), {}),
+        const [state, setState] = useState<UpdateMessage>({
+            status: createFilteredRecord(keys, {}, FetchStatus.Inactive),
+            data: createFilteredRecord(keys, {}, null),
+            errors: createFilteredRecord(keys, {}, null),
         })
         const [connected, setConnected] = useState(false)
-        const receiveMessage = useCallback((update: UpdateMessage) => {
-            setMessage(update)
-            setConnected(true)
-        }, [])
         const ctx: HeadlessStoryContext = {
             ...context,
-            ...message,
+            status: createFilteredRecord(
+                keys,
+                state.status,
+                FetchStatus.Inactive,
+            ),
+            data: createFilteredRecord(keys, state.data, null),
+            errors: createFilteredRecord(keys, state.errors, null),
+        }
+
+        function update(message: UpdateMessage): void {
+            setState(message)
+            setConnected(true)
         }
 
         useEffect(() => {
-            channel.on(EVENT_DATA_UPDATED, receiveMessage)
+            channel.on(EVENT_DATA_UPDATED, update)
 
-            return () => channel.off(EVENT_DATA_UPDATED, receiveMessage)
+            return () => channel.off(EVENT_DATA_UPDATED, update)
         })
 
         return connected ? storyFn(ctx) : null

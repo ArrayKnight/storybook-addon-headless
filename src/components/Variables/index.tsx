@@ -1,5 +1,5 @@
 import { Form, Icons } from '@storybook/components'
-import React, { memo, useCallback, useEffect, useState } from 'react'
+import React, { memo, useEffect, useState } from 'react'
 
 import {
     ApiParameters,
@@ -83,41 +83,43 @@ export const Variables = memo(
         const [states, setStates] = useState(createState(defaults, variables))
         const [status, setStatus] = useState(FetchStatus.Inactive)
         const [isValid, setIsValid] = useState(areValid(states))
-        const change = useCallback(
-            async (name: string, value: unknown): Promise<void> => {
-                const { [name]: state } = states
-                const { validator } = state
+        const isInactive = status === FetchStatus.Inactive
+        const isLoading = status === FetchStatus.Loading
+        const isRejected = status === FetchStatus.Rejected
 
-                await validator(value)
+        async function change(name: string, value: unknown): Promise<void> {
+            const { [name]: state } = states
+            const { validator } = state
 
-                const [error] = validator.errors || []
-                const message = error?.message || null
-                const updated = {
-                    ...states,
-                    [name]: {
-                        ...state,
-                        dirty: true,
-                        error: message,
-                        value,
-                    },
-                }
+            await validator(value)
 
-                setStatus(FetchStatus.Inactive)
+            const [error] = validator.errors || []
+            const message = error?.message || null
+            const updated = {
+                ...states,
+                [name]: {
+                    ...state,
+                    dirty: true,
+                    error: message,
+                    value,
+                },
+            }
 
-                setStates(updated)
+            setStatus(FetchStatus.Inactive)
 
-                setIsValid(areValid(updated))
-            },
-            [states],
-        )
-        const fetch = useCallback(async (): Promise<void> => {
+            setStates(updated)
+
+            setIsValid(areValid(updated))
+        }
+
+        async function fetch(): Promise<void> {
             setStatus(FetchStatus.Loading)
 
             try {
                 await onFetch(
                     Object.entries(states).reduce(
-                        (obj, [name, { value }]) => ({
-                            ...obj,
+                        (acc, [name, { value }]) => ({
+                            ...acc,
                             [name]: (transforms[name] || noopTransform)(value),
                         }),
                         {},
@@ -128,10 +130,7 @@ export const Variables = memo(
             } catch {
                 setStatus(FetchStatus.Rejected)
             }
-        }, [])
-        const isInactive = status === FetchStatus.Inactive
-        const isLoading = status === FetchStatus.Loading
-        const isRejected = status === FetchStatus.Rejected
+        }
 
         useEffect(() => {
             if (autoFetchOnInit && isValid && !hasData && !hasError) {
@@ -145,7 +144,7 @@ export const Variables = memo(
             if (hasError) {
                 setStatus(FetchStatus.Rejected)
             }
-        }, [])
+        }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
         return (
             <>
