@@ -1,9 +1,9 @@
-import { Args, StoryContext } from '@storybook/addons'
+import { Args } from '@storybook/addons'
 import React, { ReactElement } from 'react'
 
-import { withHeadless } from '../../dist'
+import { FetchStatus, HeadlessStoryContext, withHeadless } from '../../dist'
 
-import { User as UserCard, UserProps } from '.'
+import { Loader, User as UserCard, UserProps } from '.'
 
 export default {
     title: 'Examples/Restful',
@@ -35,14 +35,16 @@ export default {
 
 export const Users = (
     args: Args,
-    { data }: StoryContext,
+    { status, data }: HeadlessStoryContext<{ Users?: UserProps[] }>,
 ): ReactElement | null => {
-    const payload = data as { Users?: UserProps[] } | undefined
+    if (status?.Users === FetchStatus.Loading) {
+        return <Loader />
+    }
 
-    if (Array.isArray(payload?.Users)) {
+    if (Array.isArray(data?.Users)) {
         return (
             <>
-                {payload.Users.map((user: UserProps) => (
+                {data.Users.map((user) => (
                     <UserCard key={user.id} {...user} />
                 ))}
             </>
@@ -54,17 +56,20 @@ export const Users = (
 
 export const User = (
     args: Args,
-    { data }: StoryContext,
+    {
+        status,
+        data,
+    }: HeadlessStoryContext<{ Users?: UserProps[]; User?: UserProps }>,
 ): ReactElement | null => {
-    const payload = data as
-        | { Users?: UserProps[]; User?: UserProps }
-        | undefined
-
     if (
-        payload?.User ||
-        (Array.isArray(payload?.Users) && payload?.Users?.length)
+        status?.User === FetchStatus.Loading ||
+        status?.Users === FetchStatus.Loading
     ) {
-        return <UserCard {...(payload.User || payload.Users[0])} />
+        return <Loader />
+    }
+
+    if (data?.User || (Array.isArray(data?.Users) && data?.Users?.length)) {
+        return <UserCard {...(data.User || data.Users[0])} />
     }
 
     return null
