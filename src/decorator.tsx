@@ -81,7 +81,7 @@ export const Decorator = memo(
 
 Decorator.displayName = 'Decorator'
 
-export function wrapper(
+export function Wrapper(
     storyFn: StoryGetter,
     context: StoryContext,
     { options, parameters }: WrapperSettings,
@@ -111,5 +111,5 @@ export const withHeadless: (
     name: DECORATOR_NAME,
     parameterName: PARAM_KEY,
     skipIfNoParametersOrOptions: true,
-    wrapper,
+    wrapper: Wrapper,
 })
