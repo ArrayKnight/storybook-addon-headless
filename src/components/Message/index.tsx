@@ -39,7 +39,7 @@ export const Message = memo(
             if (collapsed !== isCollapsed) {
                 setIsCollapsed(collapsed)
             }
-        }, [collapsed, isCollapsed])
+        }, [collapsed]) // eslint-disable-line react-hooks/exhaustive-deps
 
         if (children) {
             return (

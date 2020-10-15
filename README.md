@@ -116,7 +116,7 @@ You can find parameters document as [HeadlessParameters](https://github.com/Arra
 -   `GraphQLParameters`: [An object](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types/parameters.ts) with a `PackedDocumentNode` as a query and some optional parameters
 -   `RestfulParameters`: [An object](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types/parameters.ts) with a Restful URL string as a query and some optional parameters
 
-Due to an [issue within Storybook](https://github.com/storybookjs/storybook/issues/9534) where data is stringified with a maxDepth, there is data loss on ordinary GraphQL Tag `DocumentNode`s. To bypass this issue until it can be resolved, this addon exports a `pack` function which preemptively flattens the `DocumentNode` to avoid data loss.
+Due to the way a `DocumentNode` is converted to JSON, to maintain the original source query use the `pack` utility method.
 
 ### Produced @ [GenUI](https://www.genui.com/)
 

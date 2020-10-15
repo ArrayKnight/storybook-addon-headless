@@ -9,3 +9,8 @@ export const Fieldset = styled.fieldset`
         margin-bottom: 0;
     }
 `
+
+export const Actions = styled.div`
+    display: flex;
+    justify-content: space-between;
+`

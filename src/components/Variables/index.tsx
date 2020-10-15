@@ -1,3 +1,4 @@
+import addons from '@storybook/addons'
 import { Form, Icons } from '@storybook/components'
 import React, { memo, useEffect, useState } from 'react'
 
@@ -17,7 +18,8 @@ import {
     noopTransform,
 } from '../../utilities'
 import { Variable } from '../Variable'
-import { Fieldset } from './styled'
+import { Fieldset, Actions } from './styled'
+import { EVENT_REQUESTED_STORY } from '../../config'
 
 export interface Props {
     hasData: boolean
@@ -132,6 +134,10 @@ export const Variables = memo(
             }
         }
 
+        function back(): void {
+            addons.getChannel().emit(EVENT_REQUESTED_STORY)
+        }
+
         useEffect(() => {
             if (autoFetchOnInit && isValid && !hasData && !hasError) {
                 void fetch()
@@ -163,20 +169,29 @@ export const Variables = memo(
                         ),
                     )}
                 </Fieldset>
-                <Form.Button disabled={!isValid || isLoading} onClick={fetch}>
-                    {!isInactive && (
-                        <Icons
-                            icon={
-                                isLoading
-                                    ? 'transfer'
-                                    : isRejected
-                                    ? 'delete'
-                                    : 'check'
-                            }
-                        />
-                    )}
-                    Fetch{isInactive ? null : isLoading ? 'ing' : 'ed'}
-                </Form.Button>
+                <Actions>
+                    <Form.Button
+                        disabled={!isValid || isLoading}
+                        onClick={fetch}
+                    >
+                        {!isInactive && (
+                            <Icons
+                                icon={
+                                    isLoading
+                                        ? 'transfer'
+                                        : isRejected
+                                        ? 'delete'
+                                        : 'check'
+                                }
+                            />
+                        )}
+                        Fetch{isInactive ? null : isLoading ? 'ing' : 'ed'}
+                    </Form.Button>
+                    <Form.Button onClick={back}>
+                        <Icons icon="arrowleft" />
+                        <span>Back to Story</span>
+                    </Form.Button>
+                </Actions>
             </>
         )
     },

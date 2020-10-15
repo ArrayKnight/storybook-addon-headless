@@ -5,14 +5,15 @@ import React, { ReactElement } from 'react'
 import {
     FetchStatus,
     HeadlessStoryContext,
+    Loader,
     pack,
+    Prompt,
     withHeadless,
 } from '../../dist'
 
 import {
     Artwork as ArtworkCard,
     ArtworkProps,
-    Loader,
     Show as ShowCard,
     ShowProps,
 } from '.'
@@ -121,6 +122,10 @@ export const Shows = (
         }
     }>,
 ): ReactElement | null => {
+    if (status?.Shows === FetchStatus.Inactive) {
+        return <Prompt />
+    }
+
     if (status?.Shows === FetchStatus.Loading) {
         return <Loader />
     }

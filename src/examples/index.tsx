@@ -3,34 +3,10 @@ import {
     CardContent,
     CardHeader,
     CardMedia,
-    CircularProgress,
-    Modal,
-    Paper,
     Typography,
 } from '@material-ui/core'
 import { styled } from '@storybook/theming'
 import React, { ReactElement, ReactNode } from 'react'
-
-const StyledModal = styled(Modal)``
-
-const StyledPaper = styled(Paper)`
-    padding: 20px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-`
-
-export const Loader = (): ReactElement => (
-    <StyledModal
-        open={true}
-        disableAutoFocus={true}
-        disableBackdropClick={true}
-    >
-        <StyledPaper elevation={5} square={true}>
-            <CircularProgress />
-        </StyledPaper>
-    </StyledModal>
-)
 
 const StyledCard = styled(CardBase)`
     width: 240px;

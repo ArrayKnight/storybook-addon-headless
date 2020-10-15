@@ -1,9 +1,15 @@
 import { Args } from '@storybook/addons'
 import React, { ReactElement } from 'react'
 
-import { FetchStatus, HeadlessStoryContext, withHeadless } from '../../dist'
+import {
+    FetchStatus,
+    HeadlessStoryContext,
+    Loader,
+    Prompt,
+    withHeadless,
+} from '../../dist'
 
-import { Loader, User as UserCard, UserProps } from '.'
+import { User as UserCard, UserProps } from '.'
 
 export default {
     title: 'Examples/Restful',
@@ -61,15 +67,16 @@ export const User = (
         data,
     }: HeadlessStoryContext<{ Users?: UserProps[]; User?: UserProps }>,
 ): ReactElement | null => {
-    if (
-        status?.User === FetchStatus.Loading ||
-        status?.Users === FetchStatus.Loading
-    ) {
+    if (status?.User === FetchStatus.Inactive) {
+        return <Prompt />
+    }
+
+    if (status?.User === FetchStatus.Loading) {
         return <Loader />
     }
 
-    if (data?.User || (Array.isArray(data?.Users) && data?.Users?.length)) {
-        return <UserCard {...(data.User || data.Users[0])} />
+    if (data?.User) {
+        return <UserCard {...data.User} />
     }
 
     return null

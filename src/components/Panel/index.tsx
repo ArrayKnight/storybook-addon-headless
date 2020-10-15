@@ -6,8 +6,11 @@ import type { InteractionProps } from 'react-json-view'
 import { useStorageState } from 'react-storage-hooks'
 
 import {
+    ADDON_ID,
     EVENT_DATA_UPDATED,
     EVENT_INITIALIZED,
+    EVENT_REQUESTED_ADDON,
+    EVENT_REQUESTED_STORY,
     PARAM_KEY,
     STORAGE_KEY,
 } from '../../config'
@@ -26,6 +29,7 @@ import {
     isGraphQLParameters,
     isRestfulParameters,
     isFunction,
+    generateUrl,
 } from '../../utilities'
 import { Tab } from './Tab'
 import { Content, Root } from './styled'
@@ -64,6 +68,20 @@ export const Panel = memo(({ active }: Props) => {
                     ...options,
                 },
             }))
+        },
+        [EVENT_REQUESTED_ADDON]: () => {
+            const storyId = api.getCurrentStoryData()?.id
+
+            if (storyId) {
+                api.navigateUrl(generateUrl(`/${ADDON_ID}/${storyId}`), {})
+            }
+        },
+        [EVENT_REQUESTED_STORY]: () => {
+            const storyId = api.getCurrentStoryData()?.id
+
+            if (storyId) {
+                api.selectStory(storyId)
+            }
         },
     })
 
@@ -119,7 +137,7 @@ export const Panel = memo(({ active }: Props) => {
         name: string,
         apiParameters: ApiParameters,
         variables: Record<string, unknown>,
-    ): Promise<unknown> {
+    ): Promise<void> {
         if (
             isGraphQLParameters(apiParameters) ||
             isRestfulParameters(apiParameters)
@@ -143,12 +161,8 @@ export const Panel = memo(({ active }: Props) => {
                 : Promise.reject(new Error('Invalid config, skipping fetch')))
 
             update(name, FetchStatus.Resolved, response, null)
-
-            return response
         } catch (error) {
             update(name, FetchStatus.Resolved, null, errorToJSON(error))
-
-            return error
         }
     }
 

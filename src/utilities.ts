@@ -3,6 +3,8 @@ import Ajv from 'ajv'
 import defineKeywords from 'ajv-keywords'
 import axios, { AxiosPromise } from 'axios'
 import { sentenceCase } from 'change-case'
+import qs from 'qs'
+import { useEffect, useState } from 'react'
 
 import {
     BaseParameters,
@@ -190,6 +192,16 @@ export function getVariableType(schema: Schema): VariableType {
     }
 }
 
+export function generateUrl(path: string): string {
+    const { location } = document
+    const query = qs.parse(location.search, { ignoreQueryPrefix: true })
+
+    return `${location.origin + location.pathname}?${qs.stringify(
+        { ...query, path },
+        { encode: false },
+    )}`
+}
+
 export function hasOwnProperty(instance: unknown, property: string): boolean {
     return Object.prototype.hasOwnProperty.call(instance, property)
 }
@@ -369,12 +381,6 @@ export function objectToTag(value: unknown): string {
     return Object.prototype.toString.call(value)
 }
 
-/*
- * Storybook implements telejson which currently parses a max depth of 10:
- * https://github.com/storybookjs/storybook/issues/9534
- *
- * Once the parse call allows for a greater depth of data these functions will be deprecated
- */
 export function pack({
     kind,
     definitions,
@@ -397,4 +403,16 @@ export function unpack({
         kind,
         definitions: definitions.map((definition) => JSON.parse(definition)),
     }
+}
+
+export function useImmediateEffect(effect: () => void): void {
+    const [complete, setComplete] = useState(false)
+
+    if (complete) {
+        effect()
+    }
+
+    useEffect(() => {
+        setComplete(true)
+    }, [])
 }
