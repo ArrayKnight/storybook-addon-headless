@@ -75,14 +75,14 @@ export async function fetchViaGraphQL(
         cache: new InMemoryCache(),
     })
 
-    const { data, errors } = await instance.query<unknown>({
+    const { data, error, errors } = await instance.query<unknown>({
         query: unpack(query),
         variables,
         fetchPolicy: 'network-only',
     })
 
-    if (errors) {
-        throw errors
+    if (error || (errors && errors.length)) {
+        throw error || errors[0]
     }
 
     return data
