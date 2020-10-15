@@ -43,21 +43,23 @@ export const Users = (
     args: Args,
     { status, data }: HeadlessStoryContext<{ Users?: UserProps[] }>,
 ): ReactElement | null => {
-    if (status?.Users === FetchStatus.Loading) {
-        return <Loader />
-    }
+    switch (status?.Users) {
+        case FetchStatus.Inactive:
+        case FetchStatus.Rejected:
+            return <Prompt />
 
-    if (Array.isArray(data?.Users)) {
-        return (
-            <>
-                {data.Users.map((user) => (
-                    <UserCard key={user.id} {...user} />
-                ))}
-            </>
-        )
-    }
+        case FetchStatus.Loading:
+            return <Loader />
 
-    return null
+        default:
+            return Array.isArray(data?.Users) ? (
+                <>
+                    {data.Users.map((user) => (
+                        <UserCard key={user.id} {...user} />
+                    ))}
+                </>
+            ) : null
+    }
 }
 
 export const User = (
@@ -67,17 +69,15 @@ export const User = (
         data,
     }: HeadlessStoryContext<{ Users?: UserProps[]; User?: UserProps }>,
 ): ReactElement | null => {
-    if (status?.User === FetchStatus.Inactive) {
-        return <Prompt />
-    }
+    switch (status?.User) {
+        case FetchStatus.Inactive:
+        case FetchStatus.Rejected:
+            return <Prompt />
 
-    if (status?.User === FetchStatus.Loading) {
-        return <Loader />
-    }
+        case FetchStatus.Loading:
+            return <Loader />
 
-    if (data?.User) {
-        return <UserCard {...data.User} />
+        default:
+            return data?.User ? <UserCard {...data.User} /> : null
     }
-
-    return null
 }

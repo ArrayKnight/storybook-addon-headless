@@ -94,21 +94,23 @@ export const Artworks = (
         data,
     }: HeadlessStoryContext<{ Artworks?: { artworks?: ArtworkProps[] } }>,
 ): ReactElement | null => {
-    if (status?.Artworks === FetchStatus.Loading) {
-        return <Loader />
-    }
+    switch (status?.Artworks) {
+        case FetchStatus.Inactive:
+        case FetchStatus.Rejected:
+            return <Prompt />
 
-    if (Array.isArray(data?.Artworks?.artworks)) {
-        return (
-            <>
-                {data.Artworks.artworks.map((artwork, index) => (
-                    <ArtworkCard key={index} {...artwork} />
-                ))}
-            </>
-        )
-    }
+        case FetchStatus.Loading:
+            return <Loader />
 
-    return null
+        default:
+            return Array.isArray(data?.Artworks?.artworks) ? (
+                <>
+                    {data.Artworks.artworks.map((artwork, index) => (
+                        <ArtworkCard key={index} {...artwork} />
+                    ))}
+                </>
+            ) : null
+    }
 }
 
 export const Shows = (
@@ -122,23 +124,21 @@ export const Shows = (
         }
     }>,
 ): ReactElement | null => {
-    if (status?.Shows === FetchStatus.Inactive) {
-        return <Prompt />
-    }
+    switch (status?.Shows) {
+        case FetchStatus.Inactive:
+        case FetchStatus.Rejected:
+            return <Prompt />
 
-    if (status?.Shows === FetchStatus.Loading) {
-        return <Loader />
-    }
+        case FetchStatus.Loading:
+            return <Loader />
 
-    if (Array.isArray(data?.Shows?.partner_shows)) {
-        return (
-            <>
-                {data.Shows.partner_shows.map((show, index) => (
-                    <ShowCard key={index} {...show} />
-                ))}
-            </>
-        )
+        default:
+            return Array.isArray(data?.Shows?.partner_shows) ? (
+                <>
+                    {data.Shows.partner_shows.map((show, index) => (
+                        <ShowCard key={index} {...show} />
+                    ))}
+                </>
+            ) : null
     }
-
-    return null
 }

@@ -118,6 +118,18 @@ You can find parameters document as [HeadlessParameters](https://github.com/Arra
 
 Due to the way a `DocumentNode` is converted to JSON, to maintain the original source query use the `pack` utility method.
 
+#### [Components](https://storybook-addon-headless.netlify.com/?path=/story/components--page)
+
+To help provide a better user experience, there are Prompt and Loader helper components provided.
+
+These components are entirely optional, but will help to direct users to the Headless tab if necessary and provide feedback about the state of active API requests.
+
+You can find basic usage in the [examples](https://github.com/ArrayKnight/storybook-addon-headless/tree/master/src/examples).
+
+**Experimental** _(read: untested)_:
+
+There are also two methods for those of you not using React, but wanting to use these helper components. `useHeadlessPrompt` and `useHeadlessLoader` will render the React components as standalone apps, but you must provide an HTML element reference that has been rendered and mounted by your framework of choice.
+
 ### Produced @ [GenUI](https://www.genui.com/)
 
 This addon was developed while I was employed at GenUI, a software product development firm in Seattle, WA, USA. Interested in knowing more, starting a new project or working with us? Come check us out at [https://www.genui.com/](https://www.genui.com/)
