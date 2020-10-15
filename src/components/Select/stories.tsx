@@ -49,6 +49,4 @@ export const SelectStory = (): ReactElement => {
     )
 }
 
-SelectStory.story = {
-    name: 'Component',
-}
+SelectStory.storyName = 'Select'

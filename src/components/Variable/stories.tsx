@@ -34,9 +34,7 @@ export const BooleanStory = (): ReactElement => {
     )
 }
 
-BooleanStory.story = {
-    name: 'Boolean',
-}
+BooleanStory.storyName = 'Boolean'
 
 export const DateStory = (): ReactElement => {
     const name = text('name', 'Date')
@@ -61,9 +59,7 @@ export const DateStory = (): ReactElement => {
     )
 }
 
-DateStory.story = {
-    name: 'Date',
-}
+DateStory.storyName = 'Date'
 
 export const DateTimeStory = (): ReactElement => {
     const name = text('name', 'DateTime')
@@ -88,9 +84,7 @@ export const DateTimeStory = (): ReactElement => {
     )
 }
 
-DateTimeStory.story = {
-    name: 'DateTime',
-}
+DateTimeStory.storyName = 'DateTime'
 
 export const TimeStory = (): ReactElement => {
     const name = text('name', 'Time')
@@ -115,9 +109,7 @@ export const TimeStory = (): ReactElement => {
     )
 }
 
-TimeStory.story = {
-    name: 'Time',
-}
+TimeStory.storyName = 'Time'
 
 export const FloatStory = (): ReactElement => {
     const name = text('name', 'Float')
@@ -142,9 +134,7 @@ export const FloatStory = (): ReactElement => {
     )
 }
 
-FloatStory.story = {
-    name: 'Float',
-}
+FloatStory.storyName = 'Float'
 
 export const IntegerStory = (): ReactElement => {
     const name = text('name', 'Integer')
@@ -169,9 +159,7 @@ export const IntegerStory = (): ReactElement => {
     )
 }
 
-IntegerStory.story = {
-    name: 'Integer',
-}
+IntegerStory.storyName = 'Integer'
 
 export const SelectStory = (): ReactElement => {
     const name = text('name', 'Select')
@@ -215,9 +203,7 @@ export const SelectStory = (): ReactElement => {
     )
 }
 
-SelectStory.story = {
-    name: 'Select',
-}
+SelectStory.storyName = 'Select'
 
 export const StringStory = (): ReactElement => {
     const name = text('name', 'String')
@@ -242,6 +228,4 @@ export const StringStory = (): ReactElement => {
     )
 }
 
-StringStory.story = {
-    name: 'String',
-}
+StringStory.storyName = 'String'
