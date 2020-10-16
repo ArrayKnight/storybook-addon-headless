@@ -1,4 +1,4 @@
-import React, { ChangeEvent, memo, useCallback } from 'react'
+import React, { ChangeEvent, memo } from 'react'
 
 import type { BooleanSchema } from '../../types'
 import { Error, Row } from './styled'
@@ -11,19 +11,29 @@ export interface Props {
     onChange: (value: boolean) => void
 }
 
+export const TEST_IDS = Object.freeze({
+    root: 'BooleanRoot',
+    input: 'BooleanInput',
+    error: 'BooleanError',
+})
+
 export const BooleanInput = memo(
     ({ value, error, isValid, onChange }: Props) => {
-        const update = useCallback(
-            (event: ChangeEvent<HTMLInputElement>) => {
-                onChange(event.target.checked)
-            },
-            [onChange],
-        )
+        function update(event: ChangeEvent<HTMLInputElement>): void {
+            onChange(event.target.checked)
+        }
 
         return (
-            <Row>
-                <input type="checkbox" checked={!!value} onChange={update} />
-                {!isValid && <Error>{error}</Error>}
+            <Row data-testid={TEST_IDS.root}>
+                <input
+                    type="checkbox"
+                    checked={value}
+                    onChange={update}
+                    data-testid={TEST_IDS.input}
+                />
+                {!isValid && error && (
+                    <Error data-testid={TEST_IDS.error}>{error}</Error>
+                )}
             </Row>
         )
     },

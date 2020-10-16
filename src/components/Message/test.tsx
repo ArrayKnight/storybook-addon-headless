@@ -19,18 +19,16 @@ describe('Message', () => {
     }: Partial<Props> = {}): RenderResult & {
         props: Props
     } {
-        const props: Props = {
-            children,
-            ...rest,
-        }
-
         return {
             ...render(
                 <ThemeProvider theme={convert(themes.normal)}>
                     <Message {...rest}>{children}</Message>
                 </ThemeProvider>,
             ),
-            props,
+            props: {
+                children,
+                ...rest,
+            },
         }
     }
 
