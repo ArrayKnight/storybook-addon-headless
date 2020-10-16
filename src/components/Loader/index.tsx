@@ -9,11 +9,15 @@ import {
 import React, { memo, ReactElement } from 'react'
 import ReactDOM from 'react-dom'
 
+export const TEST_IDS = Object.freeze({
+    root: 'LoaderRoot',
+})
+
 export const Loader = memo(
     (): ReactElement => (
         <ThemeProvider theme={convert(themes.normal)}>
             <Global styles={createReset} />
-            <LoaderBase />
+            <LoaderBase data-testid={TEST_IDS.root} />
         </ThemeProvider>
     ),
 )
