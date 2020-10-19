@@ -5,6 +5,6 @@ export {
     useHeadlessLoader,
     useHeadlessPrompt,
 } from './components'
-export * from './decorator'
+export { withHeadless } from './decorator'
 export * from './types'
 export { pack } from './utilities'

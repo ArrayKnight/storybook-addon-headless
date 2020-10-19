@@ -32,7 +32,7 @@ import {
     objectToTag,
     pack,
     unpack,
-} from './utilities'
+} from '../utilities'
 
 const valuesMap = {
     Array: [] as unknown[],

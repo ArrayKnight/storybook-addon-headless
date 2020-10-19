@@ -17,7 +17,7 @@ import {
     TEST_IDS,
     toInputFormat,
     toISOFormat,
-} from './Date'
+} from '../Date'
 
 const iso = '2020-10-19T20:30:00.000Z'
 const date = new Date(iso)

@@ -8,15 +8,14 @@ import {
 import '@testing-library/jest-dom/extend-expect'
 import React from 'react'
 
-import { NumberInput, Props, TEST_IDS } from './Number'
-import { convert, ThemeProvider, themes } from '@storybook/theming'
+import { BooleanInput, Props, TEST_IDS } from '../Boolean'
 
-describe('Number', () => {
+describe('Boolean', () => {
     afterEach(cleanup)
 
     function setup({
-        schema = { type: 'number' },
-        value,
+        schema = { type: 'boolean' },
+        value = false,
         error = null,
         isValid = true,
         onChange = jest.fn(),
@@ -32,11 +31,7 @@ describe('Number', () => {
         }
 
         return {
-            ...render(
-                <ThemeProvider theme={convert(themes.normal)}>
-                    <NumberInput {...props} />
-                </ThemeProvider>,
-            ),
+            ...render(<BooleanInput {...props} />),
             props,
         }
     }
@@ -60,23 +55,18 @@ describe('Number', () => {
 
     it('should be a controlled input', () => {
         const { getByTestId, props, rerender } = setup()
-        const input = getByTestId(TEST_IDS.input) as HTMLInputElement
-        const value = 42
+        const input = getByTestId(TEST_IDS.input)
 
-        expect(input.value).toEqual('')
+        expect(input).not.toBeChecked()
 
-        fireEvent.change(input, { target: { value } })
+        fireEvent.click(input)
 
-        expect(input.value).toEqual('')
-        expect(props.onChange).toHaveBeenCalledWith(value)
+        expect(input).not.toBeChecked()
+        expect(props.onChange).toHaveBeenCalledWith(true)
 
-        rerender(
-            <ThemeProvider theme={convert(themes.normal)}>
-                <NumberInput {...props} value={value} />
-            </ThemeProvider>,
-        )
+        rerender(<BooleanInput {...props} value={true} />)
 
-        expect(input.value).toEqual(`${value}`)
+        expect(input).toBeChecked()
         expect(props.onChange).toHaveBeenCalledTimes(1)
     })
 })
