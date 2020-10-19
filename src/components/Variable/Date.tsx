@@ -13,81 +13,100 @@ export interface Props {
     onChange: (value: string) => void
 }
 
+export enum DateTimeType {
+    Date = 'date',
+    DateTime = 'datetime-local',
+    Time = 'time',
+}
+
+export function parseDateTime(
+    val: string,
+    type: DateTimeType,
+    isUTC: boolean,
+): Date {
+    if (type === DateTimeType.Time) {
+        const [hours, minutes] = val.split(':')
+        const date = new Date()
+
+        date[isUTC ? 'setUTCHours' : 'setHours'](
+            parseInt(hours, 10),
+            parseInt(minutes, 10),
+            0,
+            0,
+        )
+
+        return date
+    }
+
+    return parseISO(val)
+}
+
+export function toInputFormat(
+    val: string | undefined,
+    type: DateTimeType,
+): string {
+    if (!val) {
+        return ''
+    }
+
+    const date = parseDateTime(val, type, true)
+    const representation =
+        type === DateTimeType.DateTime
+            ? 'complete'
+            : type === DateTimeType.Date
+            ? 'date'
+            : 'time'
+
+    return formatISO(date, { representation }).replace(/-\d{2}:\d{2}.*/, '')
+}
+
+export function toISOFormat(val: string, type: DateTimeType): string {
+    const date = parseDateTime(val, type, false)
+    const iso = date.toISOString()
+
+    if (type === DateTimeType.DateTime) {
+        return iso
+    }
+
+    const match = /(\d{4}(?:-\d{2}){2})T(\d{2}(?::\d{2}){2})/.exec(iso)
+    const [, day, time] = match
+
+    return type === DateTimeType.Date ? day : time
+}
+
+export const TEST_IDS = Object.freeze({
+    root: 'DateRoot',
+    input: 'DateInput',
+    error: 'DateError',
+})
+
 export const DateTimeInput = memo(
     ({ schema, value, error, isValid, onChange }: Props) => {
         const includeDate = schema.format.startsWith('date')
         const includeTime = schema.format.endsWith('time')
-        const isDate = includeDate && !includeTime
-        const isDateTime = includeDate && includeTime
-        const isTime = !includeDate && includeTime
-
-        function getType(): string {
-            return isDateTime ? 'datetime-local' : isDate ? 'date' : 'time'
-        }
-
-        function getDate(val: string, utc: boolean): Date {
-            if (isTime) {
-                const [hours, minutes] = val.split(':')
-                const date = new Date()
-
-                date[utc ? 'setUTCHours' : 'setHours'](
-                    parseInt(hours, 10),
-                    parseInt(minutes, 10),
-                    0,
-                    0,
-                )
-
-                return date
-            }
-
-            return parseISO(val)
-        }
-
-        function getter(val: string | undefined): string {
-            if (!val) {
-                return ''
-            }
-
-            const date = getDate(val, true)
-            const representation = isDateTime
-                ? 'complete'
-                : isDate
-                ? 'date'
-                : 'time'
-
-            return formatISO(date, { representation }).replace(
-                /-\d{2}:\d{2}.*/,
-                '',
-            )
-        }
-
-        function setter(val: string): string {
-            const date = getDate(val, false)
-            const iso = date.toISOString()
-
-            if (isDateTime) {
-                return iso
-            }
-
-            const match = /(\d{4}(?:-\d{2}){2})T(\d{2}(?::\d{2}){2})/.exec(iso)
-            const [, day, time] = match
-
-            return isDate ? day : time
-        }
+        const type =
+            includeDate && includeTime
+                ? DateTimeType.DateTime
+                : includeDate
+                ? DateTimeType.Date
+                : DateTimeType.Time
 
         function update(event: ChangeEvent<HTMLInputElement>): void {
-            onChange(setter(event.target.value))
+            onChange(toISOFormat(event.target.value, type))
         }
 
         return (
-            <Row>
+            <Row data-testid={TEST_IDS.root}>
                 <Form.Input
-                    type={getType()}
+                    type={type}
                     valid={!isValid ? 'error' : null}
-                    value={getter(value)}
+                    value={toInputFormat(value, type)}
                     onChange={update}
+                    data-testid={TEST_IDS.input}
                 />
-                {!isValid && <Error>{error}</Error>}
+                {!isValid && (
+                    <Error data-testid={TEST_IDS.error}>{error}</Error>
+                )}
             </Row>
         )
     },
