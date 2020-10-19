@@ -4,7 +4,7 @@ import React from 'react'
 
 import { Loader, TEST_IDS } from '.'
 
-describe('Boolean', () => {
+describe('Loader', () => {
     afterEach(cleanup)
 
     function setup(): RenderResult {

@@ -13,10 +13,17 @@ import ReactDOM from 'react-dom'
 import { PANEL_TITLE, EVENT_REQUESTED_ADDON } from '../../config'
 import { Root, Content } from './styled'
 
-interface Props {
+export interface Props {
     headline?: ReactNode
     message?: ReactNode
 }
+
+export const TEST_IDS = Object.freeze({
+    root: 'PromptRoot',
+    headline: 'PromptHeadline',
+    message: 'PromptMessage',
+    button: 'PromptButton',
+})
 
 export const Prompt = memo(
     ({
@@ -30,7 +37,7 @@ export const Prompt = memo(
             </p>
         ),
     }: Props): ReactElement => {
-        function goToHeadless(): void {
+        function emit(): void {
             addons.getChannel().emit(EVENT_REQUESTED_ADDON)
         }
 
@@ -38,11 +45,20 @@ export const Prompt = memo(
             <ThemeProvider theme={convert(themes.normal)}>
                 <Global styles={createReset} />
                 <Global styles={`body {padding: 0 !important;}`} />
-                <Root>
+                <Root data-testid={TEST_IDS.root}>
                     <Content>
-                        {headline}
-                        {message}
-                        <Form.Button onClick={goToHeadless}>
+                        {headline && (
+                            <div data-testid={TEST_IDS.headline}>
+                                {headline}
+                            </div>
+                        )}
+                        {message && (
+                            <div data-testid={TEST_IDS.message}>{message}</div>
+                        )}
+                        <Form.Button
+                            onClick={emit}
+                            data-testid={TEST_IDS.button}
+                        >
                             <span>Continue</span>
                             <Icons icon="arrowright" />
                         </Form.Button>
