@@ -75,9 +75,9 @@ export function toISOFormat(val: string, type: DateTimeType): string {
 }
 
 export const TEST_IDS = Object.freeze({
-    root: 'DateRoot',
-    input: 'DateInput',
-    error: 'DateError',
+    root: 'DateVariableRoot',
+    input: 'DateVariableInput',
+    error: 'DateVariableError',
 })
 
 export const DateTimeInput = memo(
@@ -104,7 +104,7 @@ export const DateTimeInput = memo(
                     onChange={update}
                     data-testid={TEST_IDS.input}
                 />
-                {!isValid && (
+                {!isValid && error && (
                     <Error data-testid={TEST_IDS.error}>{error}</Error>
                 )}
             </Row>

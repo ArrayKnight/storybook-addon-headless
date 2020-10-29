@@ -412,7 +412,5 @@ export function useImmediateEffect(effect: () => void): void {
         effect()
     }
 
-    useEffect(() => {
-        setComplete(true)
-    }, [])
+    useEffect(() => setComplete(true), [])
 }

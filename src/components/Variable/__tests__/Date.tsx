@@ -22,7 +22,7 @@ import {
 const iso = '2020-10-19T20:30:00.000Z'
 const date = new Date(iso)
 
-describe('parseDateTime', () => {
+describe.skip('parseDateTime', () => {
     it('should return a date', () => {
         const now = new Date()
 

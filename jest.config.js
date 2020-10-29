@@ -18,7 +18,10 @@ module.exports = {
         'jsx',
         'node',
     ],
-    setupFilesAfterEnv: ['jest-expect-message'],
+    setupFilesAfterEnv: [
+        'jest-expect-message',
+        'jest-mock-console/dist/setupTestFramework.js',
+    ],
     testEnvironment: 'jest-environment-jsdom-fourteen',
     testURL: 'http://localhost',
     transform: {

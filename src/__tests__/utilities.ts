@@ -3,6 +3,7 @@ import { gql } from '@apollo/client'
 import {
     convertToItem,
     errorToJSON,
+    fetchViaGraphQL,
     functionToTag,
     getBaseOptions,
     getGraphQLUri,
@@ -89,6 +90,12 @@ describe('convertToItem', () => {
     })
 })
 
+describe.skip('fetchViaGraphQL', () => {
+    it('should', () => {
+        expect(fetchViaGraphQL)
+    })
+})
+
 describe('errorToJSON', () => {
     it('should convert error to object', () => {
         const { message, stack } = errorToJSON(new Error('Foo'))
@@ -100,7 +107,8 @@ describe('errorToJSON', () => {
 
 describe('functionToTag', () => {
     it('should convert function to tag', () => {
-        expect(functionToTag(function Foo() {})).toEqual('function Foo() { }') // eslint-disable-line @typescript-eslint/no-empty-function
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        expect(functionToTag(function Foo() {})).toEqual('function Foo() { }')
     })
 })
 

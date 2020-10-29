@@ -14,9 +14,9 @@ export interface Props {
 }
 
 export const TEST_IDS = Object.freeze({
-    root: 'NumberRoot',
-    input: 'NumberInput',
-    error: 'NumberError',
+    root: 'NumberVariableRoot',
+    input: 'NumberVariableInput',
+    error: 'NumberVariableError',
 })
 
 export const NumberInput = memo(
@@ -34,7 +34,7 @@ export const NumberInput = memo(
                     onChange={update}
                     data-testid={TEST_IDS.input}
                 />
-                {!isValid && (
+                {!isValid && error && (
                     <Error data-testid={TEST_IDS.error}>{error}</Error>
                 )}
             </Row>

@@ -5,16 +5,16 @@ import { Error, Row } from './styled'
 
 export interface Props {
     schema: BooleanSchema
-    value: boolean
+    value: boolean | undefined
     error: string | null
     isValid: boolean
     onChange: (value: boolean) => void
 }
 
 export const TEST_IDS = Object.freeze({
-    root: 'BooleanRoot',
-    input: 'BooleanInput',
-    error: 'BooleanError',
+    root: 'BooleanVariableRoot',
+    input: 'BooleanVariableInput',
+    error: 'BooleanVariableError',
 })
 
 export const BooleanInput = memo(
@@ -27,7 +27,7 @@ export const BooleanInput = memo(
             <Row data-testid={TEST_IDS.root}>
                 <input
                     type="checkbox"
-                    checked={value}
+                    checked={!!value}
                     onChange={update}
                     data-testid={TEST_IDS.input}
                 />

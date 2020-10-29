@@ -33,7 +33,7 @@ export const Prompt = memo(
                 This component story relies on data fetched from an API. Head
                 over to the {PANEL_TITLE} tab to configure and execute the API
                 call. Once the data has been fetched, head on back here and the
-                component story should be presented.
+                component story should be rendered.
             </p>
         ),
     }: Props): ReactElement => {

@@ -31,9 +31,9 @@ export const Message = memo(
         collapsed = true,
     }: Props): ReactElement | null => {
         const [isCollapsed, setIsCollapsed] = useState(collapsed)
-        const toggle = useCallback(() => {
-            setIsCollapsed(!isCollapsed)
-        }, [isCollapsed])
+        const toggle = useCallback(() => setIsCollapsed(!isCollapsed), [
+            isCollapsed,
+        ])
 
         useEffect(() => {
             if (collapsed !== isCollapsed) {

@@ -1,3 +1,4 @@
+import { convert, ThemeProvider, themes } from '@storybook/theming'
 import {
     cleanup,
     fireEvent,
@@ -8,13 +9,13 @@ import {
 import '@testing-library/jest-dom/extend-expect'
 import React from 'react'
 
-import { BooleanInput, Props, TEST_IDS } from '../Boolean'
+import { StringInput, Props, TEST_IDS } from '../String'
 
-describe('Boolean', () => {
+describe('String', () => {
     afterEach(cleanup)
 
     function setup({
-        schema = { type: 'boolean' },
+        schema = { type: 'string' },
         value,
         error = null,
         isValid = true,
@@ -31,7 +32,11 @@ describe('Boolean', () => {
         }
 
         return {
-            ...render(<BooleanInput {...props} />),
+            ...render(
+                <ThemeProvider theme={convert(themes.normal)}>
+                    <StringInput {...props} />
+                </ThemeProvider>,
+            ),
             props,
         }
     }
@@ -55,18 +60,23 @@ describe('Boolean', () => {
 
     it('should be a controlled input', () => {
         const { getByTestId, props, rerender } = setup()
-        const input = getByTestId(TEST_IDS.input)
+        const input = getByTestId(TEST_IDS.input) as HTMLInputElement
+        const value = 'foo'
 
-        expect(input).not.toBeChecked()
+        expect(input.value).toEqual('')
 
-        fireEvent.click(input)
+        fireEvent.change(input, { target: { value } })
 
-        expect(input).not.toBeChecked()
-        expect(props.onChange).toHaveBeenCalledWith(true)
+        expect(input.value).toEqual('')
+        expect(props.onChange).toHaveBeenCalledWith(value)
 
-        rerender(<BooleanInput {...props} value={true} />)
+        rerender(
+            <ThemeProvider theme={convert(themes.normal)}>
+                <StringInput {...props} value={value} />
+            </ThemeProvider>,
+        )
 
-        expect(input).toBeChecked()
+        expect(input.value).toEqual(value)
         expect(props.onChange).toHaveBeenCalledTimes(1)
     })
 })

@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react'
+import React, { memo, useMemo } from 'react'
 
 import type { Item, SelectSchema } from '../../types'
 import { convertToItem, isNull, isUndefined } from '../../utilities'
@@ -13,28 +13,37 @@ export interface Props {
     onChange: (value: unknown) => void
 }
 
+export const TEST_IDS = Object.freeze({
+    root: 'SelectVariableRoot',
+    input: 'SelectVariableInput',
+    error: 'SelectVariableError',
+})
+
 export const SelectInput = memo(
     ({ schema, value, error, isValid, onChange }: Props) => {
-        const items = schema.enum.map(convertToItem)
-        const selected = isUndefined(value)
-            ? value
-            : items.find((item) => item.value === value)
-        const update = useCallback(
-            (item: Item | null) => {
-                onChange(isNull(item) ? undefined : item.value)
-            },
-            [onChange],
-        )
+        const items = useMemo(() => schema.enum.map(convertToItem), [
+            schema.enum,
+        ])
+        const selected = !isUndefined(value)
+            ? items.find((item) => item.value === value)
+            : value
+
+        function update(item: Item | null): void {
+            onChange(isNull(item) ? undefined : item.value)
+        }
 
         return (
-            <Row>
+            <Row data-testid={TEST_IDS.root}>
                 <Select
                     items={items}
                     selected={selected}
                     valid={!isValid ? 'error' : null}
                     onChange={update}
+                    data-testid={TEST_IDS.input}
                 />
-                {!isValid && <Error>{error}</Error>}
+                {!isValid && error && (
+                    <Error data-testid={TEST_IDS.error}>{error}</Error>
+                )}
             </Row>
         )
     },
