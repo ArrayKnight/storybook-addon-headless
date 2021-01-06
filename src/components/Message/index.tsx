@@ -31,15 +31,15 @@ export const Message = memo(
         collapsed = true,
     }: Props): ReactElement | null => {
         const [isCollapsed, setIsCollapsed] = useState(collapsed)
-        const toggle = useCallback(() => {
-            setIsCollapsed(!isCollapsed)
-        }, [isCollapsed])
+        const toggle = useCallback(() => setIsCollapsed(!isCollapsed), [
+            isCollapsed,
+        ])
 
         useEffect(() => {
             if (collapsed !== isCollapsed) {
                 setIsCollapsed(collapsed)
             }
-        }, [collapsed])
+        }, [collapsed]) // eslint-disable-line react-hooks/exhaustive-deps
 
         if (children) {
             return (

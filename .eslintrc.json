@@ -41,7 +41,9 @@
             }
         ],
         "@typescript-eslint/restrict-template-expressions": [0],
-        "react/prop-types": [0]
+        "react/prop-types": [0],
+        "react-hooks/exhaustive-deps": "warn",
+        "react-hooks/rules-of-hooks": "error"
     },
     "settings": {
         "react": {

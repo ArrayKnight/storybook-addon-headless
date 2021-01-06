@@ -1,10 +1,14 @@
 import { ApolloClient, DocumentNode, InMemoryCache } from '@apollo/client'
 import Ajv from 'ajv'
+import addFormats from 'ajv-formats'
 import defineKeywords from 'ajv-keywords'
 import axios, { AxiosPromise } from 'axios'
 import { sentenceCase } from 'change-case'
+import qs from 'qs'
+import { useEffect, useState } from 'react'
 
 import {
+    AnySchema,
     BaseParameters,
     BooleanSchema,
     DateTimeSchema,
@@ -18,7 +22,6 @@ import {
     RestfulOptions,
     RestfulOptionsTypes,
     RestfulParameters,
-    Schema,
     SelectSchema,
     StringSchema,
     VariableType,
@@ -26,6 +29,7 @@ import {
 
 export const ajv = new Ajv({ $data: true })
 
+addFormats(ajv)
 defineKeywords(ajv)
 
 export function convertToItem(value: unknown): Item {
@@ -73,17 +77,17 @@ export async function fetchViaGraphQL(
         cache: new InMemoryCache(),
     })
 
-    try {
-        const { data, errors } = await instance.query<unknown>({
-            query: unpack(query),
-            variables,
-            fetchPolicy: 'network-only',
-        })
+    const { data, error, errors } = await instance.query<unknown>({
+        query: unpack(query),
+        variables,
+        fetchPolicy: 'network-only',
+    })
 
-        return errors || data
-    } catch (error) {
-        return error
+    if (error || (errors && errors.length)) {
+        throw error || errors[0]
     }
+
+    return data
 }
 
 export async function fetchViaRestful(
@@ -106,18 +110,14 @@ export async function fetchViaRestful(
         })
     }
 
-    try {
-        const { data } = await (axios({
-            url: getRestfulUrl(opts, parameters, variables),
-            ...opts,
-            ...config,
-            data: convertToFormData ? formData : variables,
-        }) as AxiosPromise<unknown>)
+    const { data } = await (axios({
+        url: getRestfulUrl(opts, parameters, variables),
+        ...opts,
+        ...config,
+        data: convertToFormData ? formData : variables,
+    }) as AxiosPromise<unknown>)
 
-        return data
-    } catch (error) {
-        return error
-    }
+    return data
 }
 
 export function functionToTag(func: (...args: unknown[]) => unknown): string {
@@ -172,7 +172,7 @@ export function getRestfulUrl(
     return `${base}${path}`
 }
 
-export function getVariableType(schema: Schema): VariableType {
+export function getVariableType(schema: AnySchema): VariableType {
     switch (true) {
         case isBooleanSchema(schema):
             return VariableType.Boolean
@@ -194,6 +194,16 @@ export function getVariableType(schema: Schema): VariableType {
     }
 }
 
+export function generateUrl(path: string): string {
+    const { location } = document
+    const query = qs.parse(location.search, { ignoreQueryPrefix: true })
+
+    return `${location.origin + location.pathname}?${qs.stringify(
+        { ...query, path },
+        { encode: false },
+    )}`
+}
+
 export function hasOwnProperty(instance: unknown, property: string): boolean {
     return Object.prototype.hasOwnProperty.call(instance, property)
 }
@@ -207,12 +217,12 @@ export function isBoolean(value: unknown): value is boolean {
 }
 
 export function isBooleanSchema(value: unknown): value is BooleanSchema {
-    return isObject<Schema>(value) && value.type === 'boolean'
+    return isObject<AnySchema>(value) && value.type === 'boolean'
 }
 
 export function isDateTimeSchema(value: unknown): value is DateTimeSchema {
     return (
-        isObject<Schema>(value) &&
+        isObject<AnySchema>(value) &&
         (value.format === 'date' ||
             value.format === 'date-time' ||
             value.format === 'time')
@@ -296,7 +306,7 @@ export function isNumber(value: unknown): value is number {
 
 export function isNumberSchema(value: unknown): value is NumberSchema {
     return (
-        isObject<Schema>(value) &&
+        isObject<AnySchema>(value) &&
         (value.type === 'integer' || value.type === 'number')
     )
 }
@@ -349,7 +359,9 @@ export function isRestfulParameters(
 
 export function isSelectSchema(value: unknown): value is SelectSchema {
     return (
-        isObject<Schema>(value) && isArray(value.enum) && value.enum.length > 1
+        isObject<AnySchema>(value) &&
+        isArray(value.enum) &&
+        value.enum.length > 1
     )
 }
 
@@ -358,7 +370,7 @@ export function isString(value: unknown): value is string {
 }
 
 export function isStringSchema(value: unknown): value is StringSchema {
-    return isObject<Schema>(value) && value.type === 'string'
+    return isObject<AnySchema>(value) && value.type === 'string'
 }
 
 export function isUndefined(value: unknown): value is undefined {
@@ -373,12 +385,6 @@ export function objectToTag(value: unknown): string {
     return Object.prototype.toString.call(value)
 }
 
-/*
- * Storybook implements telejson which currently parses a max depth of 10:
- * https://github.com/storybookjs/storybook/issues/9534
- *
- * Once the parse call allows for a greater depth of data these functions will be deprecated
- */
 export function pack({
     kind,
     definitions,
@@ -401,4 +407,14 @@ export function unpack({
         kind,
         definitions: definitions.map((definition) => JSON.parse(definition)),
     }
+}
+
+export function useImmediateEffect(effect: () => void): void {
+    const [complete, setComplete] = useState(false)
+
+    if (complete) {
+        effect()
+    }
+
+    useEffect(() => setComplete(true), [])
 }

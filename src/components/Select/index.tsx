@@ -1,27 +1,36 @@
 import { Form, Icons } from '@storybook/components'
+import { InputStyleProps } from '@storybook/components/dist/form/input/input'
 import { ThemeProvider } from '@storybook/theming'
 import { useCombobox } from 'downshift'
-import React, { memo, useCallback, useState } from 'react'
+import React, { memo, useState } from 'react'
 
 import type { Item } from '../../types'
 import { isArray, isUndefined } from '../../utilities'
 import { Chip, Container, Menu, MenuItem, Remove, Root, Toggle } from './styled'
 
-export type Props = {
-    items: Item[]
-    valid?: 'valid' | 'error' | 'warn'
-} & (
-    | {
-          selected: Item | undefined
-          isMulti?: false
-          onChange: (item: Item | null) => void
-      }
-    | {
-          selected: Item[] | undefined
-          isMulti: true
-          onChange: (items: Item[]) => void
-      }
-)
+export type Props = { items: Item[] } & Pick<InputStyleProps, 'valid'> &
+    (
+        | {
+              selected: Item | undefined
+              isMulti?: false
+              onChange: (item: Item | null) => void
+          }
+        | {
+              selected: Item[] | undefined
+              isMulti: true
+              onChange: (items: Item[]) => void
+          }
+    )
+
+export const TEST_IDS = Object.freeze({
+    root: 'SelectRoot',
+    input: 'SelectInput',
+    chip: 'SelectChip',
+    remove: 'SelectRemove',
+    toggle: 'SelectToggle',
+    menu: 'SelectMenu',
+    item: 'SelectItem',
+})
 
 export const Select = memo((props: Props) => {
     const { items, selected, isMulti, valid } = props
@@ -31,19 +40,6 @@ export const Select = memo((props: Props) => {
         ? selected
         : [selected]
     const [filteredItems, setFilteredItems] = useState(items)
-    const update = useCallback(
-        (updated: Item[]) => {
-            switch (props.isMulti) {
-                case true:
-                    return props.onChange(updated)
-
-                case false:
-                case undefined:
-                    return props.onChange(updated[0] || null)
-            }
-        },
-        [props],
-    )
     const {
         getComboboxProps,
         getInputProps,
@@ -78,10 +74,20 @@ export const Select = memo((props: Props) => {
         },
     })
 
-    function remove(item: Item): () => void {
-        return () => {
-            update(selectedItems.filter(({ value }) => value !== item.value))
+    function update(updated: Item[]): void {
+        switch (props.isMulti) {
+            case true:
+                return props.onChange(updated)
+
+            case false:
+            case undefined:
+                return props.onChange(updated[0] || null)
         }
+    }
+
+    function remove(item: Item): () => void {
+        return () =>
+            update(selectedItems.filter(({ value }) => value !== item.value))
     }
 
     return (
@@ -93,13 +99,22 @@ export const Select = memo((props: Props) => {
                 isValid: isUndefined(valid) || valid === 'valid',
             }}
         >
-            <Root {...getComboboxProps()}>
+            <Root {...getComboboxProps()} data-testid={TEST_IDS.root}>
                 <Container>
-                    <Form.Input {...getInputProps()} />
+                    <Form.Input
+                        {...getInputProps()}
+                        data-testid={TEST_IDS.input}
+                    />
                     {selectedItems.map((item, index) => (
-                        <Chip key={`${index}-${item.label}-chip`}>
+                        <Chip
+                            key={`${index}-${item.label}-chip`}
+                            data-testid={TEST_IDS.chip}
+                        >
                             <span>{item.label}</span>
-                            <Remove onClick={remove(item)}>
+                            <Remove
+                                onClick={remove(item)}
+                                data-testid={TEST_IDS.remove}
+                            >
                                 <Icons icon="close" />
                             </Remove>
                         </Chip>
@@ -107,11 +122,12 @@ export const Select = memo((props: Props) => {
                     <Toggle
                         {...getToggleButtonProps()}
                         aria-label="toggle menu"
+                        data-testid={TEST_IDS.toggle}
                     >
                         <Icons icon={isOpen ? 'arrowleft' : 'arrowdown'} />
                     </Toggle>
                 </Container>
-                <Menu {...getMenuProps()}>
+                <Menu {...getMenuProps()} data-testid={TEST_IDS.menu}>
                     {filteredItems.map((item, index) => (
                         <ThemeProvider
                             key={`${index}-${item.label}-item`}
@@ -122,7 +138,10 @@ export const Select = memo((props: Props) => {
                                 ),
                             }}
                         >
-                            <MenuItem {...getItemProps({ item, index })}>
+                            <MenuItem
+                                {...getItemProps({ item, index })}
+                                data-testid={TEST_IDS.item}
+                            >
                                 {item.label}
                             </MenuItem>
                         </ThemeProvider>

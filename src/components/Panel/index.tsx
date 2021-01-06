@@ -1,15 +1,26 @@
 import { useChannel, useParameter, useStorybookApi } from '@storybook/api'
 import { TabsState } from '@storybook/components'
 import { ThemeProvider } from '@storybook/theming'
-import React, { memo, useCallback, useState } from 'react'
+import React, { memo } from 'react'
 import type { InteractionProps } from 'react-json-view'
+import { useStorageState } from 'react-storage-hooks'
 
-import { EVENT_DATA_UPDATED, EVENT_INITIALIZED, PARAM_KEY } from '../../config'
-import type {
+import {
+    ADDON_ID,
+    EVENT_DATA_UPDATED,
+    EVENT_INITIALIZED,
+    EVENT_REQUESTED_ADDON,
+    EVENT_REQUESTED_STORY,
+    PARAM_KEY,
+    STORAGE_KEY,
+} from '../../config'
+import {
     ApiParameters,
-    HeadlessOptions,
+    FetchStatus,
     HeadlessParameters,
     HeadlessState,
+    InitializeMessage,
+    UpdateMessage,
 } from '../../types'
 import {
     fetchViaGraphQL,
@@ -17,7 +28,10 @@ import {
     errorToJSON,
     isGraphQLParameters,
     isRestfulParameters,
+    isFunction,
+    generateUrl,
 } from '../../utilities'
+import { ErrorBoundary } from '../ErrorBoundary'
 import { Tab } from './Tab'
 import { Content, Root } from './styled'
 
@@ -29,6 +43,7 @@ export const initialState: HeadlessState = {
         jsonDark: 'colors',
         jsonLight: 'rjv-default',
     },
+    status: {},
     data: {},
     errors: {},
 }
@@ -40,124 +55,123 @@ interface Props {
 export const Panel = memo(({ active }: Props) => {
     const api = useStorybookApi()
     const headlessParameters = useParameter<HeadlessParameters>(PARAM_KEY, {})
-    const [state, setState] = useState<HeadlessState>(initialState)
-    const { storyId, data, errors, options } = state
-    const { graphql, restful } = options
+    const [state, setStorageState] = useStorageState<HeadlessState>(
+        sessionStorage,
+        STORAGE_KEY,
+        initialState,
+    )
     const emit = useChannel({
-        [EVENT_INITIALIZED]: (opts: HeadlessOptions, id: string) => {
-            setState({
-                ...state,
-                storyId: id,
+        [EVENT_INITIALIZED]: ({ storyId, options }: InitializeMessage) => {
+            setState((prev) => ({
+                storyId,
                 options: {
+                    ...prev.options,
                     ...options,
-                    ...opts,
                 },
-            })
+            }))
+        },
+        [EVENT_REQUESTED_ADDON]: () => {
+            const storyId = api.getCurrentStoryData()?.id
 
-            emit(EVENT_DATA_UPDATED, {
-                ...data,
-            })
+            if (storyId) {
+                api.navigateUrl(generateUrl(`/${ADDON_ID}/${storyId}`), {})
+            }
+        },
+        [EVENT_REQUESTED_STORY]: () => {
+            const storyId = api.getCurrentStoryData()?.id
+
+            if (storyId) {
+                api.selectStory(storyId)
+            }
         },
     })
-    const resetData = useCallback(
-        (name: string) => {
-            setState({
-                ...state,
-                data: {
-                    ...data,
-                    [name]: null,
-                },
-                errors: {
-                    ...errors,
-                    [name]: null,
-                },
-            })
 
-            emit(EVENT_DATA_UPDATED, {
-                ...data,
-                [name]: null,
-            })
-        },
-        [state],
-    )
-    const setData = useCallback(
-        (name: string, updated: unknown) => {
-            setState({
-                ...state,
-                data: {
-                    ...data,
-                    [name]: updated,
-                },
-                errors: {
-                    ...errors,
-                    [name]: null,
-                },
-            })
-
-            emit(EVENT_DATA_UPDATED, {
-                ...data,
-                [name]: updated,
-            })
-        },
-        [state],
-    )
-    const setError = useCallback(
-        (name: string, error: Error) => {
-            setState({
-                ...state,
-                data: {
-                    ...data,
-                    [name]: null,
-                },
-                errors: {
-                    ...errors,
-                    [name]: errorToJSON(error),
-                },
-            })
-        },
-        [state],
-    )
-    const fetch = useCallback(
-        async (
-            name: string,
-            apiParameters: ApiParameters,
-            variables: Record<string, unknown>,
-        ): Promise<unknown> => {
-            if (
-                isGraphQLParameters(apiParameters) ||
-                isRestfulParameters(apiParameters)
-            ) {
-                resetData(name)
+    function setState(
+        update:
+            | Partial<HeadlessState>
+            | ((prev: HeadlessState) => Partial<HeadlessState>),
+    ): void {
+        setStorageState((prev) => {
+            const next: HeadlessState = {
+                ...prev,
+                ...(isFunction(update) ? update(prev) : update),
             }
+            const { status, data, errors } = next
 
-            try {
-                const response = await (isGraphQLParameters(apiParameters)
-                    ? fetchViaGraphQL(graphql, apiParameters, variables)
-                    : isRestfulParameters(apiParameters)
-                    ? fetchViaRestful(restful, apiParameters, variables)
-                    : Promise.reject(
-                          new Error('Invalid config, skipping fetch'),
-                      ))
+            notify({
+                status,
+                data,
+                errors,
+            })
 
-                setData(name, response)
+            return next
+        })
+    }
 
-                return response
-            } catch (error) {
-                setError(name, error)
+    function notify(message: UpdateMessage): void {
+        emit(EVENT_DATA_UPDATED, message)
+    }
 
-                return error
-            }
-        },
-        [graphql, restful, resetData, setData, setError],
-    )
-    const update = useCallback(
-        (name: string, { updated_src }: InteractionProps) => {
-            setData(name, updated_src)
-        },
-        [setData],
-    )
+    function update(
+        name: string,
+        status: FetchStatus,
+        data: unknown,
+        error: Record<string, unknown> | null,
+    ): void {
+        setState((prev) => ({
+            status: {
+                ...prev.status,
+                [name]: status,
+            },
+            data: {
+                ...prev.data,
+                [name]: data,
+            },
+            errors: {
+                ...prev.errors,
+                [name]: error,
+            },
+        }))
+    }
 
-    if (storyId === api.getCurrentStoryData()?.id) {
+    async function fetch(
+        name: string,
+        apiParameters: ApiParameters,
+        variables: Record<string, unknown>,
+    ): Promise<void> {
+        if (
+            isGraphQLParameters(apiParameters) ||
+            isRestfulParameters(apiParameters)
+        ) {
+            update(name, FetchStatus.Loading, null, null)
+        }
+
+        try {
+            const response = await (isGraphQLParameters(apiParameters)
+                ? fetchViaGraphQL(
+                      state.options.graphql,
+                      apiParameters,
+                      variables,
+                  )
+                : isRestfulParameters(apiParameters)
+                ? fetchViaRestful(
+                      state.options.restful,
+                      apiParameters,
+                      variables,
+                  )
+                : Promise.reject(new Error('Invalid config, skipping fetch')))
+
+            update(name, FetchStatus.Resolved, response, null)
+        } catch (error) {
+            update(name, FetchStatus.Resolved, null, errorToJSON(error))
+        }
+    }
+
+    function updateData(name: string, { updated_src }: InteractionProps): void {
+        update(name, FetchStatus.Resolved, updated_src, null)
+    }
+
+    if (state.storyId === api.getCurrentStoryData()?.id) {
         return (
             <ThemeProvider theme={{ active }}>
                 <Root>
@@ -167,15 +181,17 @@ export const Panel = memo(({ active }: Props) => {
                                 ([name, parameter]) => (
                                     // Must exist here (not inside of Tab) with these attributes for TabsState to function
                                     <div id={name} key={name} title={name}>
-                                        <Tab
-                                            name={name}
-                                            data={data[name]}
-                                            error={errors[name]}
-                                            options={options}
-                                            parameter={parameter}
-                                            onFetch={fetch}
-                                            onUpdate={update}
-                                        />
+                                        <ErrorBoundary>
+                                            <Tab
+                                                name={name}
+                                                data={state.data[name]}
+                                                error={state.errors[name]}
+                                                options={state.options}
+                                                parameter={parameter}
+                                                onFetch={fetch}
+                                                onUpdate={updateData}
+                                            />
+                                        </ErrorBoundary>
                                     </div>
                                 ),
                             )}

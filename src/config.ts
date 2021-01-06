@@ -5,3 +5,6 @@ export const PARAM_KEY = ADDON_ID
 export const DECORATOR_NAME = `with${PANEL_TITLE}`
 export const EVENT_INITIALIZED = `${ADDON_ID}/event/initialized`
 export const EVENT_DATA_UPDATED = `${ADDON_ID}/event/data-updated`
+export const EVENT_REQUESTED_ADDON = `${ADDON_ID}/event/requested-addon`
+export const EVENT_REQUESTED_STORY = `${ADDON_ID}/event/requested-story`
+export const STORAGE_KEY = '@storybook/addon-headless/state'

@@ -1,6 +1,6 @@
 import { Theme, useTheme } from '@storybook/theming'
-import React, { memo, useCallback } from 'react'
-import Json, { InteractionProps } from 'react-json-view'
+import React, { ComponentType, memo, useEffect, useMemo, useState } from 'react'
+import type { InteractionProps, ReactJsonViewProps } from 'react-json-view'
 
 import type {
     ApiParameters,
@@ -15,6 +15,7 @@ import {
     isGraphQLParameters,
     isString,
 } from '../../utilities'
+import { BrowserOnly } from '../BrowserOnly'
 import { Message } from '../Message'
 import { Variables } from '../Variables'
 import { Separator, TabContent } from './styled'
@@ -44,21 +45,37 @@ export const Tab = memo(
         onUpdate,
     }: Props) => {
         const theme = useTheme<Theme>()
+        const parameters = useMemo(
+            () =>
+                isString(parameter) || isDocumentNode(parameter)
+                    ? ({ query: parameter } as ApiParameters)
+                    : parameter,
+            [parameter],
+        )
+        const [
+            Json,
+            setJson,
+        ] = useState<ComponentType<ReactJsonViewProps> | null>(null)
         const hasData = !!data
         const hasError = !!error
-        const parameters =
-            isString(parameter) || isDocumentNode(parameter)
-                ? ({ query: parameter } as ApiParameters)
-                : parameter
-        const fetch = useCallback(
-            async (variables: Record<string, unknown>) =>
-                await onFetch(name, parameters, variables),
-            [name, parameters, onFetch],
-        )
-        const update = useCallback(
-            (props: InteractionProps) => onUpdate(name, props),
-            [name, onUpdate],
-        )
+
+        async function fetch(
+            variables: Record<string, unknown>,
+        ): Promise<void> {
+            await onFetch(name, parameters, variables)
+        }
+
+        function update(props: InteractionProps): void {
+            onUpdate(name, props)
+        }
+
+        useEffect(() => {
+            void (async () => {
+                const lib = await import('react-json-view')
+
+                setJson(() => lib.default)
+            })()
+        }, [])
 
         return (
             <TabContent>
@@ -76,21 +93,29 @@ export const Tab = memo(
                 {(hasData || hasError) && (
                     <>
                         <Separator />
-                        <Json
-                            src={(data as ObjectLike) ?? error}
-                            name={null}
-                            iconStyle="square"
-                            theme={
-                                theme.base === 'light' ? jsonLight : jsonDark
+                        <BrowserOnly>
+                            {() =>
+                                !!Json && (
+                                    <Json
+                                        src={(data as ObjectLike) ?? error}
+                                        name={null}
+                                        iconStyle="square"
+                                        theme={
+                                            theme.base === 'light'
+                                                ? jsonLight
+                                                : jsonDark
+                                        }
+                                        collapsed={hasError ? 1 : false}
+                                        displayObjectSize={false}
+                                        displayDataTypes={false}
+                                        enableClipboard={hasData}
+                                        onAdd={update}
+                                        onDelete={update}
+                                        onEdit={update}
+                                    />
+                                )
                             }
-                            collapsed={hasError ? 1 : false}
-                            displayObjectSize={false}
-                            displayDataTypes={false}
-                            enableClipboard={hasData}
-                            onAdd={update}
-                            onDelete={update}
-                            onEdit={update}
-                        />
+                        </BrowserOnly>
                     </>
                 )}
             </TabContent>

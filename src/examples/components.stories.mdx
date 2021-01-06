@@ -1,0 +1,76 @@
+import { DocsContainer, DocsPage, Meta } from '@storybook/addon-docs/blocks'
+
+<Meta
+    title="Components"
+    parameters={{
+        viewMode: 'story',
+        docs: {
+            container: DocsContainer,
+            page: DocsPage,
+        },
+    }}
+/>
+
+# Components
+
+To help provide a better user experience, there are Prompt and Loader helper components provided.
+
+These components are entirely optional, but will help to direct users to the Headless tab if necessary and provide feedback about the state of active API requests.
+
+Example:
+
+```js
+import React, { ReactElement } from 'react'
+import { Args } from '@storybook/addons'
+import {
+    FetchStatus,
+    HeadlessSotryContext,
+    Loader,
+    Prompt,
+} from 'storybook-addon-headless'
+
+import { Component } from './Component'
+
+export const story = (
+    args: Args,
+    { status, data }: HeadlessStoryContext,
+): ReactElement | null => {
+    switch (status?.Foo) {
+        case FetchStatus.Inactive:
+        case FetchStatus.Rejected:
+            return <Prompt />
+
+        case FetchStatus.Loading:
+            return <Loader />
+
+        default:
+            return data?.Foo ? <Component {...data.Foo} /> : null
+    }
+}
+```
+
+Feel free to pass in custom a `headline` and/or `message` to the `Prompt` to make it more specific to your story or to the status of the API call.
+
+**Experimental** _(read: untested)_:
+
+There are also two methods for those of you not using React, but wanting to use these helper components. `useHeadlessPrompt` and `useHeadlessLoader` will render the React components as standalone apps, but you must provide an HTML element reference that has been rendered and mounted by your framework of choice.
+
+Theoretically:
+
+```js
+import { useHeadlessLoader } from 'storybook-addon-headless'
+
+export const story = () => {
+    let ref
+
+    onMount(() => {
+        useHeadlessLoader(ref)
+    })
+
+    return <div bind:this={ref} />
+}
+```
+
+This will vary depending on how Storybook supports your framework, how stories are written, as well as on how your framework handles DOM element references.
+
+My apologies if this doesn't work our for your particular use case.

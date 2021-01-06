@@ -1,21 +1,44 @@
-import { ValidateFunction } from 'ajv'
+import type { StoryContext } from '@storybook/addons'
+import type { AnyValidateFunction } from 'ajv/lib/types'
 
-import { VariableType } from './generic'
-import { HeadlessOptions } from './options'
-import { Schema } from './schemas'
+import type { HeadlessOptions } from './options'
+import type { AnySchema } from './schemas'
 
-export interface HeadlessState {
+export enum FetchStatus {
+    Inactive = 'INACTIVE',
+    Loading = 'LOADING',
+    Rejected = 'REJECTED',
+    Resolved = 'RESOLVED',
+}
+
+export enum VariableType {
+    Unknown = 'UNKNOWN',
+    Boolean = 'BOOLEAN',
+    Date = 'DATE',
+    Number = 'NUMBER',
+    Select = 'SELECT',
+    String = 'STRING',
+}
+
+export interface HeadlessState<
+    T extends Record<string, unknown> = Record<string, unknown>
+> {
     storyId: string
     options: Required<HeadlessOptions>
-    data: Record<string, unknown>
+    status: Record<string, FetchStatus>
+    data: T
     errors: Record<string, Record<string, unknown>>
 }
 
 export interface VariableState {
-    schema: Schema
+    schema: AnySchema
     type: VariableType
-    validator: ValidateFunction
+    validator: AnyValidateFunction
     dirty: boolean
     error: string | null
     value: unknown
 }
+
+export type HeadlessStoryContext<
+    T extends Record<string, unknown> = Record<string, unknown>
+> = StoryContext & Pick<HeadlessState<T>, 'status' | 'data' | 'errors'>

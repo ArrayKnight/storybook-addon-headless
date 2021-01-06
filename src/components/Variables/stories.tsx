@@ -83,6 +83,4 @@ export const VariablesStory = (): ReactElement => {
     )
 }
 
-VariablesStory.story = {
-    name: 'Parameters',
-}
+VariablesStory.storyName = 'Parameters'

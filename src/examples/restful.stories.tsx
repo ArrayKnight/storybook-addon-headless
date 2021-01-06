@@ -1,7 +1,13 @@
-import { Args, StoryContext } from '@storybook/addons'
+import { Args } from '@storybook/addons'
 import React, { ReactElement } from 'react'
 
-import { withHeadless } from '../../dist'
+import {
+    FetchStatus,
+    HeadlessStoryContext,
+    Loader,
+    Prompt,
+    withHeadless,
+} from '../../dist'
 
 import { User as UserCard, UserProps } from '.'
 
@@ -35,37 +41,43 @@ export default {
 
 export const Users = (
     args: Args,
-    { data }: StoryContext,
+    { status, data }: HeadlessStoryContext<{ Users?: UserProps[] }>,
 ): ReactElement | null => {
-    const payload = data as { Users?: UserProps[] } | undefined
+    switch (status?.Users) {
+        case FetchStatus.Inactive:
+        case FetchStatus.Rejected:
+            return <Prompt />
 
-    if (Array.isArray(payload?.Users)) {
-        return (
-            <>
-                {payload.Users.map((user: UserProps) => (
-                    <UserCard key={user.id} {...user} />
-                ))}
-            </>
-        )
+        case FetchStatus.Loading:
+            return <Loader />
+
+        default:
+            return Array.isArray(data?.Users) ? (
+                <>
+                    {data.Users.map((user) => (
+                        <UserCard key={user.id} {...user} />
+                    ))}
+                </>
+            ) : null
     }
-
-    return null
 }
 
 export const User = (
     args: Args,
-    { data }: StoryContext,
+    {
+        status,
+        data,
+    }: HeadlessStoryContext<{ Users?: UserProps[]; User?: UserProps }>,
 ): ReactElement | null => {
-    const payload = data as
-        | { Users?: UserProps[]; User?: UserProps }
-        | undefined
+    switch (status?.User) {
+        case FetchStatus.Inactive:
+        case FetchStatus.Rejected:
+            return <Prompt />
 
-    if (
-        payload?.User ||
-        (Array.isArray(payload?.Users) && payload?.Users?.length)
-    ) {
-        return <UserCard {...(payload.User || payload.Users[0])} />
+        case FetchStatus.Loading:
+            return <Loader />
+
+        default:
+            return data?.User ? <UserCard {...data.User} /> : null
     }
-
-    return null
 }

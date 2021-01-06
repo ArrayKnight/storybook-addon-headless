@@ -1,8 +1,15 @@
 import { gql } from '@apollo/client'
-import { Args, StoryContext } from '@storybook/addons'
+import { Args } from '@storybook/addons'
 import React, { ReactElement } from 'react'
 
-import { pack, withHeadless } from '../../dist'
+import {
+    FetchStatus,
+    HeadlessStoryContext,
+    Loader,
+    pack,
+    Prompt,
+    withHeadless,
+} from '../../dist'
 
 import {
     Artwork as ArtworkCard,
@@ -80,52 +87,58 @@ export default {
     },
 }
 
-interface Artworks {
-    artworks?: ArtworkProps[]
-}
-
 export const Artworks = (
     args: Args,
-    { data }: StoryContext,
+    {
+        status,
+        data,
+    }: HeadlessStoryContext<{ Artworks?: { artworks?: ArtworkProps[] } }>,
 ): ReactElement | null => {
-    const payload = data as { Artworks?: Artworks } | undefined
+    switch (status?.Artworks) {
+        case FetchStatus.Inactive:
+        case FetchStatus.Rejected:
+            return <Prompt />
 
-    if (payload?.Artworks && Array.isArray(payload?.Artworks?.artworks)) {
-        return (
-            <>
-                {payload?.Artworks?.artworks.map(
-                    (artwork: ArtworkProps, index: number) => (
+        case FetchStatus.Loading:
+            return <Loader />
+
+        default:
+            return Array.isArray(data?.Artworks?.artworks) ? (
+                <>
+                    {data.Artworks.artworks.map((artwork, index) => (
                         <ArtworkCard key={index} {...artwork} />
-                    ),
-                )}
-            </>
-        )
+                    ))}
+                </>
+            ) : null
     }
-
-    return null
-}
-
-interface Shows {
-    partner_shows?: ShowProps[]
 }
 
 export const Shows = (
     args: Args,
-    { data }: StoryContext,
+    {
+        status,
+        data,
+    }: HeadlessStoryContext<{
+        Shows?: {
+            partner_shows?: ShowProps[]
+        }
+    }>,
 ): ReactElement | null => {
-    const payload = data as { Shows?: Shows } | undefined
+    switch (status?.Shows) {
+        case FetchStatus.Inactive:
+        case FetchStatus.Rejected:
+            return <Prompt />
 
-    if (payload?.Shows && Array.isArray(payload?.Shows?.partner_shows)) {
-        return (
-            <>
-                {payload?.Shows?.partner_shows.map(
-                    (show: ShowProps, index: number) => (
+        case FetchStatus.Loading:
+            return <Loader />
+
+        default:
+            return Array.isArray(data?.Shows?.partner_shows) ? (
+                <>
+                    {data.Shows.partner_shows.map((show, index) => (
                         <ShowCard key={index} {...show} />
-                    ),
-                )}
-            </>
-        )
+                    ))}
+                </>
+            ) : null
     }
-
-    return null
 }

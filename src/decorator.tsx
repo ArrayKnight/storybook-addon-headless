@@ -16,10 +16,13 @@ import {
     EVENT_INITIALIZED,
     PARAM_KEY,
 } from './config'
-import type {
+import {
+    FetchStatus,
     HeadlessOptions,
     HeadlessParameters,
-    HeadlessState,
+    HeadlessStoryContext,
+    InitializeMessage,
+    UpdateMessage,
 } from './types'
 
 interface Props {
@@ -30,51 +33,66 @@ interface Props {
     storyFn: (context: StoryContext) => ReactElement
 }
 
+export function createFilteredRecord<T extends unknown>(
+    keys: string[],
+    values: Record<string, T>,
+    defaultValue: T,
+): Record<string, T> {
+    return keys.reduce(
+        (acc, key) => ({ ...acc, [key]: values[key] ?? defaultValue }),
+        {},
+    )
+}
+
 export const Decorator = memo(
     ({ channel, context, parameters, storyFn }: Props): ReactElement => {
-        const [state, setState] = useState({
-            data: Object.keys(parameters).reduce(
-                (obj, key) => ({ ...obj, [key]: null }),
-                {},
-            ),
-            received: false,
+        const keys = Object.keys(parameters)
+        const [state, setState] = useState<UpdateMessage>({
+            status: createFilteredRecord(keys, {}, FetchStatus.Inactive),
+            data: createFilteredRecord(keys, {}, null),
+            errors: createFilteredRecord(keys, {}, null),
         })
+        const [connected, setConnected] = useState(false)
+        const ctx: HeadlessStoryContext = {
+            ...context,
+            status: createFilteredRecord(
+                keys,
+                state.status,
+                FetchStatus.Inactive,
+            ),
+            data: createFilteredRecord(keys, state.data, null),
+            errors: createFilteredRecord(keys, state.errors, null),
+        }
 
-        function setData(data: HeadlessState['data']): void {
-            setState({
-                data: {
-                    ...state.data,
-                    ...data,
-                },
-                received: true,
-            })
+        function update(message: UpdateMessage): void {
+            setState(message)
+            setConnected(true)
         }
 
         useEffect(() => {
-            channel.on(EVENT_DATA_UPDATED, setData)
+            channel.on(EVENT_DATA_UPDATED, update)
 
-            return () => channel.off(EVENT_DATA_UPDATED, setData)
+            return () => channel.off(EVENT_DATA_UPDATED, update)
         })
 
-        return state.received
-            ? storyFn({
-                  ...context,
-                  data: state.data,
-              })
-            : null
+        return connected ? storyFn(ctx) : null
     },
 )
 
 Decorator.displayName = 'Decorator'
 
-export function wrapper(
+export function Wrapper(
     storyFn: StoryGetter,
     context: StoryContext,
     { options, parameters }: WrapperSettings,
 ): ReactElement {
     const channel = addons.getChannel()
+    const message: InitializeMessage = {
+        storyId: context.id,
+        options: options as HeadlessOptions & OptionsParameter,
+    }
 
-    channel.emit(EVENT_INITIALIZED, options, context.id)
+    channel.emit(EVENT_INITIALIZED, message)
 
     return (
         <Decorator
@@ -93,5 +111,5 @@ export const withHeadless: (
     name: DECORATOR_NAME,
     parameterName: PARAM_KEY,
     skipIfNoParametersOrOptions: true,
-    wrapper,
+    wrapper: Wrapper,
 })

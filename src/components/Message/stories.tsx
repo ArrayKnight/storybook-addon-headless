@@ -24,3 +24,5 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis vel tortor ac elit
         </Message>
     )
 }
+
+MessageStory.storyName = 'Message'

@@ -3,19 +3,25 @@ import React, { memo } from 'react'
 import { Row } from './styled'
 import type { Props as VariableProps } from '.'
 
-interface Props extends Omit<VariableProps, 'name'> {
+export interface Props extends Omit<VariableProps, 'name' | 'type'> {
     isValid: boolean
 }
 
+export const TEST_IDS = Object.freeze({
+    root: 'UnknownVariableRoot',
+})
+
+export const MESSAGE = 'Unknown variable type'
+
 export const UnknownInput = memo(({ schema, value }: Props) => {
-    console.warn(`Unknown variable type. Props received: `, {
+    console.warn(MESSAGE, {
         schema,
         value,
     })
 
     return (
-        <Row>
-            <span>Unknown variable type</span>
+        <Row data-testid={TEST_IDS.root}>
+            <span>{MESSAGE}</span>
         </Row>
     )
 })

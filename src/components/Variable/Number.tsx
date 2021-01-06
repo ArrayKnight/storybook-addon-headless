@@ -1,5 +1,5 @@
 import { Form } from '@storybook/components'
-import React, { ChangeEvent, memo, useCallback } from 'react'
+import React, { ChangeEvent, memo } from 'react'
 
 import type { NumberSchema } from '../../types'
 import { isUndefined } from '../../utilities'
@@ -13,24 +13,30 @@ export interface Props {
     onChange: (value: number) => void
 }
 
+export const TEST_IDS = Object.freeze({
+    root: 'NumberVariableRoot',
+    input: 'NumberVariableInput',
+    error: 'NumberVariableError',
+})
+
 export const NumberInput = memo(
     ({ value, error, isValid, onChange }: Props) => {
-        const update = useCallback(
-            (event: ChangeEvent<HTMLInputElement>) => {
-                onChange(parseFloat(event.target.value))
-            },
-            [onChange],
-        )
+        function update(event: ChangeEvent<HTMLInputElement>): void {
+            onChange(parseFloat(event.target.value))
+        }
 
         return (
-            <Row>
+            <Row data-testid={TEST_IDS.root}>
                 <Form.Input
                     type="number"
                     valid={!isValid ? 'error' : null}
                     value={isUndefined(value) ? '' : `${value}`}
                     onChange={update}
+                    data-testid={TEST_IDS.input}
                 />
-                {!isValid && <Error>{error}</Error>}
+                {!isValid && error && (
+                    <Error data-testid={TEST_IDS.error}>{error}</Error>
+                )}
             </Row>
         )
     },

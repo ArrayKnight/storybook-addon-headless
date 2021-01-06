@@ -35,14 +35,14 @@ npm install --save-dev storybook-addon-headless
 Then, configure it as an addon by adding it to your `addons.js` file (located in the Storybook config directory).
 
 ```js
-import 'storybook-addon-headless/register'
+import 'storybook-addon-headless'
 ```
 
 Or to the `addons` parameter in your `main.js` file (located in the Storybook config directory).
 
 ```js
 module.exports = {
-    addons: ['storybook-addon-headless/register'],
+    addons: ['storybook-addon-headless'],
     ...,
 }
 ```
@@ -116,7 +116,19 @@ You can find parameters document as [HeadlessParameters](https://github.com/Arra
 -   `GraphQLParameters`: [An object](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types/parameters.ts) with a `PackedDocumentNode` as a query and some optional parameters
 -   `RestfulParameters`: [An object](https://github.com/ArrayKnight/storybook-addon-headless/blob/master/src/types/parameters.ts) with a Restful URL string as a query and some optional parameters
 
-Due to an [issue within Storybook](https://github.com/storybookjs/storybook/issues/9534) where data is stringified with a maxDepth, there is data loss on ordinary GraphQL Tag `DocumentNode`s. To bypass this issue until it can be resolved, this addon exports a `pack` function which preemptively flattens the `DocumentNode` to avoid data loss.
+Due to the way a `DocumentNode` is converted to JSON, to maintain the original source query use the `pack` utility method.
+
+#### [Components](https://storybook-addon-headless.netlify.com/?path=/story/components--page)
+
+To help provide a better user experience, there are Prompt and Loader helper components provided.
+
+These components are entirely optional, but will help to direct users to the Headless tab if necessary and provide feedback about the state of active API requests.
+
+You can find basic usage in the [examples](https://github.com/ArrayKnight/storybook-addon-headless/tree/master/src/examples).
+
+**Experimental** _(read: untested)_:
+
+There are also two methods for those of you not using React, but wanting to use these helper components. `useHeadlessPrompt` and `useHeadlessLoader` will render the React components as standalone apps, but you must provide an HTML element reference that has been rendered and mounted by your framework of choice.
 
 ### Produced @ [GenUI](https://www.genui.com/)
 
