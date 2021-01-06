@@ -84,7 +84,7 @@ Decorator.displayName = 'Decorator'
 export function Wrapper(
     storyFn: StoryGetter,
     context: StoryContext,
-    { options, parameters }: WrapperSettings,
+    { options, parameters = {} }: WrapperSettings,
 ): ReactElement {
     const channel = addons.getChannel()
     const message: InitializeMessage = {
