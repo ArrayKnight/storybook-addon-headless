@@ -1,8 +1,8 @@
 import type { StoryContext } from '@storybook/addons'
-import type { ValidateFunction } from 'ajv'
+import type { AnyValidateFunction } from 'ajv/lib/types'
 
 import type { HeadlessOptions } from './options'
-import type { Schema } from './schemas'
+import type { AnySchema } from './schemas'
 
 export enum FetchStatus {
     Inactive = 'INACTIVE',
@@ -31,9 +31,9 @@ export interface HeadlessState<
 }
 
 export interface VariableState {
-    schema: Schema
+    schema: AnySchema
     type: VariableType
-    validator: ValidateFunction
+    validator: AnyValidateFunction
     dirty: boolean
     error: string | null
     value: unknown

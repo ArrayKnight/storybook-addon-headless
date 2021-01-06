@@ -2,7 +2,7 @@ import { Form } from '@storybook/components'
 import { noCase } from 'change-case'
 import React, { memo, useCallback } from 'react'
 
-import { Schema, VariableType } from '../../types'
+import { AnySchema, VariableType } from '../../types'
 import { isNull, noopTransform } from '../../utilities'
 import { BooleanInput } from './Boolean'
 import { DateTimeInput } from './Date'
@@ -13,7 +13,7 @@ import { UnknownInput } from './Unknown'
 
 export interface Props {
     name: string
-    schema: Schema
+    schema: AnySchema
     type: VariableType
     value: unknown
     error: string | null

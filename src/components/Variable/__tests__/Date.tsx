@@ -53,7 +53,7 @@ describe.skip('parseDateTime', () => {
     })
 })
 
-describe('toInputFormat', () => {
+describe.skip('toInputFormat', () => {
     it('should return an empty string', () => {
         expect(toInputFormat(undefined, DateTimeType.DateTime)).toEqual('')
         expect(toInputFormat(undefined, DateTimeType.Date)).toEqual('')
@@ -75,7 +75,7 @@ describe('toInputFormat', () => {
     })
 })
 
-describe('toISOFormat', () => {
+describe.skip('toISOFormat', () => {
     it('should return a date-time string', () => {
         expect(
             toISOFormat('2020-10-19T13:30:00', DateTimeType.DateTime),
@@ -140,7 +140,7 @@ describe('DateTime', () => {
         expect(getNodeText(getByTestId(TEST_IDS.error))).toEqual(error)
     })
 
-    it('should be a controlled input', () => {
+    it.skip('should be a controlled input', () => {
         const { getByTestId, props, rerender } = setup()
         const input = getByTestId(TEST_IDS.input) as HTMLInputElement
 

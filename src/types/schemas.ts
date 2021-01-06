@@ -1,26 +1,25 @@
-export interface Schema extends Object {
-    type: string | string[]
-    [key: string]: unknown
-}
+import { AsyncSchema, SchemaObject } from 'ajv'
 
-export interface BooleanSchema extends Schema {
+export type AnySchema = AsyncSchema | SchemaObject
+
+export type BooleanSchema = AnySchema & {
     type: 'boolean'
 }
 
-export interface DateTimeSchema extends Schema {
+export type DateTimeSchema = AnySchema & {
     type: 'string'
     format: 'date' | 'date-time' | 'time'
 }
 
-export interface NumberSchema extends Schema {
+export type NumberSchema = AnySchema & {
     type: 'number' | 'integer'
 }
 
-export interface SelectSchema extends Schema {
+export type SelectSchema = AnySchema & {
     enum: unknown[]
 }
 
-export interface StringSchema extends Schema {
+export type StringSchema = AnySchema & {
     type: 'string'
 }
 

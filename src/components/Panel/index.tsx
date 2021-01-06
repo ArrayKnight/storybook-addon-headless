@@ -31,6 +31,7 @@ import {
     isFunction,
     generateUrl,
 } from '../../utilities'
+import { ErrorBoundary } from '../ErrorBoundary'
 import { Tab } from './Tab'
 import { Content, Root } from './styled'
 
@@ -180,15 +181,17 @@ export const Panel = memo(({ active }: Props) => {
                                 ([name, parameter]) => (
                                     // Must exist here (not inside of Tab) with these attributes for TabsState to function
                                     <div id={name} key={name} title={name}>
-                                        <Tab
-                                            name={name}
-                                            data={state.data[name]}
-                                            error={state.errors[name]}
-                                            options={state.options}
-                                            parameter={parameter}
-                                            onFetch={fetch}
-                                            onUpdate={updateData}
-                                        />
+                                        <ErrorBoundary>
+                                            <Tab
+                                                name={name}
+                                                data={state.data[name]}
+                                                error={state.errors[name]}
+                                                options={state.options}
+                                                parameter={parameter}
+                                                onFetch={fetch}
+                                                onUpdate={updateData}
+                                            />
+                                        </ErrorBoundary>
                                     </div>
                                 ),
                             )}

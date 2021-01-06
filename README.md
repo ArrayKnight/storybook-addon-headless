@@ -35,14 +35,14 @@ npm install --save-dev storybook-addon-headless
 Then, configure it as an addon by adding it to your `addons.js` file (located in the Storybook config directory).
 
 ```js
-import 'storybook-addon-headless/register'
+import 'storybook-addon-headless'
 ```
 
 Or to the `addons` parameter in your `main.js` file (located in the Storybook config directory).
 
 ```js
 module.exports = {
-    addons: ['storybook-addon-headless/register'],
+    addons: ['storybook-addon-headless'],
     ...,
 }
 ```

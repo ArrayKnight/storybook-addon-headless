@@ -37,13 +37,15 @@ export const Prompt = memo(
             </p>
         ),
     }: Props): ReactElement => {
+        const theme = convert(themes.normal)
+
         function emit(): void {
             addons.getChannel().emit(EVENT_REQUESTED_ADDON)
         }
 
         return (
-            <ThemeProvider theme={convert(themes.normal)}>
-                <Global styles={createReset} />
+            <ThemeProvider theme={theme}>
+                <Global styles={createReset(theme)} />
                 <Global styles={`body {padding: 0 !important;}`} />
                 <Root data-testid={TEST_IDS.root}>
                     <Content>

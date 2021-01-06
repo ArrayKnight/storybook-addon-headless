@@ -8,9 +8,13 @@ import {
 } from '@storybook/theming'
 import React from 'react'
 
-addDecorator((storyFn) => (
-    <ThemeProvider theme={convert(themes.normal)}>
-        <Global styles={createReset} />
-        {storyFn()}
-    </ThemeProvider>
-))
+addDecorator((storyFn) => {
+    const theme = convert(themes.normal)
+
+    return (
+        <ThemeProvider theme={theme}>
+            <Global styles={createReset(theme)} />
+            {storyFn()}
+        </ThemeProvider>
+    )
+})

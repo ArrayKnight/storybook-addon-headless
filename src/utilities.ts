@@ -1,5 +1,6 @@
 import { ApolloClient, DocumentNode, InMemoryCache } from '@apollo/client'
 import Ajv from 'ajv'
+import addFormats from 'ajv-formats'
 import defineKeywords from 'ajv-keywords'
 import axios, { AxiosPromise } from 'axios'
 import { sentenceCase } from 'change-case'
@@ -7,6 +8,7 @@ import qs from 'qs'
 import { useEffect, useState } from 'react'
 
 import {
+    AnySchema,
     BaseParameters,
     BooleanSchema,
     DateTimeSchema,
@@ -20,7 +22,6 @@ import {
     RestfulOptions,
     RestfulOptionsTypes,
     RestfulParameters,
-    Schema,
     SelectSchema,
     StringSchema,
     VariableType,
@@ -28,6 +29,7 @@ import {
 
 export const ajv = new Ajv({ $data: true })
 
+addFormats(ajv)
 defineKeywords(ajv)
 
 export function convertToItem(value: unknown): Item {
@@ -170,7 +172,7 @@ export function getRestfulUrl(
     return `${base}${path}`
 }
 
-export function getVariableType(schema: Schema): VariableType {
+export function getVariableType(schema: AnySchema): VariableType {
     switch (true) {
         case isBooleanSchema(schema):
             return VariableType.Boolean
@@ -215,12 +217,12 @@ export function isBoolean(value: unknown): value is boolean {
 }
 
 export function isBooleanSchema(value: unknown): value is BooleanSchema {
-    return isObject<Schema>(value) && value.type === 'boolean'
+    return isObject<AnySchema>(value) && value.type === 'boolean'
 }
 
 export function isDateTimeSchema(value: unknown): value is DateTimeSchema {
     return (
-        isObject<Schema>(value) &&
+        isObject<AnySchema>(value) &&
         (value.format === 'date' ||
             value.format === 'date-time' ||
             value.format === 'time')
@@ -304,7 +306,7 @@ export function isNumber(value: unknown): value is number {
 
 export function isNumberSchema(value: unknown): value is NumberSchema {
     return (
-        isObject<Schema>(value) &&
+        isObject<AnySchema>(value) &&
         (value.type === 'integer' || value.type === 'number')
     )
 }
@@ -357,7 +359,9 @@ export function isRestfulParameters(
 
 export function isSelectSchema(value: unknown): value is SelectSchema {
     return (
-        isObject<Schema>(value) && isArray(value.enum) && value.enum.length > 1
+        isObject<AnySchema>(value) &&
+        isArray(value.enum) &&
+        value.enum.length > 1
     )
 }
 
@@ -366,7 +370,7 @@ export function isString(value: unknown): value is string {
 }
 
 export function isStringSchema(value: unknown): value is StringSchema {
-    return isObject<Schema>(value) && value.type === 'string'
+    return isObject<AnySchema>(value) && value.type === 'string'
 }
 
 export function isUndefined(value: unknown): value is undefined {

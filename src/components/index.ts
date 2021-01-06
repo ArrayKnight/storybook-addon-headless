@@ -1,3 +1,5 @@
+export { BrowserOnly } from './BrowserOnly'
+export { ErrorBoundary } from './ErrorBoundary'
 export { Loader, useHeadlessLoader } from './Loader'
 export { Message } from './Message'
 export { Panel } from './Panel'

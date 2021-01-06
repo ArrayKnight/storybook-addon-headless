@@ -1,7 +1,7 @@
 import { addons, RenderOptions, types } from '@storybook/addons'
 import React, { ReactElement } from 'react'
 
-import { Panel } from './components'
+import { ErrorBoundary, Panel } from './components'
 import {
     ADDON_ID,
     PANEL_ID,
@@ -14,7 +14,11 @@ import { useImmediateEffect } from './utilities'
 export function Render(props: RenderOptions): ReactElement {
     useImmediateEffect(() => sessionStorage.removeItem(STORAGE_KEY))
 
-    return <Panel {...props} />
+    return (
+        <ErrorBoundary>
+            <Panel {...props} />
+        </ErrorBoundary>
+    )
 }
 
 addons.register(ADDON_ID, () => {

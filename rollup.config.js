@@ -8,10 +8,13 @@ const external = [
 ]
 const options = {
     clean: true,
+    tsconfigOverride: {
+        exclude: ['**/__tests__/**', '**/test.tsx', '**/stories.tsx'],
+    },
     typescript: require('typescript'),
 }
 const output = {
-    format: 'esm',
+    format: 'cjs',
     preferConst: true,
 }
 
@@ -35,7 +38,10 @@ export default [
         plugins: [
             typescript({
                 ...options,
-                tsconfigOverride: { compilerOptions: { declaration: false } },
+                tsconfigOverride: {
+                    ...options.tsconfigOverride,
+                    compilerOptions: { declaration: false },
+                },
             }),
         ],
     },
