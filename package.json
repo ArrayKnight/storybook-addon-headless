@@ -135,6 +135,13 @@
         "headless",
         "headless-cms",
         "rest",
-        "graphql"
-    ]
+        "graphql",
+        "data-state"
+    ],
+    "storybook": {
+        "displayName": "Headless",
+        "supportedFrameworks": [
+            "react"
+        ]
+    }
 }
