@@ -139,9 +139,10 @@
         "data-state"
     ],
     "storybook": {
-        "displayName": "Headless",
+        "displayName": "Headless Storybook",
         "supportedFrameworks": [
             "react"
-        ]
+        ],
+        "icon": "https://image.flaticon.com/icons/png/512/603/603197.png?w=1800"
     }
 }
