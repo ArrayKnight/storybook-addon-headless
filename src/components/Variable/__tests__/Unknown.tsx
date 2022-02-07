@@ -40,11 +40,11 @@ describe('Unknown', () => {
         mockConsole()
 
         const {
-            queryByTestId,
+            getByTestId,
             props: { schema, value },
         } = setup()
 
-        expect(queryByTestId(TEST_IDS.root)).toBeInTheDocument()
+        expect(getByTestId(TEST_IDS.root)).toBeInTheDocument()
 
         expect(console.warn).toHaveBeenCalledWith(MESSAGE, { schema, value })
     })

@@ -311,7 +311,7 @@ export function isNumberSchema(value: unknown): value is NumberSchema {
     )
 }
 
-export function isObject<T extends unknown>(value: unknown): value is T {
+export function isObject<T>(value: unknown): value is T {
     if (!isObjectLike(value) || objectToTag(value) !== '[object Object]') {
         return false
     }

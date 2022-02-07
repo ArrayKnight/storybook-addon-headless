@@ -12,8 +12,7 @@
         "plugin:@typescript-eslint/recommended-requiring-type-checking",
         "plugin:jest-dom/recommended",
         "plugin:prettier/recommended",
-        "plugin:testing-library/recommended",
-        "prettier/@typescript-eslint"
+        "plugin:testing-library/react"
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {

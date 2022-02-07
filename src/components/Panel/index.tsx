@@ -163,7 +163,12 @@ export const Panel = memo(({ active }: Props) => {
 
             update(name, FetchStatus.Resolved, response, null)
         } catch (error) {
-            update(name, FetchStatus.Resolved, null, errorToJSON(error))
+            update(
+                name,
+                FetchStatus.Resolved,
+                null,
+                errorToJSON(error as Error),
+            )
         }
     }
 

@@ -14,8 +14,8 @@ describe('Loader', () => {
     }
 
     it('should render', () => {
-        const { queryByTestId } = setup()
+        const { getByTestId } = setup()
 
-        expect(queryByTestId(TEST_IDS.root)).toBeInTheDocument()
+        expect(getByTestId(TEST_IDS.root)).toBeInTheDocument()
     })
 })

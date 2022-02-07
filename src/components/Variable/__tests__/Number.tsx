@@ -42,19 +42,19 @@ describe('Number', () => {
     }
 
     it('should render', () => {
-        const { queryByTestId } = setup()
+        const { getByTestId } = setup()
 
-        expect(queryByTestId(TEST_IDS.root)).toBeInTheDocument()
+        expect(getByTestId(TEST_IDS.root)).toBeInTheDocument()
     })
 
     it('should render error when invalid', () => {
         const error = 'Error message'
-        const { getByTestId, queryByTestId } = setup({
+        const { getByTestId } = setup({
             isValid: false,
             error,
         })
 
-        expect(queryByTestId(TEST_IDS.error)).toBeInTheDocument()
+        expect(getByTestId(TEST_IDS.error)).toBeInTheDocument()
         expect(getNodeText(getByTestId(TEST_IDS.error))).toEqual(error)
     })
 

@@ -32,10 +32,10 @@ export const Variable = memo(
             [VariableType.String]: StringInput,
             [VariableType.Unknown]: UnknownInput,
         }[type]
-        const change = useCallback((value: unknown) => onChange(name, value), [
-            name,
-            onChange,
-        ])
+        const change = useCallback(
+            (value: unknown) => onChange(name, value),
+            [name, onChange],
+        )
 
         /* eslint-disable */
         return (

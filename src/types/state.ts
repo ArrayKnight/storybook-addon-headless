@@ -21,7 +21,7 @@ export enum VariableType {
 }
 
 export interface HeadlessState<
-    T extends Record<string, unknown> = Record<string, unknown>
+    T extends Record<string, unknown> = Record<string, unknown>,
 > {
     storyId: string
     options: Required<HeadlessOptions>
@@ -40,5 +40,5 @@ export interface VariableState {
 }
 
 export type HeadlessStoryContext<
-    T extends Record<string, unknown> = Record<string, unknown>
+    T extends Record<string, unknown> = Record<string, unknown>,
 > = StoryContext & Pick<HeadlessState<T>, 'status' | 'data' | 'errors'>

@@ -13,18 +13,16 @@ export const TEST_IDS = Object.freeze({
     root: 'LoaderRoot',
 })
 
-export const Loader = memo(
-    (): ReactElement => {
-        const theme = convert(themes.normal)
+export const Loader = memo((): ReactElement => {
+    const theme = convert(themes.normal)
 
-        return (
-            <ThemeProvider theme={theme}>
-                <Global styles={createReset(theme)} />
-                <LoaderBase data-testid={TEST_IDS.root} />
-            </ThemeProvider>
-        )
-    },
-)
+    return (
+        <ThemeProvider theme={theme}>
+            <Global styles={createReset(theme)} />
+            <LoaderBase data-testid={TEST_IDS.root} />
+        </ThemeProvider>
+    )
+})
 
 Loader.displayName = 'Loader'
 

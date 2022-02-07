@@ -21,9 +21,10 @@ export const TEST_IDS = Object.freeze({
 
 export const SelectInput = memo(
     ({ schema, value, error, isValid, onChange }: Props) => {
-        const items = useMemo(() => schema.enum.map(convertToItem), [
-            schema.enum,
-        ])
+        const items = useMemo(
+            () => schema.enum.map(convertToItem),
+            [schema.enum],
+        )
         const selected = !isUndefined(value)
             ? items.find((item) => item.value === value)
             : value

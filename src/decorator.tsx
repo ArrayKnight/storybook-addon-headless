@@ -4,7 +4,7 @@ import {
     makeDecorator,
     OptionsParameter,
     StoryContext,
-    StoryGetter,
+    LegacyStoryFn,
     WrapperSettings,
 } from '@storybook/addons'
 import { Channel } from '@storybook/channels'
@@ -30,10 +30,10 @@ interface Props {
     context: StoryContext
     options: HeadlessOptions & OptionsParameter
     parameters: HeadlessParameters
-    storyFn: (context: StoryContext) => ReactElement
+    storyFn: LegacyStoryFn
 }
 
-export function createFilteredRecord<T extends unknown>(
+export function createFilteredRecord<T>(
     keys: string[],
     values: Record<string, T>,
     defaultValue: T,
@@ -75,14 +75,14 @@ export const Decorator = memo(
             return () => channel.off(EVENT_DATA_UPDATED, update)
         })
 
-        return connected ? storyFn(ctx) : null
+        return connected ? (storyFn(ctx) as ReactElement) : null
     },
 )
 
 Decorator.displayName = 'Decorator'
 
 export function Wrapper(
-    storyFn: StoryGetter,
+    storyFn: LegacyStoryFn,
     context: StoryContext,
     { options, parameters = {} }: WrapperSettings,
 ): ReactElement {
