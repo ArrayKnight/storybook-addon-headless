@@ -22,7 +22,7 @@ module.exports = {
         'jest-expect-message',
         'jest-mock-console/dist/setupTestFramework.js',
     ],
-    testEnvironment: 'jest-environment-jsdom-fourteen',
+    testEnvironment: 'jest-environment-jsdom',
     testURL: 'http://localhost',
     transform: {
         '^.+\\.tsx?$': 'ts-jest',

@@ -1,5 +1,5 @@
 import { Form, Icons } from '@storybook/components'
-import { InputStyleProps } from '@storybook/components/dist/form/input/input'
+import { InputStyleProps } from '@storybook/components/dist/ts3.9/form/input/input'
 import { ThemeProvider } from '@storybook/theming'
 import { useCombobox } from 'downshift'
 import React, { memo, useState } from 'react'

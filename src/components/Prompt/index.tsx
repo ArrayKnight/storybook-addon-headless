@@ -25,51 +25,38 @@ export const TEST_IDS = Object.freeze({
     button: 'PromptButton',
 })
 
-export const Prompt = memo(
-    ({
-        headline = <h2>Something is missing...</h2>,
-        message = (
-            <p>
-                This component story relies on data fetched from an API. Head
-                over to the {PANEL_TITLE} tab to configure and execute the API
-                call. Once the data has been fetched, head on back here and the
-                component story should be rendered.
-            </p>
-        ),
-    }: Props): ReactElement => {
-        const theme = convert(themes.normal)
+export const Prompt = memo(({ headline = <h2>
+            Something is missing...
+        </h2>, message = <p>
+            This component story relies on data fetched from an API. Head over to the {PANEL_TITLE} tab to configure and execute the API call. Once the data has been fetched, head on back here and the component story should be rendered.
+        </p> }: Props): ReactElement => {
+    const theme = convert(themes.normal)
 
-        function emit(): void {
-            addons.getChannel().emit(EVENT_REQUESTED_ADDON)
-        }
+    function emit(): void {
+        addons.getChannel().emit(EVENT_REQUESTED_ADDON)
+    }
 
-        return (
-            <ThemeProvider theme={theme}>
-                <Global styles={createReset(theme)} />
-                <Global styles={`body {padding: 0 !important;}`} />
-                <Root data-testid={TEST_IDS.root}>
-                    <Content>
-                        {headline && (
-                            <div data-testid={TEST_IDS.headline}>
-                                {headline}
-                            </div>
-                        )}
-                        {message && (
-                            <div data-testid={TEST_IDS.message}>{message}</div>
-                        )}
-                        <Form.Button
-                            onClick={emit}
-                            data-testid={TEST_IDS.button}
-                        >
-                            <span>Continue</span>
-                            <Icons icon="arrowright" />
-                        </Form.Button>
-                    </Content>
-                </Root>
-            </ThemeProvider>
-        )
-    },
-)
+    return (
+        <ThemeProvider theme={theme}>
+            <Global styles={createReset(theme)} />
+            <Global styles={`body {padding: 0 !important;}`} />
+            <Root data-testid={TEST_IDS.root}>
+                <Content>
+                    {headline && (
+                        <div data-testid={TEST_IDS.headline}>{headline}</div>
+                    )}
+                    {message && (
+                        <div data-testid={TEST_IDS.message}>{message}</div>
+                    )}
+                    <Form.Button onClick={emit} data-testid={TEST_IDS.button}>
+                        <span>Continue</span>
+                        <Icons icon="arrowright" />
+                    </Form.Button>
+                </Content>
+            </Root>
+        </ThemeProvider>
+    )
+})
 
 Prompt.displayName = 'Prompt'
 

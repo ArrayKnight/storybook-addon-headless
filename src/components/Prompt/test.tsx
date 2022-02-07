@@ -33,19 +33,19 @@ describe('Prompt', () => {
     }
 
     it('should render', () => {
-        const { queryByTestId } = setup()
+        const { getByTestId } = setup()
 
-        expect(queryByTestId(TEST_IDS.root)).toBeInTheDocument()
-        expect(queryByTestId(TEST_IDS.headline)).toBeInTheDocument()
-        expect(queryByTestId(TEST_IDS.message)).toBeInTheDocument()
+        expect(getByTestId(TEST_IDS.root)).toBeInTheDocument()
+        expect(getByTestId(TEST_IDS.headline)).toBeInTheDocument()
+        expect(getByTestId(TEST_IDS.message)).toBeInTheDocument()
     })
 
     it('should render a custom headline', () => {
-        const { queryByTestId, rerender } = setup({
+        const { getByTestId, queryByTestId, rerender } = setup({
             headline: <h1 data-testid={testId}>My Custom Headline</h1>,
         })
 
-        expect(queryByTestId(testId)).toBeInTheDocument()
+        expect(getByTestId(testId)).toBeInTheDocument()
 
         rerender(<Prompt headline={null} />)
 
@@ -54,11 +54,11 @@ describe('Prompt', () => {
     })
 
     it('should render a custom message', () => {
-        const { queryByTestId, rerender } = setup({
+        const { getByTestId, queryByTestId, rerender } = setup({
             message: <p data-testid={testId}>My custom message</p>,
         })
 
-        expect(queryByTestId(testId)).toBeInTheDocument()
+        expect(getByTestId(testId)).toBeInTheDocument()
 
         rerender(<Prompt message={null} />)
 

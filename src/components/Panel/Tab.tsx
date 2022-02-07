@@ -52,10 +52,8 @@ export const Tab = memo(
                     : parameter,
             [parameter],
         )
-        const [
-            Json,
-            setJson,
-        ] = useState<ComponentType<ReactJsonViewProps> | null>(null)
+        const [Json, setJson] =
+            useState<ComponentType<ReactJsonViewProps> | null>(null)
         const hasData = !!data
         const hasError = !!error
 
